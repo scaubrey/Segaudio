@@ -34,7 +34,8 @@
     Describe your class and how it works here!
                                                                     //[/Comments]
 */
-class AudioSourceSelector  : public Component
+class AudioSourceSelector  : public Component,
+                             public ButtonListener
 {
 public:
     //==============================================================================
@@ -43,13 +44,17 @@ public:
 
     //==============================================================================
     //[UserMethods]     -- You can add your own custom methods in this section.
-    void setSource(const File &referenceFile);
-    void drawSelectedRegion(int startX, int width);
+    void setSelectedRegion(int startX, int width);
     void getAudioSelection();
+
+    bool isFileLoaded();
+
+    void setDraggable(bool isDraggable);
     //[/UserMethods]
 
     void paint (Graphics& g);
     void resized();
+    void buttonClicked (Button* buttonThatWasClicked);
     void visibilityChanged();
     void mouseDrag (const MouseEvent& e);
 
@@ -58,16 +63,27 @@ public:
 private:
     //[UserVariables]   -- You can add your own custom variables in this section.
     AudioThumbnail *thumbComponent;
-    
+
     DrawableRectangle regionOverlay;
-    
+
     bool hasRegionSelected;
+    bool hasFileLoaded;
+
     int regionStartFraction;
     int regionEndFraction;
+
+
+    bool isDraggable;
 
     //[/UserVariables]
 
     //==============================================================================
+    ScopedPointer<TextButton> playButton;
+    ScopedPointer<TextButton> stopButton;
+    ScopedPointer<TextButton> playSelectionButton;
+    ScopedPointer<TextButton> loadFileButton;
+    ScopedPointer<TextButton> clearSelectionButton;
+    ScopedPointer<TextButton> analyzeSelectionButton;
 
 
     //==============================================================================

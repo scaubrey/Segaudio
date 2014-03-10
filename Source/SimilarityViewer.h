@@ -17,14 +17,11 @@
   ==============================================================================
 */
 
-#ifndef __JUCE_HEADER_9002020A4DD09B20__
-#define __JUCE_HEADER_9002020A4DD09B20__
+#ifndef __JUCE_HEADER_685B8D664892D24A__
+#define __JUCE_HEADER_685B8D664892D24A__
 
 //[Headers]     -- You can add your own extra header files here --
 #include "JuceHeader.h"
-#include "AudioSourceSelector.h"
-#include "CustomFileFilter.h"
-#include "SimilarityViewer.h"
 //[/Headers]
 
 
@@ -37,12 +34,13 @@
     Describe your class and how it works here!
                                                                     //[/Comments]
 */
-class MainComponent  : public Component
+class SimilarityViewer  : public Component,
+                          public SliderListener
 {
 public:
     //==============================================================================
-    MainComponent (AudioFormatManager &appFormatManager, AudioThumbnailCache &appThumbCache);
-    ~MainComponent();
+    SimilarityViewer ();
+    ~SimilarityViewer();
 
     //==============================================================================
     //[UserMethods]     -- You can add your own custom methods in this section.
@@ -50,24 +48,27 @@ public:
 
     void paint (Graphics& g);
     void resized();
+    void sliderValueChanged (Slider* sliderThatWasMoved);
 
 
 
 private:
     //[UserVariables]   -- You can add your own custom variables in this section.
+
+    AudioThumbnail *thumbComponent;
+
     //[/UserVariables]
 
     //==============================================================================
-    ScopedPointer<AudioSourceSelector> audioSrcSelector;
-    ScopedPointer<SimilarityViewer> similarityViewer;
-    ScopedPointer<AudioSourceSelector> targetFileSelector;
+    ScopedPointer<Slider> slider;
+    ScopedPointer<Label> label;
 
 
     //==============================================================================
-    JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (MainComponent)
+    JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (SimilarityViewer)
 };
 
 //[EndFile] You can add extra defines here...
 //[/EndFile]
 
-#endif   // __JUCE_HEADER_9002020A4DD09B20__
+#endif   // __JUCE_HEADER_685B8D664892D24A__
