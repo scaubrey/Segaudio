@@ -22,6 +22,7 @@
 
 //[Headers]     -- You can add your own extra header files here --
 #include "JuceHeader.h"
+#include "AudioAnalysisController.h"
 //[/Headers]
 
 
@@ -35,33 +36,54 @@
                                                                     //[/Comments]
 */
 class SimilarityViewer  : public Component,
-                          public SliderListener
+                          public ActionBroadcaster,
+                          public SliderListener,
+                          public ButtonListener
 {
 public:
     //==============================================================================
-    SimilarityViewer ();
+    SimilarityViewer (AudioAnalysisController &analysisController);
     ~SimilarityViewer();
 
     //==============================================================================
     //[UserMethods]     -- You can add your own custom methods in this section.
+    void setDistanceArray(Array<float> newArray);
+    void drawThreshold(Graphics &g);
+    void drawSimilarityFunction(Graphics &g);
+
+    void setReadyToCompare(bool ready);
     //[/UserMethods]
 
     void paint (Graphics& g);
     void resized();
     void sliderValueChanged (Slider* sliderThatWasMoved);
+    void buttonClicked (Button* buttonThatWasClicked);
 
 
 
 private:
     //[UserVariables]   -- You can add your own custom variables in this section.
 
-    AudioThumbnail *thumbComponent;
+//    AudioThumbnail *thumbComponent;
+
+    Array<float> distanceArray;
+
+    bool readyToCompare;
+    AudioAnalysisController analysisController;
+
+    float threshold;
 
     //[/UserVariables]
 
     //==============================================================================
+    ScopedPointer<Component> simControlsContainer;
     ScopedPointer<Slider> slider;
     ScopedPointer<Label> label;
+    ScopedPointer<TextButton> calcSimButton;
+    ScopedPointer<ToggleButton> rmsFeatureToggle;
+    ScopedPointer<ToggleButton> sfFeatureToggle;
+    ScopedPointer<Component> graphContainer;
+    ScopedPointer<ToggleButton> mfccFeatureToggle;
 
 
     //==============================================================================

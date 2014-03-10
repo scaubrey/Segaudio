@@ -22,6 +22,8 @@
 
 //[Headers]     -- You can add your own extra header files here --
 #include "JuceHeader.h"
+#include "AudioAnalysisController.h"
+
 //[/Headers]
 
 
@@ -35,11 +37,12 @@
                                                                     //[/Comments]
 */
 class AudioSourceSelector  : public Component,
+                             public ActionBroadcaster,
                              public ButtonListener
 {
 public:
     //==============================================================================
-    AudioSourceSelector (AudioFormatManager &appFormatManager, AudioThumbnailCache &appThumbCache);
+    AudioSourceSelector (AudioFormatManager &appFormatManager, AudioThumbnailCache &appThumbCache, AudioAnalysisController &analysisController);
     ~AudioSourceSelector();
 
     //==============================================================================
@@ -47,7 +50,7 @@ public:
     void setSelectedRegion(int startX, int width);
     void getAudioSelection();
 
-    bool isFileLoaded();
+    bool hasFileLoaded();
 
     void setDraggable(bool isDraggable);
     //[/UserMethods]
@@ -56,6 +59,7 @@ public:
     void resized();
     void buttonClicked (Button* buttonThatWasClicked);
     void visibilityChanged();
+    void mouseDown (const MouseEvent& e);
     void mouseDrag (const MouseEvent& e);
 
 
@@ -67,13 +71,15 @@ private:
     DrawableRectangle regionOverlay;
 
     bool hasRegionSelected;
-    bool hasFileLoaded;
+    bool fileLoaded;
 
     int regionStartFraction;
     int regionEndFraction;
 
-
+    AudioFormatManager &appFormatManager;
     bool isDraggable;
+
+    AudioAnalysisController analysisController;
 
     //[/UserVariables]
 
@@ -83,7 +89,6 @@ private:
     ScopedPointer<TextButton> playSelectionButton;
     ScopedPointer<TextButton> loadFileButton;
     ScopedPointer<TextButton> clearSelectionButton;
-    ScopedPointer<TextButton> analyzeSelectionButton;
 
 
     //==============================================================================

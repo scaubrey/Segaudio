@@ -28,15 +28,15 @@
 //[/MiscUserDefs]
 
 //==============================================================================
-MainComponent::MainComponent (AudioFormatManager &appFormatManager, AudioThumbnailCache &appThumbCache)
+MainComponent::MainComponent (AudioFormatManager &appFormatManager, AudioThumbnailCache &appThumbCache, AudioAnalysisController &analysisController)
 {
-    addAndMakeVisible (audioSrcSelector = new AudioSourceSelector (appFormatManager, appThumbCache));
+    addAndMakeVisible (audioSrcSelector = new AudioSourceSelector (appFormatManager, appThumbCache, analysisController));
     audioSrcSelector->setName ("audioSrcSelector");
 
-    addAndMakeVisible (similarityViewer = new SimilarityViewer (appThumbCache));
+    addAndMakeVisible (similarityViewer = new SimilarityViewer (analysisController));
     similarityViewer->setName ("similarityViewer");
 
-    addAndMakeVisible (targetFileSelector = new AudioSourceSelector (appFormatManager, appThumbCache));
+    addAndMakeVisible (targetFileSelector = new AudioSourceSelector (appFormatManager, appThumbCache, analysisController));
     targetFileSelector->setName ("targetFileSelector");
 
 
@@ -48,6 +48,11 @@ MainComponent::MainComponent (AudioFormatManager &appFormatManager, AudioThumbna
 
     //[Constructor] You can add your own custom stuff here..
     targetFileSelector->setDraggable(false);
+
+    audioSrcSelector->addActionListener(this);
+    targetFileSelector->addActionListener(this);
+    similarityViewer->addActionListener(this);
+
     //[/Constructor]
 }
 
@@ -80,8 +85,8 @@ void MainComponent::paint (Graphics& g)
 void MainComponent::resized()
 {
     audioSrcSelector->setBounds (0, 0, proportionOfWidth (1.0000f), 200);
-    similarityViewer->setBounds (0, getHeight() - 300, proportionOfWidth (1.0000f), 300);
-    targetFileSelector->setBounds (0, 232, proportionOfWidth (1.0000f), 200);
+    similarityViewer->setBounds (0, getHeight() - 400, proportionOfWidth (1.0000f), 400);
+    targetFileSelector->setBounds (0, 208, proportionOfWidth (1.0000f), 200);
     //[UserResized] Add your own custom resize handling here..
     //[/UserResized]
 }
@@ -89,6 +94,17 @@ void MainComponent::resized()
 
 
 //[MiscUserCode] You can add your own definitions of your custom methods or any other code here...
+void MainComponent::actionListenerCallback(const juce::String &message){
+
+    if(message == "srcRegionSelected" and audioSrcSelector->hasFileLoaded() and targetFileSelector->hasFileLoaded()){
+
+        similarityViewer->setReadyToCompare(true);
+    }
+    else if(message == "srcRegionCleared"){
+        similarityViewer->setReadyToCompare(false);
+    }
+
+}
 //[/MiscUserCode]
 
 
@@ -102,19 +118,19 @@ void MainComponent::resized()
 BEGIN_JUCER_METADATA
 
 <JUCER_COMPONENT documentType="Component" className="MainComponent" componentName=""
-                 parentClasses="public Component" constructorParams="AudioFormatManager &amp;appFormatManager, AudioThumbnailCache &amp;appThumbCache"
+                 parentClasses="public Component, public ActionListener" constructorParams="AudioFormatManager &amp;appFormatManager, AudioThumbnailCache &amp;appThumbCache, AudioAnalysisController &amp;analysisController"
                  variableInitialisers="" snapPixels="8" snapActive="1" snapShown="1"
                  overlayOpacity="0.330" fixedSize="0" initialWidth="1000" initialHeight="600">
   <BACKGROUND backgroundColour="ff6f6f6f"/>
   <GENERICCOMPONENT name="audioSrcSelector" id="6129c3aa019f4bba" memberName="audioSrcSelector"
                     virtualName="" explicitFocusOrder="0" pos="0 0 100% 200" class="AudioSourceSelector"
-                    params="appFormatManager, appThumbCache"/>
+                    params="appFormatManager, appThumbCache, analysisController"/>
   <GENERICCOMPONENT name="similarityViewer" id="95cef1a3b684967d" memberName="similarityViewer"
-                    virtualName="" explicitFocusOrder="0" pos="0 0Rr 100% 300" class="SimilarityViewer"
-                    params="appThumbCache"/>
+                    virtualName="" explicitFocusOrder="0" pos="0 0Rr 100% 400" class="SimilarityViewer"
+                    params="analysisController"/>
   <GENERICCOMPONENT name="targetFileSelector" id="7f10809d3b4712d6" memberName="targetFileSelector"
-                    virtualName="" explicitFocusOrder="0" pos="0 232 100% 200" class="AudioSourceSelector"
-                    params="appFormatManager, appThumbCache"/>
+                    virtualName="" explicitFocusOrder="0" pos="0 208 100% 200" class="AudioSourceSelector"
+                    params="appFormatManager, appThumbCache, analysisController"/>
 </JUCER_COMPONENT>
 
 END_JUCER_METADATA

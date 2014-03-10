@@ -25,6 +25,7 @@
 #include "AudioSourceSelector.h"
 #include "CustomFileFilter.h"
 #include "SimilarityViewer.h"
+#include "AudioAnalysisController.h"
 //[/Headers]
 
 
@@ -37,15 +38,17 @@
     Describe your class and how it works here!
                                                                     //[/Comments]
 */
-class MainComponent  : public Component
+class MainComponent  : public Component,
+                       public ActionListener
 {
 public:
     //==============================================================================
-    MainComponent (AudioFormatManager &appFormatManager, AudioThumbnailCache &appThumbCache);
+    MainComponent (AudioFormatManager &appFormatManager, AudioThumbnailCache &appThumbCache, AudioAnalysisController &analysisController);
     ~MainComponent();
 
     //==============================================================================
     //[UserMethods]     -- You can add your own custom methods in this section.
+    virtual void actionListenerCallback(const String &message);
     //[/UserMethods]
 
     void paint (Graphics& g);

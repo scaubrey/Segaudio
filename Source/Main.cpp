@@ -10,6 +10,7 @@
 
 #include "../JuceLibraryCode/JuceHeader.h"
 #include "MainComponent.h"
+#include "AudioAnalysisController.h"
 
 
 //==============================================================================
@@ -69,7 +70,9 @@ public:
             
             appThumbCache = new AudioThumbnailCache(3);  // store 3 thumbnails
             
-            setContentOwned (new MainComponent(*appFormatManager, *appThumbCache), true);
+            analysisController = new AudioAnalysisController;
+            
+            setContentOwned (new MainComponent(*appFormatManager, *appThumbCache, *analysisController), true);
 
             maximiseButtonPressed();
             setVisible (true);
@@ -83,6 +86,8 @@ public:
             appFormatManager = nullptr;
             appThumbCache = nullptr;
             
+            analysisController = nullptr;
+            
             JUCEApplication::getInstance()->systemRequestedQuit();
         }
 
@@ -95,6 +100,8 @@ public:
 
     private:
         JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (MainWindow)
+        
+        AudioAnalysisController* analysisController;
         
         AudioFormatManager* appFormatManager;
         AudioThumbnailCache* appThumbCache;

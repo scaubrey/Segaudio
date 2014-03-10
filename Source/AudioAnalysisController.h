@@ -13,19 +13,37 @@
 
 #include "JuceHeader.h"
 
-class AudioAnalysisController {
+class AudioAnalysisController : public ActionListener
+{
     
 public:
     
     AudioAnalysisController();
     ~AudioAnalysisController();
     
-    void setAudioSource(Array<float>);
-
+    void setReferenceAudioReader(AudioFormatReader* incomingReader);
+    void setTargetAudioReader(AudioFormatReader* incomingReader);
+    bool isReady();
+    
+    Array<float> calculateDistances();
+    Array<float> calculateFeatureVector();
+    
+    float calculateBlockRMS(AudioSampleBuffer &block);
+    
+    virtual void actionListenerCallback(const String &message);
     
 private:
     
-    Array<float> audioSource;
+    AudioFormatReader* referenceAudioReader;
+    AudioFormatReader* targetAudioReader;
+    
+    AudioSampleBuffer* refBuffer;
+    AudioSampleBuffer* targetBuffer;
+    
+    Array<float> refFeatures;
+    Array<float> targetFeatures;
+    
+    int windowSize;
     
     
 };
