@@ -1,0 +1,74 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<JUCERPROJECT id="kEHgJu" name="Segaudio" projectType="guiapp" version="1.0.0"
+              bundleIdentifier="com.yourcompany.Segaudio" includeBinaryInAppConfig="1"
+              jucerVersion="3.1.0">
+  <MAINGROUP id="yLeq7g" name="Segaudio">
+    <GROUP id="{30BE25F1-652B-2A8D-7603-E6BEA8B13AFF}" name="app">
+      <GROUP id="{C5C62F68-9E6E-E521-8E36-5496D314F7EE}" name="models"/>
+      <GROUP id="{4705A56B-21D3-08EE-0B31-B6449CEF88B0}" name="controllers">
+        <FILE id="wiburq" name="Main.cpp" compile="1" resource="0" file="Source/Main.cpp"/>
+      </GROUP>
+      <GROUP id="{32AAFCA1-D877-3AA5-88CF-287792B39124}" name="views">
+        <GROUP id="{0F248C80-F4F9-45CD-78AD-B6D95B3D76AF}" name="headers">
+          <FILE id="nv4TCP" name="SegaudioFilePreviewComponent.h" compile="1"
+                resource="0" file="Source/SegaudioFilePreviewComponent.h"/>
+          <FILE id="OPIAQN" name="AudioSourceSelector.h" compile="1" resource="0"
+                file="Source/AudioSourceSelector.h"/>
+          <FILE id="mIExSA" name="CustomFileFilter.h" compile="1" resource="0"
+                file="../../MUSI-6201_Computational_Music_Analysis-Lerch/Final_Project_fLoop/fLoop_new/fLoop/Source/CustomFileFilter.h"/>
+          <FILE id="gFds8c" name="MainComponent.h" compile="1" resource="0" file="Source/MainComponent.h"/>
+        </GROUP>
+        <GROUP id="{AE44C34A-7385-8723-B602-7C2EA6D4ABB6}" name="source">
+          <FILE id="BUfcdJ" name="AudioSourceSelector.cpp" compile="1" resource="0"
+                file="Source/AudioSourceSelector.cpp"/>
+          <FILE id="ztnqgu" name="MainComponent.cpp" compile="1" resource="0"
+                file="Source/MainComponent.cpp"/>
+        </GROUP>
+      </GROUP>
+    </GROUP>
+  </MAINGROUP>
+  <EXPORTFORMATS>
+    <XCODE_MAC targetFolder="Builds/MacOSX">
+      <CONFIGURATIONS>
+        <CONFIGURATION name="Debug" osxSDK="default" osxCompatibility="default" osxArchitecture="default"
+                       isDebug="1" optimisation="1" targetName="Segaudio"/>
+        <CONFIGURATION name="Release" osxSDK="default" osxCompatibility="default" osxArchitecture="default"
+                       isDebug="0" optimisation="2" targetName="Segaudio"/>
+      </CONFIGURATIONS>
+      <MODULEPATHS>
+        <MODULEPATH id="juce_core" path="../ProjectTemplate/3rdPartyLibs/JUCE/modules"/>
+        <MODULEPATH id="juce_events" path="../ProjectTemplate/3rdPartyLibs/JUCE/modules"/>
+        <MODULEPATH id="juce_graphics" path="../ProjectTemplate/3rdPartyLibs/JUCE/modules"/>
+        <MODULEPATH id="juce_data_structures" path="../ProjectTemplate/3rdPartyLibs/JUCE/modules"/>
+        <MODULEPATH id="juce_gui_basics" path="../ProjectTemplate/3rdPartyLibs/JUCE/modules"/>
+        <MODULEPATH id="juce_gui_extra" path="../ProjectTemplate/3rdPartyLibs/JUCE/modules"/>
+        <MODULEPATH id="juce_cryptography" path="../ProjectTemplate/3rdPartyLibs/JUCE/modules"/>
+        <MODULEPATH id="juce_video" path="../ProjectTemplate/3rdPartyLibs/JUCE/modules"/>
+        <MODULEPATH id="juce_opengl" path="../ProjectTemplate/3rdPartyLibs/JUCE/modules"/>
+        <MODULEPATH id="juce_audio_basics" path="../ProjectTemplate/3rdPartyLibs/JUCE/modules"/>
+        <MODULEPATH id="juce_audio_devices" path="../ProjectTemplate/3rdPartyLibs/JUCE/modules"/>
+        <MODULEPATH id="juce_audio_formats" path="../ProjectTemplate/3rdPartyLibs/JUCE/modules"/>
+        <MODULEPATH id="juce_audio_processors" path="../ProjectTemplate/3rdPartyLibs/JUCE/modules"/>
+        <MODULEPATH id="juce_audio_utils" path="../ProjectTemplate/3rdPartyLibs/JUCE/modules"/>
+      </MODULEPATHS>
+    </XCODE_MAC>
+  </EXPORTFORMATS>
+  <MODULES>
+    <MODULES id="juce_audio_basics" showAllCode="1" useLocalCopy="1"/>
+    <MODULES id="juce_audio_devices" showAllCode="1" useLocalCopy="1"/>
+    <MODULES id="juce_audio_formats" showAllCode="1" useLocalCopy="1"/>
+    <MODULES id="juce_audio_processors" showAllCode="1" useLocalCopy="1"/>
+    <MODULES id="juce_audio_utils" showAllCode="1" useLocalCopy="1"/>
+    <MODULES id="juce_core" showAllCode="1" useLocalCopy="1"/>
+    <MODULES id="juce_cryptography" showAllCode="1" useLocalCopy="1"/>
+    <MODULES id="juce_data_structures" showAllCode="1" useLocalCopy="1"/>
+    <MODULES id="juce_events" showAllCode="1" useLocalCopy="1"/>
+    <MODULES id="juce_graphics" showAllCode="1" useLocalCopy="1"/>
+    <MODULES id="juce_gui_basics" showAllCode="1" useLocalCopy="1"/>
+    <MODULES id="juce_gui_extra" showAllCode="1" useLocalCopy="1"/>
+    <MODULES id="juce_opengl" showAllCode="1" useLocalCopy="1"/>
+    <MODULES id="juce_video" showAllCode="1" useLocalCopy="1"/>
+  </MODULES>
+  <JUCEOPTIONS/>
+</JUCERPROJECT>
