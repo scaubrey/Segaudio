@@ -95,6 +95,25 @@ SimilarityViewer::SimilarityViewer ()
     smoothnessLabel->setColour (TextEditor::textColourId, Colours::black);
     smoothnessLabel->setColour (TextEditor::backgroundColourId, Colour (0x00000000));
 
+    addAndMakeVisible (presetComboBox = new ComboBox ("presetComboBox"));
+    presetComboBox->setEditableText (false);
+    presetComboBox->setJustificationType (Justification::centredLeft);
+    presetComboBox->setTextWhenNothingSelected (TRANS("None"));
+    presetComboBox->setTextWhenNoChoicesAvailable (String::empty);
+    presetComboBox->addItem (TRANS("Speech"), 1);
+    presetComboBox->addItem (TRANS("Music"), 2);
+    presetComboBox->addItem (TRANS("Noise"), 3);
+    presetComboBox->addItem (TRANS("Silence"), 4);
+    presetComboBox->addListener (this);
+
+    addAndMakeVisible (presetsLabel = new Label ("presetsLabel",
+                                                 TRANS("Presets")));
+    presetsLabel->setFont (Font (15.00f, Font::plain));
+    presetsLabel->setJustificationType (Justification::centredLeft);
+    presetsLabel->setEditable (false, false, false);
+    presetsLabel->setColour (TextEditor::textColourId, Colours::black);
+    presetsLabel->setColour (TextEditor::backgroundColourId, Colour (0x00000000));
+
 
     //[UserPreSize]
     //[/UserPreSize]
@@ -130,6 +149,8 @@ SimilarityViewer::~SimilarityViewer()
     stickynessLabel = nullptr;
     smoothnessSlider = nullptr;
     smoothnessLabel = nullptr;
+    presetComboBox = nullptr;
+    presetsLabel = nullptr;
 
 
     //[Destructor]. You can add your own custom destruction code here..
@@ -160,15 +181,17 @@ void SimilarityViewer::resized()
     simControlsContainer->setBounds (0, 0, proportionOfWidth (1.0000f), 100);
     thresholdSlider->setBounds (200, 40, 150, 24);
     thresholdLabel->setBounds (240, 16, 80, 24);
-    calcSimButton->setBounds (proportionOfWidth (0.0087f), 16, 150, 24);
-    rmsFeatureToggle->setBounds (getWidth() - 132, 16, 50, 24);
-    sfFeatureToggle->setBounds (getWidth() - 68, 16, 50, 24);
+    calcSimButton->setBounds (proportionOfWidth (0.0081f), 16, 150, 24);
+    rmsFeatureToggle->setBounds (getWidth() - 132, proportionOfHeight (0.0100f), 50, 24);
+    sfFeatureToggle->setBounds (getWidth() - 68, proportionOfHeight (0.0100f), 50, 24);
     graphContainer->setBounds (0, 100, proportionOfWidth (1.0000f), 300);
-    mfccFeatureToggle->setBounds (getWidth() - 188, 16, 50, 24);
+    mfccFeatureToggle->setBounds (getWidth() - 188, proportionOfHeight (0.0100f), 50, 24);
     stickynessSlider->setBounds (360, 40, 150, 24);
     stickynessLabel->setBounds (400, 16, 80, 24);
     smoothnessSlider->setBounds (512, 40, 150, 24);
     smoothnessLabel->setBounds (552, 16, 80, 24);
+    presetComboBox->setBounds (proportionOfWidth (0.8475f), proportionOfHeight (0.0596f), 100, 24);
+    presetsLabel->setBounds (proportionOfWidth (0.7730f), proportionOfHeight (0.0596f), 60, 24);
     //[UserResized] Add your own custom resize handling here..
     //[/UserResized]
 }
@@ -184,6 +207,7 @@ void SimilarityViewer::sliderValueChanged (Slider* sliderThatWasMoved)
         threshold = thresholdSlider->getValue();
 
         updateRegions();
+        repaint();
         //[/UserSliderCode_thresholdSlider]
     }
     else if (sliderThatWasMoved == stickynessSlider)
@@ -238,6 +262,21 @@ void SimilarityViewer::buttonClicked (Button* buttonThatWasClicked)
     //[/UserbuttonClicked_Post]
 }
 
+void SimilarityViewer::comboBoxChanged (ComboBox* comboBoxThatHasChanged)
+{
+    //[UsercomboBoxChanged_Pre]
+    //[/UsercomboBoxChanged_Pre]
+
+    if (comboBoxThatHasChanged == presetComboBox)
+    {
+        //[UserComboBoxCode_presetComboBox] -- add your combo box handling code here..
+        //[/UserComboBoxCode_presetComboBox]
+    }
+
+    //[UsercomboBoxChanged_Post]
+    //[/UsercomboBoxChanged_Post]
+}
+
 
 
 //[MiscUserCode] You can add your own definitions of your custom methods or any other code here...
@@ -245,6 +284,7 @@ void SimilarityViewer::setDistanceArray(Array<float> newArray, float newMaxDista
     distanceArray = newArray;
     filteredDistanceArray = distanceArray;
     maxDistance = newMaxDistance;
+    updateRegions();
     repaint();
 };
 
@@ -299,6 +339,8 @@ void SimilarityViewer::setReadyToCompare(bool ready){
     thresholdLabel->setVisible(ready);
     stickynessLabel->setVisible(ready);
     smoothnessLabel->setVisible(ready);
+    presetComboBox->setVisible(ready);
+    presetsLabel->setVisible(ready);
 }
 
 void SimilarityViewer::drawRegions(Graphics &g){
@@ -321,8 +363,6 @@ void SimilarityViewer::updateRegions(){
     regionCandidates = analysisController.getRegionsWithinThreshold(distanceArray, threshold * maxDistance, stickyness * 10);
 
     sendActionMessage("candidateRegionsUpdated");
-
-    repaint();
 }
 
 Array<AudioRegion> SimilarityViewer::getCandidateRegions(){
@@ -331,6 +371,22 @@ Array<AudioRegion> SimilarityViewer::getCandidateRegions(){
 
 void SimilarityViewer::updateSimilarityFunction(){
     filteredDistanceArray = analysisController.medianFilter(distanceArray, smoothness * 100);
+}
+
+void SimilarityViewer::updateComponent(){
+    updateSimilarityFunction();
+    updateRegions();
+    repaint();
+}
+
+void SimilarityViewer::clear(){
+
+    distanceArray.clear();
+    filteredDistanceArray.clear();
+
+    regionCandidates.clear();
+    sendActionMessage("candidateRegionsUpdated");
+    repaint();
 }
 
 //[/MiscUserCode]
@@ -363,21 +419,24 @@ BEGIN_JUCER_METADATA
          focusDiscardsChanges="0" fontname="Default font" fontsize="15"
          bold="0" italic="0" justification="33"/>
   <TEXTBUTTON name="calcSimButton" id="9ce3f6b1681a8658" memberName="calcSimButton"
-              virtualName="" explicitFocusOrder="0" pos="0.873% 16 150 24"
+              virtualName="" explicitFocusOrder="0" pos="0.815% 16 150 24"
               bgColOff="ff97fc74" buttonText="Compare" connectedEdges="0" needsCallback="1"
               radioGroupId="0"/>
   <TOGGLEBUTTON name="rmsFeatureToggle" id="92a1f05376de0623" memberName="rmsFeatureToggle"
-                virtualName="" explicitFocusOrder="0" pos="132R 16 50 24" buttonText="RMS"
-                connectedEdges="0" needsCallback="1" radioGroupId="0" state="1"/>
+                virtualName="" explicitFocusOrder="0" pos="132R 0.993% 50 24"
+                buttonText="RMS" connectedEdges="0" needsCallback="1" radioGroupId="0"
+                state="1"/>
   <TOGGLEBUTTON name="sfFeatureToggle" id="9eb603aec59d0a37" memberName="sfFeatureToggle"
-                virtualName="" explicitFocusOrder="0" pos="68R 16 50 24" buttonText="SF"
-                connectedEdges="0" needsCallback="1" radioGroupId="0" state="0"/>
+                virtualName="" explicitFocusOrder="0" pos="68R 0.993% 50 24"
+                buttonText="SF" connectedEdges="0" needsCallback="1" radioGroupId="0"
+                state="0"/>
   <GENERICCOMPONENT name="graphContainer" id="a6f81aed259b1d6e" memberName="graphContainer"
                     virtualName="" explicitFocusOrder="0" pos="0 100 100% 300" class="Component"
                     params=""/>
   <TOGGLEBUTTON name="mfccFeatureToggle" id="f946313658ff3956" memberName="mfccFeatureToggle"
-                virtualName="" explicitFocusOrder="0" pos="188R 16 50 24" buttonText="MFCC"
-                connectedEdges="0" needsCallback="1" radioGroupId="0" state="0"/>
+                virtualName="" explicitFocusOrder="0" pos="188R 0.993% 50 24"
+                buttonText="MFCC" connectedEdges="0" needsCallback="1" radioGroupId="0"
+                state="0"/>
   <SLIDER name="stickynessSlider" id="47ae86c160831f8" memberName="stickynessSlider"
           virtualName="" explicitFocusOrder="0" pos="360 40 150 24" min="0"
           max="1" int="0" style="LinearHorizontal" textBoxPos="TextBoxLeft"
@@ -396,6 +455,15 @@ BEGIN_JUCER_METADATA
          edBkgCol="0" labelText="Smoothness" editableSingleClick="0" editableDoubleClick="0"
          focusDiscardsChanges="0" fontname="Default font" fontsize="15"
          bold="0" italic="0" justification="33"/>
+  <COMBOBOX name="presetComboBox" id="2a56f7bafaec946f" memberName="presetComboBox"
+            virtualName="" explicitFocusOrder="0" pos="84.75% 5.955% 100 24"
+            editable="0" layout="33" items="Speech&#10;Music&#10;Noise&#10;Silence"
+            textWhenNonSelected="None" textWhenNoItems=""/>
+  <LABEL name="presetsLabel" id="555dd5c766efb7a1" memberName="presetsLabel"
+         virtualName="" explicitFocusOrder="0" pos="77.299% 5.955% 60 24"
+         edTextCol="ff000000" edBkgCol="0" labelText="Presets" editableSingleClick="0"
+         editableDoubleClick="0" focusDiscardsChanges="0" fontname="Default font"
+         fontsize="15" bold="0" italic="0" justification="33"/>
 </JUCER_COMPONENT>
 
 END_JUCER_METADATA

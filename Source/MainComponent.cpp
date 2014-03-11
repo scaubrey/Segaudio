@@ -85,9 +85,9 @@ void MainComponent::paint (Graphics& g)
 
 void MainComponent::resized()
 {
-    audioSrcSelector->setBounds (0, 0, proportionOfWidth (1.0000f), 200);
-    similarityViewer->setBounds (0, getHeight() - 450, proportionOfWidth (1.0000f), 450);
-    targetFileSelector->setBounds (0, 208, proportionOfWidth (1.0000f), 200);
+    audioSrcSelector->setBounds (0, 0, proportionOfWidth (1.0000f), proportionOfHeight (0.2500f));
+    similarityViewer->setBounds (0, getHeight() - proportionOfHeight (0.5000f), proportionOfWidth (1.0000f), proportionOfHeight (0.5000f));
+    targetFileSelector->setBounds (0, proportionOfHeight (0.2500f), proportionOfWidth (1.0000f), proportionOfHeight (0.2500f));
     //[UserResized] Add your own custom resize handling here..
     //[/UserResized]
 }
@@ -103,6 +103,7 @@ void MainComponent::actionListenerCallback(const juce::String &message){
     }
     else if(message == "srcRegionCleared"){
         similarityViewer->setReadyToCompare(false);
+        similarityViewer->clear();
     }
     else if(message == "calculateDistances"){
 
@@ -114,15 +115,22 @@ void MainComponent::actionListenerCallback(const juce::String &message){
         Array<float> distanceArray = analysisController.calculateDistances(srcFile, selectedRegion, targetFile);
 
         similarityViewer->setDistanceArray(distanceArray, analysisController.getLastMaxDistance());
+        updateTargetComponentRegions();
+//        similarityViewer->updateComponent();
     }
     else if(message == "candidateRegionsUpdated"){
-        Array<AudioRegion> candidateRegions = similarityViewer->getCandidateRegions();
-
-        targetFileSelector->setCandidateRegions(candidateRegions);
-        targetFileSelector->repaint();
-
+        updateTargetComponentRegions();
     }
 
+}
+
+void MainComponent::updateTargetComponentRegions(){
+    
+    Array<AudioRegion> candidateRegions = similarityViewer->getCandidateRegions();
+    
+    targetFileSelector->setCandidateRegions(candidateRegions);
+    targetFileSelector->repaint();
+    
 }
 //[/MiscUserCode]
 
@@ -143,14 +151,14 @@ BEGIN_JUCER_METADATA
                  fixedSize="0" initialWidth="1000" initialHeight="600">
   <BACKGROUND backgroundColour="ff6f6f6f"/>
   <GENERICCOMPONENT name="audioSrcSelector" id="6129c3aa019f4bba" memberName="audioSrcSelector"
-                    virtualName="" explicitFocusOrder="0" pos="0 0 100% 200" class="AudioSourceSelector"
-                    params=""/>
+                    virtualName="" explicitFocusOrder="0" pos="0 0 100% 25.062%"
+                    class="AudioSourceSelector" params=""/>
   <GENERICCOMPONENT name="similarityViewer" id="95cef1a3b684967d" memberName="similarityViewer"
-                    virtualName="" explicitFocusOrder="0" pos="0 0Rr 100% 450" class="SimilarityViewer"
+                    virtualName="" explicitFocusOrder="0" pos="0 0Rr 100% 50%" class="SimilarityViewer"
                     params=""/>
   <GENERICCOMPONENT name="targetFileSelector" id="7f10809d3b4712d6" memberName="targetFileSelector"
-                    virtualName="" explicitFocusOrder="0" pos="0 208 100% 200" class="AudioSourceSelector"
-                    params=""/>
+                    virtualName="" explicitFocusOrder="0" pos="0 25.062% 100% 25.062%"
+                    class="AudioSourceSelector" params=""/>
 </JUCER_COMPONENT>
 
 END_JUCER_METADATA

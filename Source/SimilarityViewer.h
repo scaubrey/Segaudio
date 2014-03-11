@@ -38,7 +38,8 @@
 class SimilarityViewer  : public Component,
                           public ActionBroadcaster,
                           public SliderListener,
-                          public ButtonListener
+                          public ButtonListener,
+                          public ComboBoxListener
 {
 public:
     //==============================================================================
@@ -60,8 +61,12 @@ public:
     void updateRegions();
 
     Array<AudioRegion> getCandidateRegions();
-    
+
     void updateSimilarityFunction();
+
+    void updateComponent();
+
+    void clear();
 
     //[/UserMethods]
 
@@ -69,17 +74,17 @@ public:
     void resized();
     void sliderValueChanged (Slider* sliderThatWasMoved);
     void buttonClicked (Button* buttonThatWasClicked);
+    void comboBoxChanged (ComboBox* comboBoxThatHasChanged);
 
 
 
 private:
     //[UserVariables]   -- You can add your own custom variables in this section.
 
-//    AudioThumbnail *thumbComponent;
 
     Array<float> distanceArray;
     Array<float> filteredDistanceArray;
-    
+
     float maxDistance;
 
     bool readyToCompare;
@@ -107,6 +112,8 @@ private:
     ScopedPointer<Label> stickynessLabel;
     ScopedPointer<Slider> smoothnessSlider;
     ScopedPointer<Label> smoothnessLabel;
+    ScopedPointer<ComboBox> presetComboBox;
+    ScopedPointer<Label> presetsLabel;
 
 
     //==============================================================================

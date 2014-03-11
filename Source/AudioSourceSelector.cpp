@@ -260,7 +260,7 @@ File AudioSourceSelector::getLoadedFile(){
 }
 
 void AudioSourceSelector::drawRegion(juce::Graphics &g){
-    g.setColour(Colours::black);
+    g.setColour(Colours::yellow);
 
     g.setOpacity(0.5);
     int x = regionOverlay.getStart(getWidth());
@@ -298,9 +298,9 @@ void AudioSourceSelector::setCandidateRegions(Array<AudioRegion> newCandidateReg
 }
 
 void AudioSourceSelector::drawCandidateRegions(juce::Graphics &g){
-    
-    g.setOpacity(0.9);
+
     g.setColour(Colours::black);
+    g.setOpacity(0.5);
     
     for(int i=0; i<candidateRegions.size(); i++){
         
