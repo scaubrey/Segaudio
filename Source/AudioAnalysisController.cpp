@@ -128,7 +128,7 @@ Array<float> AudioAnalysisController::calculateFeatureVector(AudioSampleBuffer* 
     
     int blockIdx;
     
-    for(int i=startBlock; i<endBlock; i++){
+    for(int i=startBlock; i<endBlock-1; i++){
         
         blockIdx = i * windowSize;
      
@@ -157,7 +157,6 @@ float AudioAnalysisController::calculateBlockRMS(AudioSampleBuffer &block){
     for(int j=0; j<block.getNumChannels(); j++){
         for(int i=0; i<block.getNumSamples(); i++){
 //            std::cout << channelArray[j][i] << std::endl;
-            
             runningTotal += powf(channelArray[j][i], 2);
         }
     }
@@ -180,6 +179,11 @@ float AudioAnalysisController::calculateMean(Array<float> values){
 
 float AudioAnalysisController::getLastMaxDistance(){
     return maxDistance;
+}
+
+Array<float> AudioAnalysisController::medianFilter(Array<float> distanceArray, int width){
+    // check that width is odd
+    // filter array
 }
 
 

@@ -53,6 +53,8 @@ public:
 
     void setReadyToCompare(bool ready);
     
+    void getAudioRegionsUnderThreshold();
+    
     //[/UserMethods]
 
     void paint (Graphics& g);

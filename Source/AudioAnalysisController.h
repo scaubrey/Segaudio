@@ -36,6 +36,8 @@ public:
     
     virtual void actionListenerCallback(const String &message);
     
+    Array<float> medianFilter(Array<float> distanceArray, int width);
+    
 private:
     
     AudioFormatManager* formatManager;

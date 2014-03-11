@@ -143,6 +143,8 @@ void SimilarityViewer::sliderValueChanged (Slider* sliderThatWasMoved)
     {
         //[UserSliderCode_slider] -- add your slider handling code here..
         threshold = slider->getValue();
+        
+        
 
         repaint();
         //[/UserSliderCode_slider]
@@ -225,9 +227,6 @@ void SimilarityViewer::drawSimilarityFunction(Graphics &g){
         
         
         currentRms = graphContainer->getY() + graphContainer->getHeight() - distanceArray[i] * yScale;
-        if(std::isnan(currentRms)){
-//            currentRms = 0;
-        }
 
         g.drawLine(lastXPixel, lastRms, currentXPixel, currentRms, 1.0f);
         
@@ -240,6 +239,10 @@ void SimilarityViewer::drawSimilarityFunction(Graphics &g){
 
 void SimilarityViewer::setReadyToCompare(bool ready){
     calcSimButton->setVisible(ready);
+}
+
+void SimilarityViewer::getAudioRegionsUnderThreshold(){
+    
 }
 
 
