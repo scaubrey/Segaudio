@@ -86,7 +86,7 @@ void MainComponent::paint (Graphics& g)
 void MainComponent::resized()
 {
     audioSrcSelector->setBounds (0, 0, proportionOfWidth (1.0000f), 200);
-    similarityViewer->setBounds (0, getHeight() - 400, proportionOfWidth (1.0000f), 400);
+    similarityViewer->setBounds (0, getHeight() - 450, proportionOfWidth (1.0000f), 450);
     targetFileSelector->setBounds (0, 208, proportionOfWidth (1.0000f), 200);
     //[UserResized] Add your own custom resize handling here..
     //[/UserResized]
@@ -108,19 +108,19 @@ void MainComponent::actionListenerCallback(const juce::String &message){
 
         File srcFile = audioSrcSelector->getLoadedFile();
         AudioRegion selectedRegion = audioSrcSelector->getSelectedRegion();
-        
+
         File targetFile = targetFileSelector->getLoadedFile();
 
         Array<float> distanceArray = analysisController.calculateDistances(srcFile, selectedRegion, targetFile);
-        
+
         similarityViewer->setDistanceArray(distanceArray, analysisController.getLastMaxDistance());
     }
     else if(message == "candidateRegionsUpdated"){
         Array<AudioRegion> candidateRegions = similarityViewer->getCandidateRegions();
-        
+
         targetFileSelector->setCandidateRegions(candidateRegions);
         targetFileSelector->repaint();
-        
+
     }
 
 }
@@ -146,7 +146,7 @@ BEGIN_JUCER_METADATA
                     virtualName="" explicitFocusOrder="0" pos="0 0 100% 200" class="AudioSourceSelector"
                     params=""/>
   <GENERICCOMPONENT name="similarityViewer" id="95cef1a3b684967d" memberName="similarityViewer"
-                    virtualName="" explicitFocusOrder="0" pos="0 0Rr 100% 400" class="SimilarityViewer"
+                    virtualName="" explicitFocusOrder="0" pos="0 0Rr 100% 450" class="SimilarityViewer"
                     params=""/>
   <GENERICCOMPONENT name="targetFileSelector" id="7f10809d3b4712d6" memberName="targetFileSelector"
                     virtualName="" explicitFocusOrder="0" pos="0 208 100% 200" class="AudioSourceSelector"

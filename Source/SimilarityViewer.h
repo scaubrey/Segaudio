@@ -83,6 +83,7 @@ private:
 
     float threshold;
     float stickyness;
+    float smoothness;
 
     Array<AudioRegion> regionCandidates;
 
@@ -100,6 +101,8 @@ private:
     ScopedPointer<ToggleButton> mfccFeatureToggle;
     ScopedPointer<Slider> stickynessSlider;
     ScopedPointer<Label> stickynessLabel;
+    ScopedPointer<Slider> smoothnessSlider;
+    ScopedPointer<Label> smoothnessLabel;
 
 
     //==============================================================================

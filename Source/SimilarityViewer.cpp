@@ -47,7 +47,7 @@ SimilarityViewer::SimilarityViewer ()
     label->setColour (TextEditor::backgroundColourId, Colour (0x00000000));
 
     addAndMakeVisible (calcSimButton = new TextButton ("calcSimButton"));
-    calcSimButton->setButtonText (TRANS("Calculate Similarity"));
+    calcSimButton->setButtonText (TRANS("Compare"));
     calcSimButton->addListener (this);
     calcSimButton->setColour (TextButton::buttonColourId, Colour (0xff97fc74));
 
@@ -80,6 +80,20 @@ SimilarityViewer::SimilarityViewer ()
     stickynessLabel->setEditable (false, false, false);
     stickynessLabel->setColour (TextEditor::textColourId, Colours::black);
     stickynessLabel->setColour (TextEditor::backgroundColourId, Colour (0x00000000));
+
+    addAndMakeVisible (smoothnessSlider = new Slider ("smoothnessSlider"));
+    smoothnessSlider->setRange (0, 1, 0);
+    smoothnessSlider->setSliderStyle (Slider::LinearHorizontal);
+    smoothnessSlider->setTextBoxStyle (Slider::TextBoxLeft, true, 40, 20);
+    smoothnessSlider->addListener (this);
+
+    addAndMakeVisible (smoothnessLabel = new Label ("smoothnessLabel",
+                                                    TRANS("Smoothness")));
+    smoothnessLabel->setFont (Font (15.00f, Font::plain));
+    smoothnessLabel->setJustificationType (Justification::centredLeft);
+    smoothnessLabel->setEditable (false, false, false);
+    smoothnessLabel->setColour (TextEditor::textColourId, Colours::black);
+    smoothnessLabel->setColour (TextEditor::backgroundColourId, Colour (0x00000000));
 
 
     //[UserPreSize]
@@ -114,6 +128,8 @@ SimilarityViewer::~SimilarityViewer()
     mfccFeatureToggle = nullptr;
     stickynessSlider = nullptr;
     stickynessLabel = nullptr;
+    smoothnessSlider = nullptr;
+    smoothnessLabel = nullptr;
 
 
     //[Destructor]. You can add your own custom destruction code here..
@@ -151,6 +167,8 @@ void SimilarityViewer::resized()
     mfccFeatureToggle->setBounds (getWidth() - 188, 16, 50, 24);
     stickynessSlider->setBounds (360, 40, 150, 24);
     stickynessLabel->setBounds (400, 16, 80, 24);
+    smoothnessSlider->setBounds (512, 40, 150, 24);
+    smoothnessLabel->setBounds (552, 16, 80, 24);
     //[UserResized] Add your own custom resize handling here..
     //[/UserResized]
 }
@@ -175,6 +193,14 @@ void SimilarityViewer::sliderValueChanged (Slider* sliderThatWasMoved)
 
         updateRegions();
         //[/UserSliderCode_stickynessSlider]
+    }
+    else if (sliderThatWasMoved == smoothnessSlider)
+    {
+        //[UserSliderCode_smoothnessSlider] -- add your slider handling code here..
+        smoothness = smoothnessSlider->getValue();
+        
+        
+        //[/UserSliderCode_smoothnessSlider]
     }
 
     //[UsersliderValueChanged_Post]
@@ -326,8 +352,8 @@ BEGIN_JUCER_METADATA
          bold="0" italic="0" justification="33"/>
   <TEXTBUTTON name="calcSimButton" id="9ce3f6b1681a8658" memberName="calcSimButton"
               virtualName="" explicitFocusOrder="0" pos="0.873% 16 150 24"
-              bgColOff="ff97fc74" buttonText="Calculate Similarity" connectedEdges="0"
-              needsCallback="1" radioGroupId="0"/>
+              bgColOff="ff97fc74" buttonText="Compare" connectedEdges="0" needsCallback="1"
+              radioGroupId="0"/>
   <TOGGLEBUTTON name="rmsFeatureToggle" id="92a1f05376de0623" memberName="rmsFeatureToggle"
                 virtualName="" explicitFocusOrder="0" pos="132R 16 50 24" buttonText="RMS"
                 connectedEdges="0" needsCallback="1" radioGroupId="0" state="1"/>
@@ -347,6 +373,15 @@ BEGIN_JUCER_METADATA
   <LABEL name="stickynessLabel" id="32983a34059e5df1" memberName="stickynessLabel"
          virtualName="" explicitFocusOrder="0" pos="400 16 80 24" edTextCol="ff000000"
          edBkgCol="0" labelText="Stickyness" editableSingleClick="0" editableDoubleClick="0"
+         focusDiscardsChanges="0" fontname="Default font" fontsize="15"
+         bold="0" italic="0" justification="33"/>
+  <SLIDER name="smoothnessSlider" id="11a9f6de9a840203" memberName="smoothnessSlider"
+          virtualName="" explicitFocusOrder="0" pos="512 40 150 24" min="0"
+          max="1" int="0" style="LinearHorizontal" textBoxPos="TextBoxLeft"
+          textBoxEditable="0" textBoxWidth="40" textBoxHeight="20" skewFactor="1"/>
+  <LABEL name="smoothnessLabel" id="b8d50e7cbed6b69c" memberName="smoothnessLabel"
+         virtualName="" explicitFocusOrder="0" pos="552 16 80 24" edTextCol="ff000000"
+         edBkgCol="0" labelText="Smoothness" editableSingleClick="0" editableDoubleClick="0"
          focusDiscardsChanges="0" fontname="Default font" fontsize="15"
          bold="0" italic="0" justification="33"/>
 </JUCER_COMPONENT>

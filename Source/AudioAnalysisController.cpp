@@ -220,6 +220,6 @@ Array<AudioRegion> AudioAnalysisController::getRegionsWithinThreshold(Array<floa
 
 void AudioAnalysisController::actionListenerCallback(const String &message){
     
-    std::cout << message;
+//    std::cout << message;
     
 }
