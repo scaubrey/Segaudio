@@ -27,8 +27,7 @@
 //[/MiscUserDefs]
 
 //==============================================================================
-AudioSourceSelector::AudioSourceSelector (AudioFormatManager &appFormatManager, AudioThumbnailCache &appThumbCache, AudioAnalysisController &analysisController)
-    : analysisController(analysisController), appFormatManager(appFormatManager)
+AudioSourceSelector::AudioSourceSelector ()
 {
     setName ("audioSourceSelector");
     addAndMakeVisible (playButton = new TextButton ("playButton"));
@@ -62,11 +61,18 @@ AudioSourceSelector::AudioSourceSelector (AudioFormatManager &appFormatManager, 
 
 
     //[Constructor] You can add your own custom stuff here..
-    thumbComponent = new AudioThumbnail (500, appFormatManager, appThumbCache);
+    thumbFormatManager = new AudioFormatManager();
+    thumbFormatManager->registerBasicFormats();
+
+    controllerFormatManager = new AudioFormatManager();
+    controllerFormatManager->registerBasicFormats();
+
+    thumbCache = new AudioThumbnailCache(1);
+
+    thumbComponent = new AudioThumbnail (500, *thumbFormatManager, *thumbCache);
 
     isDraggable = true; // default to true
 
-    addActionListener(&analysisController);
 
     //[/Constructor]
 }
@@ -86,6 +92,11 @@ AudioSourceSelector::~AudioSourceSelector()
     //[Destructor]. You can add your own custom destruction code here..
     thumbComponent = nullptr;
 
+    delete thumbFormatManager;
+    thumbFormatManager = nullptr;
+
+    delete controllerFormatManager;
+    controllerFormatManager = nullptr;
     //[/Destructor]
 }
 
@@ -99,28 +110,10 @@ void AudioSourceSelector::paint (Graphics& g)
 
     //[UserPaint] Add your own custom painting code here..
 
-    g.fillAll(Colour(Colours::chocolate));
-
-    g.setOpacity(0.5);
-    int x = regionOverlay.getX();
-    int y = regionOverlay.getY();
-    int w = regionOverlay.getWidth();
-    int h = regionOverlay.getHeight();
-    g.fillRect(x,y,w,h);
-
-//    std::cout << "x: " << getBounds().getPosition().x << " y: " << getBounds().getPosition().y << std::endl;
-//    std::cout << "width: " << getBounds().getWidth() << " height: " << getBounds().getHeight() << std::endl;
-
-    Rectangle<int> bounds = Rectangle<int>();
-    bounds.setX(getX());
-    bounds.setY(0); // relative y position
-    bounds.setWidth(getWidth());
-    bounds.setHeight(getHeight());
-
-    thumbComponent->drawChannel(g, bounds, 0, thumbComponent->getTotalLength(), 0, 1);
-
-    if(!thumbComponent->isFullyLoaded()){
-        repaint();
+    drawWaveform(g);
+    
+    if(hasRegionSelected){
+        drawRegion(g);
     }
 
     //[/UserPaint]
@@ -164,17 +157,16 @@ void AudioSourceSelector::buttonClicked (Button* buttonThatWasClicked)
         FileChooser myChooser ("Please select the file you want to load...");
         if (myChooser.browseForFileToOpen())
         {
-            const File referenceFile = myChooser.getResult();
-            FileInputSource fileInput(referenceFile);
+            selectedFile = myChooser.getResult();
+            FileInputSource fileInput(selectedFile);
             thumbComponent->setSource(&fileInput);
 
             String name = getName();
-            std::cout << name;
             if(name == "audioSrcSelector"){
-                analysisController.setReferenceAudioReader(appFormatManager.createReaderFor(referenceFile));
+                sendActionMessage("setSourceFile");
             }
             else if(name == "targetFileSelector"){
-                analysisController.setTargetAudioReader(appFormatManager.createReaderFor(referenceFile));
+                sendActionMessage("setTargetFile");
             }
 
             fileLoaded = true;
@@ -185,7 +177,7 @@ void AudioSourceSelector::buttonClicked (Button* buttonThatWasClicked)
     else if (buttonThatWasClicked == clearSelectionButton)
     {
         //[UserButtonCode_clearSelectionButton] -- add your button handler code here..
-        regionOverlay.setBounds(0, 0, 0, 0);
+        regionOverlay.clear();
         repaint();
 
         sendActionMessage("srcRegionCleared");
@@ -216,14 +208,17 @@ void AudioSourceSelector::mouseDrag (const MouseEvent& e)
 
     if(fileLoaded and isDraggable){
         int startX = e.getMouseDownX();
-        int width = e.getDistanceFromDragStartX();
+        int endX = startX + e.getDistanceFromDragStartX();
 
-        if(width < 0){  // enable dragging both ways
-            startX = startX + width;
-            width = abs(width);
+        if(endX < startX){  // enable dragging both ways
+            int tmp = endX;
+            endX = startX;
+            startX = tmp;
         }
+        
+//        std::cout << startX << " " << endX << std::endl;;
 
-        setSelectedRegion(startX, width);
+        setSelectedRegion(startX, endX);
     }
     //[/UserCode_mouseDrag]
 }
@@ -232,9 +227,9 @@ void AudioSourceSelector::mouseDrag (const MouseEvent& e)
 
 //[MiscUserCode] You can add your own definitions of your custom methods or any other code here...
 
-void AudioSourceSelector::setSelectedRegion(int startX, int width){
+void AudioSourceSelector::setSelectedRegion(int startX, int endX){
 
-    regionOverlay.setBounds(startX, 0, width, this->getHeight());
+    regionOverlay  = AudioRegion(startX, endX, getWidth());
     hasRegionSelected = true;
 
     repaint();
@@ -257,6 +252,42 @@ void AudioSourceSelector::setDraggable(bool makeDraggable){
 bool AudioSourceSelector::hasFileLoaded(){
     return fileLoaded;
 }
+
+File AudioSourceSelector::getLoadedFile(){
+    return selectedFile;
+}
+
+void AudioSourceSelector::drawRegion(juce::Graphics &g){
+    g.setColour(Colours::black);
+    
+    g.setOpacity(0.5);
+    int x = regionOverlay.getStart(getWidth());
+    int y = getY();
+    int w = regionOverlay.getEnd(getWidth()) - regionOverlay.getStart(getWidth());
+    int h = getHeight();
+    
+    g.fillRect(x,y,w,h);
+}
+
+void AudioSourceSelector::drawWaveform(juce::Graphics &g){
+    g.setColour(Colours::chocolate);
+
+    Rectangle<int> bounds = Rectangle<int>();
+    bounds.setX(getX());
+    bounds.setY(0); // relative y position
+    bounds.setWidth(getWidth());
+    bounds.setHeight(getHeight());
+    
+    thumbComponent->drawChannel(g, bounds, 0, thumbComponent->getTotalLength(), 0, 1);
+    
+    if(!thumbComponent->isFullyLoaded()){
+        repaint();
+    }
+}
+
+AudioRegion AudioSourceSelector::getSelectedRegion(){
+    return regionOverlay;
+}
 //[/MiscUserCode]
 
 
@@ -270,14 +301,13 @@ bool AudioSourceSelector::hasFileLoaded(){
 BEGIN_JUCER_METADATA
 
 <JUCER_COMPONENT documentType="Component" className="AudioSourceSelector" componentName="audioSourceSelector"
-                 parentClasses="public Component, public ActionBroadcaster" constructorParams="AudioFormatManager &amp;appFormatManager, AudioThumbnailCache &amp;appThumbCache, AudioAnalysisController &amp;analysisController"
-                 variableInitialisers="analysisController(analysisController), appFormatManager(appFormatManager)"
-                 snapPixels="8" snapActive="1" snapShown="1" overlayOpacity="0.330"
-                 fixedSize="0" initialWidth="800" initialHeight="200">
+                 parentClasses="public Component, public ActionBroadcaster" constructorParams=""
+                 variableInitialisers="" snapPixels="8" snapActive="1" snapShown="1"
+                 overlayOpacity="0.330" fixedSize="0" initialWidth="800" initialHeight="200">
   <METHODS>
-    <METHOD name="visibilityChanged()"/>
     <METHOD name="mouseDrag (const MouseEvent&amp; e)"/>
     <METHOD name="mouseDown (const MouseEvent&amp; e)"/>
+    <METHOD name="visibilityChanged()"/>
   </METHODS>
   <BACKGROUND backgroundColour="ffc76060"/>
   <TEXTBUTTON name="playButton" id="2e944592a12d5b22" memberName="playButton"

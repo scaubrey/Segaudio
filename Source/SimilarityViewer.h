@@ -42,16 +42,17 @@ class SimilarityViewer  : public Component,
 {
 public:
     //==============================================================================
-    SimilarityViewer (AudioAnalysisController &analysisController);
+    SimilarityViewer ();
     ~SimilarityViewer();
 
     //==============================================================================
     //[UserMethods]     -- You can add your own custom methods in this section.
-    void setDistanceArray(Array<float> newArray);
+    void setDistanceArray(Array<float> newArray, float maxDistance);
     void drawThreshold(Graphics &g);
     void drawSimilarityFunction(Graphics &g);
 
     void setReadyToCompare(bool ready);
+    
     //[/UserMethods]
 
     void paint (Graphics& g);
@@ -67,6 +68,7 @@ private:
 //    AudioThumbnail *thumbComponent;
 
     Array<float> distanceArray;
+    float maxDistance;
 
     bool readyToCompare;
     AudioAnalysisController analysisController;

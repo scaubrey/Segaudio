@@ -27,8 +27,7 @@
 //[/MiscUserDefs]
 
 //==============================================================================
-SimilarityViewer::SimilarityViewer (AudioAnalysisController &analysisController)
-    : analysisController(analysisController)
+SimilarityViewer::SimilarityViewer ()
 {
     addAndMakeVisible (simControlsContainer = new Component());
     simControlsContainer->setName ("simControlsContainer");
@@ -161,13 +160,8 @@ void SimilarityViewer::buttonClicked (Button* buttonThatWasClicked)
     if (buttonThatWasClicked == calcSimButton)
     {
         //[UserButtonCode_calcSimButton] -- add your button handler code here..
-        if(analysisController.isReady()){
-            distanceArray = analysisController.calculateDistances();
-            repaint();
-        }
-        else{
-            std::cout << "files not set in analysis controller";
-        }
+        sendActionMessage("calculateDistances");
+
         //[/UserButtonCode_calcSimButton]
     }
     else if (buttonThatWasClicked == rmsFeatureToggle)
@@ -193,8 +187,9 @@ void SimilarityViewer::buttonClicked (Button* buttonThatWasClicked)
 
 
 //[MiscUserCode] You can add your own definitions of your custom methods or any other code here...
-void SimilarityViewer::setDistanceArray(Array<float> newArray){
+void SimilarityViewer::setDistanceArray(Array<float> newArray, float newMaxDistance){
     distanceArray = newArray;
+    maxDistance = newMaxDistance;
     repaint();
 };
 
@@ -208,18 +203,37 @@ void SimilarityViewer::drawThreshold(Graphics &g){
 void SimilarityViewer::drawSimilarityFunction(Graphics &g){
 
     g.setColour(Colours::green);
+//    g.str
 
     int graphLengthInPixels = getWidth();
-    
-    int lastXPixel;
+
+    int lastXPixel = 0;
     int currentXPixel;
     
-    for(int i=0; i<distanceArray.size() - 1; i++){
+    float yScale = graphContainer->getHeight() / maxDistance;
+    
+    float lastRms = graphContainer->getY() + graphContainer->getHeight() - floor(distanceArray[0] * graphLengthInPixels / distanceArray.size());
+    if(std::isnan(lastRms)){
+        lastRms = 0;
+    }
+    
+    float currentRms;
+    
+    for(int i=1; i<distanceArray.size(); i++){
 
-        int lastXPixel = i;
-        int currentXPixel = floor((i+1) * graphLengthInPixels / distanceArray.size());
+        currentXPixel = floor((i) * graphLengthInPixels / distanceArray.size());
         
-        g.drawLine(lastXPixel, distanceArray[i], currentXPixel, distanceArray[i+1]);
+        
+        currentRms = graphContainer->getY() + graphContainer->getHeight() - distanceArray[i] * yScale;
+        if(std::isnan(currentRms)){
+//            currentRms = 0;
+        }
+
+        g.drawLine(lastXPixel, lastRms, currentXPixel, currentRms, 1.0f);
+        
+        lastXPixel = currentXPixel;
+        lastRms = currentRms;
+
     }
 }
 
@@ -242,10 +256,9 @@ void SimilarityViewer::setReadyToCompare(bool ready){
 BEGIN_JUCER_METADATA
 
 <JUCER_COMPONENT documentType="Component" className="SimilarityViewer" componentName=""
-                 parentClasses="public Component, public ActionBroadcaster" constructorParams="AudioAnalysisController &amp;analysisController"
-                 variableInitialisers="analysisController(analysisController)"
-                 snapPixels="8" snapActive="1" snapShown="1" overlayOpacity="0.330"
-                 fixedSize="0" initialWidth="800" initialHeight="300">
+                 parentClasses="public Component, public ActionBroadcaster" constructorParams=""
+                 variableInitialisers="" snapPixels="8" snapActive="1" snapShown="1"
+                 overlayOpacity="0.330" fixedSize="0" initialWidth="800" initialHeight="300">
   <BACKGROUND backgroundColour="ffffffff"/>
   <GENERICCOMPONENT name="simControlsContainer" id="d7eb2493d0021c3d" memberName="simControlsContainer"
                     virtualName="" explicitFocusOrder="0" pos="0 0 100% 100" class="Component"

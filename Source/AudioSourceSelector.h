@@ -23,6 +23,7 @@
 //[Headers]     -- You can add your own extra header files here --
 #include "JuceHeader.h"
 #include "AudioAnalysisController.h"
+#include "AudioRegion.h"
 
 //[/Headers]
 
@@ -42,17 +43,23 @@ class AudioSourceSelector  : public Component,
 {
 public:
     //==============================================================================
-    AudioSourceSelector (AudioFormatManager &appFormatManager, AudioThumbnailCache &appThumbCache, AudioAnalysisController &analysisController);
+    AudioSourceSelector ();
     ~AudioSourceSelector();
 
     //==============================================================================
     //[UserMethods]     -- You can add your own custom methods in this section.
-    void setSelectedRegion(int startX, int width);
+    void setSelectedRegion(int startX, int endX);
     void getAudioSelection();
 
     bool hasFileLoaded();
-
     void setDraggable(bool isDraggable);
+
+    File getLoadedFile();
+    
+    void drawRegion(Graphics &g);
+    void drawWaveform(Graphics &g);
+    
+    AudioRegion getSelectedRegion();
     //[/UserMethods]
 
     void paint (Graphics& g);
@@ -68,7 +75,9 @@ private:
     //[UserVariables]   -- You can add your own custom variables in this section.
     AudioThumbnail *thumbComponent;
 
-    DrawableRectangle regionOverlay;
+    AudioThumbnailCache* thumbCache;
+
+    AudioRegion regionOverlay;
 
     bool hasRegionSelected;
     bool fileLoaded;
@@ -76,10 +85,13 @@ private:
     int regionStartFraction;
     int regionEndFraction;
 
-    AudioFormatManager &appFormatManager;
+    AudioFormatManager* thumbFormatManager;
+    AudioFormatManager* controllerFormatManager;
     bool isDraggable;
 
-    AudioAnalysisController analysisController;
+    AudioAnalysisController* analysisController;
+
+    File selectedFile;
 
     //[/UserVariables]
 

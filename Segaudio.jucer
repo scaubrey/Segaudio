@@ -5,7 +5,14 @@
               jucerVersion="3.1.0">
   <MAINGROUP id="yLeq7g" name="Segaudio">
     <GROUP id="{30BE25F1-652B-2A8D-7603-E6BEA8B13AFF}" name="app">
-      <GROUP id="{C5C62F68-9E6E-E521-8E36-5496D314F7EE}" name="models"/>
+      <GROUP id="{C5C62F68-9E6E-E521-8E36-5496D314F7EE}" name="models">
+        <GROUP id="{69D06B4C-F562-8076-7F25-100BD5F46A3E}" name="source">
+          <FILE id="gvJNjw" name="AudioRegion.cpp" compile="1" resource="0" file="Source/AudioRegion.cpp"/>
+        </GROUP>
+        <GROUP id="{53BD1BF1-6B7D-02FB-617E-6D9EE971AC2D}" name="headers">
+          <FILE id="LfYNIR" name="AudioRegion.h" compile="0" resource="0" file="Source/AudioRegion.h"/>
+        </GROUP>
+      </GROUP>
       <GROUP id="{4705A56B-21D3-08EE-0B31-B6449CEF88B0}" name="controllers">
         <GROUP id="{7D61A57F-F258-5C3A-C7C9-BEBC418F3908}" name="source">
           <FILE id="wiburq" name="Main.cpp" compile="1" resource="0" file="Source/Main.cpp"/>

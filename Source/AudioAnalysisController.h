@@ -12,6 +12,7 @@
 #define AUDIOANALYSISCONTROLLER_H_INCLUDED
 
 #include "JuceHeader.h"
+#include "AudioRegion.h"
 
 class AudioAnalysisController : public ActionListener
 {
@@ -25,23 +26,30 @@ public:
     void setTargetAudioReader(AudioFormatReader* incomingReader);
     bool isReady();
     
-    Array<float> calculateDistances();
-    Array<float> calculateFeatureVector();
+    Array<float> calculateDistances(File srcFile, AudioRegion selectedRegion, File targetFile);
+    Array<float> calculateFeatureVector(AudioSampleBuffer* buffer, AudioRegion selectedRegion=AudioRegion());
     
     float calculateBlockRMS(AudioSampleBuffer &block);
+    
+    float getLastMaxDistance();
+    float calculateMean(Array<float> values);
     
     virtual void actionListenerCallback(const String &message);
     
 private:
     
+    AudioFormatManager* formatManager;
+    
     AudioFormatReader* referenceAudioReader;
     AudioFormatReader* targetAudioReader;
     
-    AudioSampleBuffer* refBuffer;
-    AudioSampleBuffer* targetBuffer;
+//    AudioSampleBuffer* refBuffer;
+//    AudioSampleBuffer* targetBuffer;
     
     Array<float> refFeatures;
     Array<float> targetFeatures;
+    
+    float maxDistance;
     
     int windowSize;
     

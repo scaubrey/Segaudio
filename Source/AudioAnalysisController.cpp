@@ -14,7 +14,13 @@
 AudioAnalysisController::AudioAnalysisController(){
     referenceAudioReader = nullptr;
     targetAudioReader = nullptr;
+//    refBuffer = nullptr;
+//    targetBuffer = nullptr;
+    
     windowSize = 2048;
+    
+    formatManager = new AudioFormatManager();
+    formatManager->registerBasicFormats();
     
 //    refBuffer = new AudioSampleBuffer(2, windowSize);
 //    refBuffer->clear();
@@ -25,57 +31,85 @@ AudioAnalysisController::AudioAnalysisController(){
 };
 
 AudioAnalysisController::~AudioAnalysisController(){
-    delete refBuffer;
-    delete targetBuffer;
-    
-    refBuffer = 0;
-    targetBuffer = 0;
+//    delete refBuffer;
+//    delete targetBuffer;
+//    
+//    refBuffer = 0;
+//    targetBuffer = 0;
 };
 
 
-void AudioAnalysisController::setReferenceAudioReader(AudioFormatReader* incomingReader){
+//void AudioAnalysisController::setReferenceAudioReader(AudioFormatReader* incomingReader){
 //    referenceAudioReader = incomingReader;
-    refBuffer = new AudioSampleBuffer(incomingReader->numChannels, incomingReader->lengthInSamples);
-    incomingReader->read(refBuffer, 0, incomingReader->lengthInSamples, 0, true, true);
-}
-
-void AudioAnalysisController::setTargetAudioReader(AudioFormatReader* incomingReader){
+//    AudioSampleBuffer* tmpBuffer = new AudioSampleBuffer(incomingReader->numChannels, incomingReader->lengthInSamples);
+//    incomingReader->read(tmpBuffer, 0, incomingReader->lengthInSamples, 0, true, true);
+//    
+//    refBuffer = new AudioSampleBuffer(*tmpBuffer);
+//}
+//
+//void AudioAnalysisController::setTargetAudioReader(AudioFormatReader* incomingReader){
 //    targetAudioReader = incomingReader;
-    targetBuffer = new AudioSampleBuffer(incomingReader->numChannels, incomingReader->lengthInSamples);
-    incomingReader->read(targetBuffer, 0, incomingReader->lengthInSamples, 0, true, true);
-}
+//    AudioSampleBuffer* tmpBuffer = new AudioSampleBuffer(incomingReader->numChannels, incomingReader->lengthInSamples);
+//    incomingReader->read(tmpBuffer, 0, incomingReader->lengthInSamples, 0, true, true);
+//    
+//    targetBuffer = new AudioSampleBuffer(*tmpBuffer);
+//}
+//
+//bool AudioAnalysisController::isReady(){
+//    if(refBuffer and targetBuffer){
+//        return true;
+//    }
+//    return false;
+//}
 
-bool AudioAnalysisController::isReady(){
-    if(refBuffer->getNumSamples() > 0 and targetBuffer->getNumSamples() > 0){
-        return true;
-    }
-    return false;
-}
+Array<float> AudioAnalysisController::calculateDistances(File srcFile, AudioRegion selectedRegion, File targetFile){
+    
+    referenceAudioReader = formatManager->createReaderFor(srcFile);
+    targetAudioReader = formatManager->createReaderFor(targetFile);
+    
+    
+    AudioSampleBuffer* refBuffer = new AudioSampleBuffer(referenceAudioReader->numChannels, referenceAudioReader->lengthInSamples);
+    referenceAudioReader->read(refBuffer, 0, referenceAudioReader->lengthInSamples, 0, true, true);
 
-Array<float> AudioAnalysisController::calculateDistances(){
+    
+    AudioSampleBuffer* targetBuffer = new AudioSampleBuffer(targetAudioReader->numChannels, targetAudioReader->lengthInSamples);
+    targetAudioReader->read(targetBuffer, 0, targetAudioReader->lengthInSamples, 0, true, true);
+
     
     Array<float> distanceArray;
 
-    refFeatures = calculateFeatureVector();
-    targetFeatures = calculateFeatureVector();
+    refFeatures = calculateFeatureVector(refBuffer, selectedRegion);
+    targetFeatures = calculateFeatureVector(targetBuffer);
+    
+    
+    float avgRegionVal = calculateMean(refFeatures);
+    float maxDistanceVal = 0;
     
     for(int i=0; i<targetFeatures.size(); i++){
         
-        distanceArray.add(sqrtf(pow(targetFeatures[i] - refFeatures[0], 2)));
+        float rmsVal = targetFeatures[i];
+        
+        float distanceVal = sqrtf(pow(fabs(rmsVal - avgRegionVal), 2));
+        if(distanceVal > maxDistanceVal){
+            maxDistanceVal = distanceVal;
+        }
+        
+        distanceArray.add(distanceVal);
         
     }
+    maxDistance = maxDistanceVal;
     
     return distanceArray;
 }
 
-Array<float> AudioAnalysisController::calculateFeatureVector(){
+Array<float> AudioAnalysisController::calculateFeatureVector(AudioSampleBuffer* buffer, AudioRegion selectedRegion){
     
     Array<float> featureVector = Array<float>();
     
-    int totalNumSamples = refBuffer->getNumSamples();
+    int totalNumSamples = buffer->getNumSamples();
 
     int approxNumBlocks = floor(totalNumSamples / windowSize);
-    int numBlocks;
+    int numBlocks, startBlock, endBlock;
     if(approxNumBlocks * windowSize == totalNumSamples){
         numBlocks = approxNumBlocks;
     }
@@ -83,28 +117,32 @@ Array<float> AudioAnalysisController::calculateFeatureVector(){
         numBlocks = approxNumBlocks + 1;
     }
     
+    startBlock = 0;
+    endBlock = numBlocks;
+    
+    if(selectedRegion.isInitialized()){
+        startBlock = floor(selectedRegion.getStart(numBlocks));
+        endBlock = floor(selectedRegion.getEnd(numBlocks));
+    }
+
     
     int blockIdx;
     
-    float runningAverage = 0;
-
-    for(int i=0; i<numBlocks; i++){
+    for(int i=startBlock; i<endBlock; i++){
         
         blockIdx = i * windowSize;
      
-        AudioSampleBuffer block = AudioSampleBuffer(refBuffer->getNumChannels(), windowSize);
+        AudioSampleBuffer block = AudioSampleBuffer(buffer->getNumChannels(), windowSize);
         
-        for(int j=0; j<refBuffer->getNumChannels(); j++){
-            block.copyFrom(i, 0, *refBuffer, i, blockIdx, windowSize);
+        for(int j=0; j<buffer->getNumChannels(); j++){
+            block.copyFrom(j, 0, *buffer, j, blockIdx, windowSize);
         }
         
         float blockRMS = calculateBlockRMS(block);
-        
-        runningAverage = runningAverage + (blockRMS - runningAverage) / (i + 1);
-        
+        featureVector.add(blockRMS);
+
     }
     
-    featureVector.add(runningAverage);
     
     return featureVector;
     
@@ -113,11 +151,13 @@ Array<float> AudioAnalysisController::calculateFeatureVector(){
 
 float AudioAnalysisController::calculateBlockRMS(AudioSampleBuffer &block){
     
-    int runningTotal = 0;
+    float runningTotal = 0;
     float** channelArray = block.getArrayOfChannels();
     
     for(int j=0; j<block.getNumChannels(); j++){
         for(int i=0; i<block.getNumSamples(); i++){
+//            std::cout << channelArray[j][i] << std::endl;
+            
             runningTotal += powf(channelArray[j][i], 2);
         }
     }
@@ -126,6 +166,22 @@ float AudioAnalysisController::calculateBlockRMS(AudioSampleBuffer &block){
     
     return rms;
 }
+
+float AudioAnalysisController::calculateMean(Array<float> values){
+    int numValues = values.size();
+    float runningAverage = 0;
+    
+    for(int i=0; i<numValues; i++){
+        runningAverage = runningAverage + (values[i] - runningAverage) / (i + 1);
+    }
+    
+    return runningAverage;
+}
+
+float AudioAnalysisController::getLastMaxDistance(){
+    return maxDistance;
+}
+
 
 
 void AudioAnalysisController::actionListenerCallback(const String &message){

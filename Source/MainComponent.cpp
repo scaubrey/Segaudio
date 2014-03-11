@@ -29,14 +29,15 @@
 
 //==============================================================================
 MainComponent::MainComponent (AudioFormatManager &appFormatManager, AudioThumbnailCache &appThumbCache, AudioAnalysisController &analysisController)
+    : analysisController(analysisController)
 {
-    addAndMakeVisible (audioSrcSelector = new AudioSourceSelector (appFormatManager, appThumbCache, analysisController));
+    addAndMakeVisible (audioSrcSelector = new AudioSourceSelector());
     audioSrcSelector->setName ("audioSrcSelector");
 
-    addAndMakeVisible (similarityViewer = new SimilarityViewer (analysisController));
+    addAndMakeVisible (similarityViewer = new SimilarityViewer());
     similarityViewer->setName ("similarityViewer");
 
-    addAndMakeVisible (targetFileSelector = new AudioSourceSelector (appFormatManager, appThumbCache, analysisController));
+    addAndMakeVisible (targetFileSelector = new AudioSourceSelector());
     targetFileSelector->setName ("targetFileSelector");
 
 
@@ -103,6 +104,18 @@ void MainComponent::actionListenerCallback(const juce::String &message){
     else if(message == "srcRegionCleared"){
         similarityViewer->setReadyToCompare(false);
     }
+    else if(message == "calculateDistances"){
+
+        File srcFile = audioSrcSelector->getLoadedFile();
+        AudioRegion selectedRegion = audioSrcSelector->getSelectedRegion();
+        
+        File targetFile = targetFileSelector->getLoadedFile();
+
+        Array<float> distanceArray = analysisController.calculateDistances(srcFile, selectedRegion, targetFile);
+        
+        similarityViewer->setDistanceArray(distanceArray, analysisController.getLastMaxDistance());
+
+    }
 
 }
 //[/MiscUserCode]
@@ -119,18 +132,19 @@ BEGIN_JUCER_METADATA
 
 <JUCER_COMPONENT documentType="Component" className="MainComponent" componentName=""
                  parentClasses="public Component, public ActionListener" constructorParams="AudioFormatManager &amp;appFormatManager, AudioThumbnailCache &amp;appThumbCache, AudioAnalysisController &amp;analysisController"
-                 variableInitialisers="" snapPixels="8" snapActive="1" snapShown="1"
-                 overlayOpacity="0.330" fixedSize="0" initialWidth="1000" initialHeight="600">
+                 variableInitialisers="analysisController(analysisController)"
+                 snapPixels="8" snapActive="1" snapShown="1" overlayOpacity="0.330"
+                 fixedSize="0" initialWidth="1000" initialHeight="600">
   <BACKGROUND backgroundColour="ff6f6f6f"/>
   <GENERICCOMPONENT name="audioSrcSelector" id="6129c3aa019f4bba" memberName="audioSrcSelector"
                     virtualName="" explicitFocusOrder="0" pos="0 0 100% 200" class="AudioSourceSelector"
-                    params="appFormatManager, appThumbCache, analysisController"/>
+                    params=""/>
   <GENERICCOMPONENT name="similarityViewer" id="95cef1a3b684967d" memberName="similarityViewer"
                     virtualName="" explicitFocusOrder="0" pos="0 0Rr 100% 400" class="SimilarityViewer"
-                    params="analysisController"/>
+                    params=""/>
   <GENERICCOMPONENT name="targetFileSelector" id="7f10809d3b4712d6" memberName="targetFileSelector"
                     virtualName="" explicitFocusOrder="0" pos="0 208 100% 200" class="AudioSourceSelector"
-                    params="appFormatManager, appThumbCache, analysisController"/>
+                    params=""/>
 </JUCER_COMPONENT>
 
 END_JUCER_METADATA
