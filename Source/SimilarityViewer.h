@@ -60,6 +60,8 @@ public:
     void updateRegions();
 
     Array<AudioRegion> getCandidateRegions();
+    
+    void updateSimilarityFunction();
 
     //[/UserMethods]
 
@@ -76,6 +78,8 @@ private:
 //    AudioThumbnail *thumbComponent;
 
     Array<float> distanceArray;
+    Array<float> filteredDistanceArray;
+    
     float maxDistance;
 
     bool readyToCompare;
@@ -93,7 +97,7 @@ private:
     //==============================================================================
     ScopedPointer<Component> simControlsContainer;
     ScopedPointer<Slider> thresholdSlider;
-    ScopedPointer<Label> label;
+    ScopedPointer<Label> thresholdLabel;
     ScopedPointer<TextButton> calcSimButton;
     ScopedPointer<ToggleButton> rmsFeatureToggle;
     ScopedPointer<ToggleButton> sfFeatureToggle;

@@ -38,13 +38,13 @@ SimilarityViewer::SimilarityViewer ()
     thresholdSlider->setTextBoxStyle (Slider::TextBoxLeft, true, 40, 20);
     thresholdSlider->addListener (this);
 
-    addAndMakeVisible (label = new Label ("new label",
-                                          TRANS("Threshold")));
-    label->setFont (Font (15.00f, Font::plain));
-    label->setJustificationType (Justification::centredLeft);
-    label->setEditable (false, false, false);
-    label->setColour (TextEditor::textColourId, Colours::black);
-    label->setColour (TextEditor::backgroundColourId, Colour (0x00000000));
+    addAndMakeVisible (thresholdLabel = new Label ("new label",
+                                                   TRANS("Threshold")));
+    thresholdLabel->setFont (Font (15.00f, Font::plain));
+    thresholdLabel->setJustificationType (Justification::centredLeft);
+    thresholdLabel->setEditable (false, false, false);
+    thresholdLabel->setColour (TextEditor::textColourId, Colours::black);
+    thresholdLabel->setColour (TextEditor::backgroundColourId, Colour (0x00000000));
 
     addAndMakeVisible (calcSimButton = new TextButton ("calcSimButton"));
     calcSimButton->setButtonText (TRANS("Compare"));
@@ -104,7 +104,7 @@ SimilarityViewer::SimilarityViewer ()
 
     //[Constructor] You can add your own custom stuff here..
 
-    calcSimButton->setVisible(false);
+    setReadyToCompare(false);
 
     addActionListener(&analysisController);
 
@@ -120,7 +120,7 @@ SimilarityViewer::~SimilarityViewer()
 
     simControlsContainer = nullptr;
     thresholdSlider = nullptr;
-    label = nullptr;
+    thresholdLabel = nullptr;
     calcSimButton = nullptr;
     rmsFeatureToggle = nullptr;
     sfFeatureToggle = nullptr;
@@ -159,7 +159,7 @@ void SimilarityViewer::resized()
 {
     simControlsContainer->setBounds (0, 0, proportionOfWidth (1.0000f), 100);
     thresholdSlider->setBounds (200, 40, 150, 24);
-    label->setBounds (240, 16, 80, 24);
+    thresholdLabel->setBounds (240, 16, 80, 24);
     calcSimButton->setBounds (proportionOfWidth (0.0087f), 16, 150, 24);
     rmsFeatureToggle->setBounds (getWidth() - 132, 16, 50, 24);
     sfFeatureToggle->setBounds (getWidth() - 68, 16, 50, 24);
@@ -198,8 +198,8 @@ void SimilarityViewer::sliderValueChanged (Slider* sliderThatWasMoved)
     {
         //[UserSliderCode_smoothnessSlider] -- add your slider handling code here..
         smoothness = smoothnessSlider->getValue();
-        
-        
+
+        updateSimilarityFunction();
         //[/UserSliderCode_smoothnessSlider]
     }
 
@@ -243,6 +243,7 @@ void SimilarityViewer::buttonClicked (Button* buttonThatWasClicked)
 //[MiscUserCode] You can add your own definitions of your custom methods or any other code here...
 void SimilarityViewer::setDistanceArray(Array<float> newArray, float newMaxDistance){
     distanceArray = newArray;
+    filteredDistanceArray = distanceArray;
     maxDistance = newMaxDistance;
     repaint();
 };
@@ -257,7 +258,6 @@ void SimilarityViewer::drawThreshold(Graphics &g){
 void SimilarityViewer::drawSimilarityFunction(Graphics &g){
 
     g.setColour(Colours::green);
-//    g.str
 
     int graphLengthInPixels = getWidth();
 
@@ -266,19 +266,18 @@ void SimilarityViewer::drawSimilarityFunction(Graphics &g){
 
     float yScale = graphContainer->getHeight() / maxDistance;
 
-    float lastRms = graphContainer->getY() + graphContainer->getHeight() - floor(distanceArray[0] * graphLengthInPixels / distanceArray.size());
+    float lastRms = graphContainer->getY() + graphContainer->getHeight() - floor(filteredDistanceArray[0] * graphLengthInPixels / filteredDistanceArray.size());
     if(std::isnan(lastRms)){
         lastRms = 0;
     }
 
     float currentRms;
 
-    for(int i=1; i<distanceArray.size(); i++){
+    for(int i=1; i<filteredDistanceArray.size(); i++){
 
         currentXPixel = floor((i) * graphLengthInPixels / distanceArray.size());
 
-
-        currentRms = graphContainer->getY() + graphContainer->getHeight() - distanceArray[i] * yScale;
+        currentRms = graphContainer->getY() + graphContainer->getHeight() - filteredDistanceArray[i] * yScale;
 
         g.drawLine(lastXPixel, lastRms, currentXPixel, currentRms, 1.0f);
 
@@ -291,6 +290,15 @@ void SimilarityViewer::drawSimilarityFunction(Graphics &g){
 
 void SimilarityViewer::setReadyToCompare(bool ready){
     calcSimButton->setVisible(ready);
+    thresholdSlider->setVisible(ready);
+    stickynessSlider->setVisible(ready);
+    smoothnessSlider->setVisible(ready);
+    mfccFeatureToggle->setVisible(ready);
+    sfFeatureToggle->setVisible(ready);
+    rmsFeatureToggle->setVisible(ready);
+    thresholdLabel->setVisible(ready);
+    stickynessLabel->setVisible(ready);
+    smoothnessLabel->setVisible(ready);
 }
 
 void SimilarityViewer::drawRegions(Graphics &g){
@@ -321,6 +329,10 @@ Array<AudioRegion> SimilarityViewer::getCandidateRegions(){
     return regionCandidates;
 }
 
+void SimilarityViewer::updateSimilarityFunction(){
+    filteredDistanceArray = analysisController.medianFilter(distanceArray, smoothness * 100);
+}
+
 //[/MiscUserCode]
 
 
@@ -345,8 +357,8 @@ BEGIN_JUCER_METADATA
           virtualName="" explicitFocusOrder="0" pos="200 40 150 24" min="0"
           max="1" int="0" style="LinearHorizontal" textBoxPos="TextBoxLeft"
           textBoxEditable="0" textBoxWidth="40" textBoxHeight="20" skewFactor="1"/>
-  <LABEL name="new label" id="4f564f498f058971" memberName="label" virtualName=""
-         explicitFocusOrder="0" pos="240 16 80 24" edTextCol="ff000000"
+  <LABEL name="new label" id="4f564f498f058971" memberName="thresholdLabel"
+         virtualName="" explicitFocusOrder="0" pos="240 16 80 24" edTextCol="ff000000"
          edBkgCol="0" labelText="Threshold" editableSingleClick="0" editableDoubleClick="0"
          focusDiscardsChanges="0" fontname="Default font" fontsize="15"
          bold="0" italic="0" justification="33"/>

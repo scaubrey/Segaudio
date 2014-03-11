@@ -203,11 +203,13 @@ Array<AudioRegion> AudioAnalysisController::getRegionsWithinThreshold(Array<floa
     int regionStart = indicesCandidates[0];
     int regionEnd = indicesCandidates[1];
     for(int i=1; i<indicesCandidates.size(); i++){
-        
-        if(regionEnd - regionStart > stickyness){
-            regionCandidates.add(AudioRegion(regionStart, regionEnd, distanceArray.size()));
+        if(indicesCandidates[i] - indicesCandidates[i-1] > 1){
+            if(regionEnd - regionStart > stickyness){
+                regionCandidates.add(AudioRegion(regionStart, regionEnd, distanceArray.size()));
+            }
             regionStart = indicesCandidates[i];
         }
+        
         else{
             regionEnd = indicesCandidates[i];
         }
