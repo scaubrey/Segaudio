@@ -38,8 +38,8 @@ float AudioRegion::getLength(){
 }
 
 void AudioRegion::clear(){
-    startValue = 0;
-    endValue = 0;
+    startValue = -1;
+    endValue = -1;
 }
 
 float AudioRegion::getStart(){

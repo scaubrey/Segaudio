@@ -32,11 +32,11 @@ SimilarityViewer::SimilarityViewer ()
     addAndMakeVisible (simControlsContainer = new Component());
     simControlsContainer->setName ("simControlsContainer");
 
-    addAndMakeVisible (slider = new Slider ("new slider"));
-    slider->setRange (0, 1, 0);
-    slider->setSliderStyle (Slider::LinearHorizontal);
-    slider->setTextBoxStyle (Slider::TextBoxLeft, true, 40, 20);
-    slider->addListener (this);
+    addAndMakeVisible (thresholdSlider = new Slider ("new slider"));
+    thresholdSlider->setRange (0, 1, 0);
+    thresholdSlider->setSliderStyle (Slider::LinearHorizontal);
+    thresholdSlider->setTextBoxStyle (Slider::TextBoxLeft, true, 40, 20);
+    thresholdSlider->addListener (this);
 
     addAndMakeVisible (label = new Label ("new label",
                                           TRANS("Threshold")));
@@ -59,7 +59,6 @@ SimilarityViewer::SimilarityViewer ()
     addAndMakeVisible (sfFeatureToggle = new ToggleButton ("sfFeatureToggle"));
     sfFeatureToggle->setButtonText (TRANS("SF"));
     sfFeatureToggle->addListener (this);
-    sfFeatureToggle->setToggleState (true, dontSendNotification);
 
     addAndMakeVisible (graphContainer = new Component());
     graphContainer->setName ("graphContainer");
@@ -67,7 +66,20 @@ SimilarityViewer::SimilarityViewer ()
     addAndMakeVisible (mfccFeatureToggle = new ToggleButton ("mfccFeatureToggle"));
     mfccFeatureToggle->setButtonText (TRANS("MFCC"));
     mfccFeatureToggle->addListener (this);
-    mfccFeatureToggle->setToggleState (true, dontSendNotification);
+
+    addAndMakeVisible (stickynessSlider = new Slider ("stickynessSlider"));
+    stickynessSlider->setRange (0, 1, 0);
+    stickynessSlider->setSliderStyle (Slider::LinearHorizontal);
+    stickynessSlider->setTextBoxStyle (Slider::TextBoxLeft, true, 40, 20);
+    stickynessSlider->addListener (this);
+
+    addAndMakeVisible (stickynessLabel = new Label ("stickynessLabel",
+                                                    TRANS("Stickyness")));
+    stickynessLabel->setFont (Font (15.00f, Font::plain));
+    stickynessLabel->setJustificationType (Justification::centredLeft);
+    stickynessLabel->setEditable (false, false, false);
+    stickynessLabel->setColour (TextEditor::textColourId, Colours::black);
+    stickynessLabel->setColour (TextEditor::backgroundColourId, Colour (0x00000000));
 
 
     //[UserPreSize]
@@ -81,6 +93,9 @@ SimilarityViewer::SimilarityViewer ()
     calcSimButton->setVisible(false);
 
     addActionListener(&analysisController);
+
+    stickyness = 0;
+    threshold = 0;
     //[/Constructor]
 }
 
@@ -90,13 +105,15 @@ SimilarityViewer::~SimilarityViewer()
     //[/Destructor_pre]
 
     simControlsContainer = nullptr;
-    slider = nullptr;
+    thresholdSlider = nullptr;
     label = nullptr;
     calcSimButton = nullptr;
     rmsFeatureToggle = nullptr;
     sfFeatureToggle = nullptr;
     graphContainer = nullptr;
     mfccFeatureToggle = nullptr;
+    stickynessSlider = nullptr;
+    stickynessLabel = nullptr;
 
 
     //[Destructor]. You can add your own custom destruction code here..
@@ -117,19 +134,23 @@ void SimilarityViewer::paint (Graphics& g)
     drawThreshold(g);
     drawSimilarityFunction(g);
 
+//    drawRegions(g);
+
     //[/UserPaint]
 }
 
 void SimilarityViewer::resized()
 {
     simControlsContainer->setBounds (0, 0, proportionOfWidth (1.0000f), 100);
-    slider->setBounds (272, 40, 150, 24);
-    label->setBounds (312, 16, 80, 24);
+    thresholdSlider->setBounds (200, 40, 150, 24);
+    label->setBounds (240, 16, 80, 24);
     calcSimButton->setBounds (proportionOfWidth (0.0087f), 16, 150, 24);
     rmsFeatureToggle->setBounds (getWidth() - 132, 16, 50, 24);
     sfFeatureToggle->setBounds (getWidth() - 68, 16, 50, 24);
     graphContainer->setBounds (0, 100, proportionOfWidth (1.0000f), 300);
     mfccFeatureToggle->setBounds (getWidth() - 188, 16, 50, 24);
+    stickynessSlider->setBounds (360, 40, 150, 24);
+    stickynessLabel->setBounds (400, 16, 80, 24);
     //[UserResized] Add your own custom resize handling here..
     //[/UserResized]
 }
@@ -139,15 +160,21 @@ void SimilarityViewer::sliderValueChanged (Slider* sliderThatWasMoved)
     //[UsersliderValueChanged_Pre]
     //[/UsersliderValueChanged_Pre]
 
-    if (sliderThatWasMoved == slider)
+    if (sliderThatWasMoved == thresholdSlider)
     {
-        //[UserSliderCode_slider] -- add your slider handling code here..
-        threshold = slider->getValue();
-        
-        
+        //[UserSliderCode_thresholdSlider] -- add your slider handling code here..
+        threshold = thresholdSlider->getValue();
 
-        repaint();
-        //[/UserSliderCode_slider]
+        updateRegions();
+        //[/UserSliderCode_thresholdSlider]
+    }
+    else if (sliderThatWasMoved == stickynessSlider)
+    {
+        //[UserSliderCode_stickynessSlider] -- add your slider handling code here..
+        stickyness = stickynessSlider->getValue();
+
+        updateRegions();
+        //[/UserSliderCode_stickynessSlider]
     }
 
     //[UsersliderValueChanged_Post]
@@ -163,7 +190,6 @@ void SimilarityViewer::buttonClicked (Button* buttonThatWasClicked)
     {
         //[UserButtonCode_calcSimButton] -- add your button handler code here..
         sendActionMessage("calculateDistances");
-
         //[/UserButtonCode_calcSimButton]
     }
     else if (buttonThatWasClicked == rmsFeatureToggle)
@@ -211,25 +237,25 @@ void SimilarityViewer::drawSimilarityFunction(Graphics &g){
 
     int lastXPixel = 0;
     int currentXPixel;
-    
+
     float yScale = graphContainer->getHeight() / maxDistance;
-    
+
     float lastRms = graphContainer->getY() + graphContainer->getHeight() - floor(distanceArray[0] * graphLengthInPixels / distanceArray.size());
     if(std::isnan(lastRms)){
         lastRms = 0;
     }
-    
+
     float currentRms;
-    
+
     for(int i=1; i<distanceArray.size(); i++){
 
         currentXPixel = floor((i) * graphLengthInPixels / distanceArray.size());
-        
-        
+
+
         currentRms = graphContainer->getY() + graphContainer->getHeight() - distanceArray[i] * yScale;
 
         g.drawLine(lastXPixel, lastRms, currentXPixel, currentRms, 1.0f);
-        
+
         lastXPixel = currentXPixel;
         lastRms = currentRms;
 
@@ -241,10 +267,33 @@ void SimilarityViewer::setReadyToCompare(bool ready){
     calcSimButton->setVisible(ready);
 }
 
-void SimilarityViewer::getAudioRegionsUnderThreshold(){
-    
+void SimilarityViewer::drawRegions(Graphics &g){
+
+    g.setOpacity(0.9);
+    g.setColour(Colours::black);
+
+    for(int i=0; i<regionCandidates.size(); i++){
+
+
+        int startX = regionCandidates[i].getStart(getWidth());
+        int width = regionCandidates[i].getEnd(getWidth()) - startX;
+
+        g.fillRect(startX, graphContainer->getY(), width, graphContainer->getHeight());
+
+    }
 }
 
+void SimilarityViewer::updateRegions(){
+    regionCandidates = analysisController.getRegionsWithinThreshold(distanceArray, threshold * maxDistance, stickyness * 10);
+
+    sendActionMessage("candidateRegionsUpdated");
+
+    repaint();
+}
+
+Array<AudioRegion> SimilarityViewer::getCandidateRegions(){
+    return regionCandidates;
+}
 
 //[/MiscUserCode]
 
@@ -266,12 +315,12 @@ BEGIN_JUCER_METADATA
   <GENERICCOMPONENT name="simControlsContainer" id="d7eb2493d0021c3d" memberName="simControlsContainer"
                     virtualName="" explicitFocusOrder="0" pos="0 0 100% 100" class="Component"
                     params=""/>
-  <SLIDER name="new slider" id="2ddea841d6d652ab" memberName="slider" virtualName=""
-          explicitFocusOrder="0" pos="272 40 150 24" min="0" max="1" int="0"
-          style="LinearHorizontal" textBoxPos="TextBoxLeft" textBoxEditable="0"
-          textBoxWidth="40" textBoxHeight="20" skewFactor="1"/>
+  <SLIDER name="new slider" id="2ddea841d6d652ab" memberName="thresholdSlider"
+          virtualName="" explicitFocusOrder="0" pos="200 40 150 24" min="0"
+          max="1" int="0" style="LinearHorizontal" textBoxPos="TextBoxLeft"
+          textBoxEditable="0" textBoxWidth="40" textBoxHeight="20" skewFactor="1"/>
   <LABEL name="new label" id="4f564f498f058971" memberName="label" virtualName=""
-         explicitFocusOrder="0" pos="312 16 80 24" edTextCol="ff000000"
+         explicitFocusOrder="0" pos="240 16 80 24" edTextCol="ff000000"
          edBkgCol="0" labelText="Threshold" editableSingleClick="0" editableDoubleClick="0"
          focusDiscardsChanges="0" fontname="Default font" fontsize="15"
          bold="0" italic="0" justification="33"/>
@@ -284,13 +333,22 @@ BEGIN_JUCER_METADATA
                 connectedEdges="0" needsCallback="1" radioGroupId="0" state="1"/>
   <TOGGLEBUTTON name="sfFeatureToggle" id="9eb603aec59d0a37" memberName="sfFeatureToggle"
                 virtualName="" explicitFocusOrder="0" pos="68R 16 50 24" buttonText="SF"
-                connectedEdges="0" needsCallback="1" radioGroupId="0" state="1"/>
+                connectedEdges="0" needsCallback="1" radioGroupId="0" state="0"/>
   <GENERICCOMPONENT name="graphContainer" id="a6f81aed259b1d6e" memberName="graphContainer"
                     virtualName="" explicitFocusOrder="0" pos="0 100 100% 300" class="Component"
                     params=""/>
   <TOGGLEBUTTON name="mfccFeatureToggle" id="f946313658ff3956" memberName="mfccFeatureToggle"
                 virtualName="" explicitFocusOrder="0" pos="188R 16 50 24" buttonText="MFCC"
-                connectedEdges="0" needsCallback="1" radioGroupId="0" state="1"/>
+                connectedEdges="0" needsCallback="1" radioGroupId="0" state="0"/>
+  <SLIDER name="stickynessSlider" id="47ae86c160831f8" memberName="stickynessSlider"
+          virtualName="" explicitFocusOrder="0" pos="360 40 150 24" min="0"
+          max="1" int="0" style="LinearHorizontal" textBoxPos="TextBoxLeft"
+          textBoxEditable="0" textBoxWidth="40" textBoxHeight="20" skewFactor="1"/>
+  <LABEL name="stickynessLabel" id="32983a34059e5df1" memberName="stickynessLabel"
+         virtualName="" explicitFocusOrder="0" pos="400 16 80 24" edTextCol="ff000000"
+         edBkgCol="0" labelText="Stickyness" editableSingleClick="0" editableDoubleClick="0"
+         focusDiscardsChanges="0" fontname="Default font" fontsize="15"
+         bold="0" italic="0" justification="33"/>
 </JUCER_COMPONENT>
 
 END_JUCER_METADATA

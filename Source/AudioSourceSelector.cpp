@@ -73,7 +73,7 @@ AudioSourceSelector::AudioSourceSelector ()
 
     isDraggable = true; // default to true
 
-
+    regionOverlay.clear();
     //[/Constructor]
 }
 
@@ -106,15 +106,17 @@ void AudioSourceSelector::paint (Graphics& g)
     //[UserPrePaint] Add your own custom painting code here..
     //[/UserPrePaint]
 
-    g.fillAll (Colour (0xffc76060));
+    g.fillAll (Colour (0xffbddfff));
 
     //[UserPaint] Add your own custom painting code here..
 
     drawWaveform(g);
-    
+
     if(hasRegionSelected){
         drawRegion(g);
     }
+    
+    drawCandidateRegions(g);
 
     //[/UserPaint]
 }
@@ -215,7 +217,7 @@ void AudioSourceSelector::mouseDrag (const MouseEvent& e)
             endX = startX;
             startX = tmp;
         }
-        
+
 //        std::cout << startX << " " << endX << std::endl;;
 
         setSelectedRegion(startX, endX);
@@ -259,27 +261,27 @@ File AudioSourceSelector::getLoadedFile(){
 
 void AudioSourceSelector::drawRegion(juce::Graphics &g){
     g.setColour(Colours::black);
-    
+
     g.setOpacity(0.5);
     int x = regionOverlay.getStart(getWidth());
     int y = getY();
     int w = regionOverlay.getEnd(getWidth()) - regionOverlay.getStart(getWidth());
     int h = getHeight();
-    
+
     g.fillRect(x,y,w,h);
 }
 
 void AudioSourceSelector::drawWaveform(juce::Graphics &g){
-    g.setColour(Colours::chocolate);
+    g.setColour(Colours::blue);
 
     Rectangle<int> bounds = Rectangle<int>();
     bounds.setX(getX());
     bounds.setY(0); // relative y position
     bounds.setWidth(getWidth());
     bounds.setHeight(getHeight());
-    
+
     thumbComponent->drawChannel(g, bounds, 0, thumbComponent->getTotalLength(), 0, 1);
-    
+
     if(!thumbComponent->isFullyLoaded()){
         repaint();
     }
@@ -287,6 +289,28 @@ void AudioSourceSelector::drawWaveform(juce::Graphics &g){
 
 AudioRegion AudioSourceSelector::getSelectedRegion(){
     return regionOverlay;
+}
+
+void AudioSourceSelector::setCandidateRegions(Array<AudioRegion> newCandidateRegions){
+    
+    candidateRegions = newCandidateRegions;
+    repaint();
+}
+
+void AudioSourceSelector::drawCandidateRegions(juce::Graphics &g){
+    
+    g.setOpacity(0.9);
+    g.setColour(Colours::black);
+    
+    for(int i=0; i<candidateRegions.size(); i++){
+        
+        
+        int startX = candidateRegions[i].getStart(getWidth());
+        int width = candidateRegions[i].getEnd(getWidth()) - startX;
+        
+        g.fillRect(startX, 0, width, getHeight());
+        
+    }
 }
 //[/MiscUserCode]
 
@@ -309,7 +333,7 @@ BEGIN_JUCER_METADATA
     <METHOD name="mouseDown (const MouseEvent&amp; e)"/>
     <METHOD name="visibilityChanged()"/>
   </METHODS>
-  <BACKGROUND backgroundColour="ffc76060"/>
+  <BACKGROUND backgroundColour="ffbddfff"/>
   <TEXTBUTTON name="playButton" id="2e944592a12d5b22" memberName="playButton"
               virtualName="" explicitFocusOrder="0" pos="129 8 75 24" buttonText="Play"
               connectedEdges="0" needsCallback="1" radioGroupId="0"/>
@@ -321,7 +345,7 @@ BEGIN_JUCER_METADATA
               buttonText="Play Selection" connectedEdges="0" needsCallback="1"
               radioGroupId="0"/>
   <TEXTBUTTON name="loadFileButton" id="3d0772bc202e3d3" memberName="loadFileButton"
-              virtualName="" explicitFocusOrder="0" pos="0.873% 8 100 24" bgColOff="fffbfbfd"
+              virtualName="" explicitFocusOrder="0" pos="0.868% 8 100 24" bgColOff="fffbfbfd"
               buttonText="Load File" connectedEdges="0" needsCallback="1" radioGroupId="0"/>
   <TEXTBUTTON name="clearSelectionButton" id="93b16b318257d1ed" memberName="clearSelectionButton"
               virtualName="" explicitFocusOrder="0" pos="422 8 100 24" bgColOff="fffffbb6"

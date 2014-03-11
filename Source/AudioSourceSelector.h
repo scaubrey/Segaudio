@@ -55,11 +55,15 @@ public:
     void setDraggable(bool isDraggable);
 
     File getLoadedFile();
-    
+
     void drawRegion(Graphics &g);
     void drawWaveform(Graphics &g);
-    
+
     AudioRegion getSelectedRegion();
+    
+    void setCandidateRegions(Array<AudioRegion> newCandidateRegions);
+    
+    void drawCandidateRegions(Graphics &g);
     //[/UserMethods]
 
     void paint (Graphics& g);
@@ -92,6 +96,8 @@ private:
     AudioAnalysisController* analysisController;
 
     File selectedFile;
+    
+    Array<AudioRegion> candidateRegions;
 
     //[/UserVariables]
 

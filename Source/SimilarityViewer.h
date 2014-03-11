@@ -52,9 +52,15 @@ public:
     void drawSimilarityFunction(Graphics &g);
 
     void setReadyToCompare(bool ready);
-    
+
     void getAudioRegionsUnderThreshold();
-    
+
+    void drawRegions(Graphics &g);
+
+    void updateRegions();
+
+    Array<AudioRegion> getCandidateRegions();
+
     //[/UserMethods]
 
     void paint (Graphics& g);
@@ -76,18 +82,24 @@ private:
     AudioAnalysisController analysisController;
 
     float threshold;
+    float stickyness;
+
+    Array<AudioRegion> regionCandidates;
+
 
     //[/UserVariables]
 
     //==============================================================================
     ScopedPointer<Component> simControlsContainer;
-    ScopedPointer<Slider> slider;
+    ScopedPointer<Slider> thresholdSlider;
     ScopedPointer<Label> label;
     ScopedPointer<TextButton> calcSimButton;
     ScopedPointer<ToggleButton> rmsFeatureToggle;
     ScopedPointer<ToggleButton> sfFeatureToggle;
     ScopedPointer<Component> graphContainer;
     ScopedPointer<ToggleButton> mfccFeatureToggle;
+    ScopedPointer<Slider> stickynessSlider;
+    ScopedPointer<Label> stickynessLabel;
 
 
     //==============================================================================

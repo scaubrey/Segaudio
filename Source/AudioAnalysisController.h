@@ -36,6 +36,8 @@ public:
     
     virtual void actionListenerCallback(const String &message);
     
+    Array<AudioRegion> getRegionsWithinThreshold(Array<float> distanceArray, float threshold, float stickyness);
+    
     Array<float> medianFilter(Array<float> distanceArray, int width);
     
 private:

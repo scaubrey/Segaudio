@@ -114,7 +114,13 @@ void MainComponent::actionListenerCallback(const juce::String &message){
         Array<float> distanceArray = analysisController.calculateDistances(srcFile, selectedRegion, targetFile);
         
         similarityViewer->setDistanceArray(distanceArray, analysisController.getLastMaxDistance());
-
+    }
+    else if(message == "candidateRegionsUpdated"){
+        Array<AudioRegion> candidateRegions = similarityViewer->getCandidateRegions();
+        
+        targetFileSelector->setCandidateRegions(candidateRegions);
+        targetFileSelector->repaint();
+        
     }
 
 }

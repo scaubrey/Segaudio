@@ -186,6 +186,36 @@ Array<float> AudioAnalysisController::medianFilter(Array<float> distanceArray, i
     // filter array
 }
 
+Array<AudioRegion> AudioAnalysisController::getRegionsWithinThreshold(Array<float> distanceArray, float threshold, float stickyness){
+    
+    Array<AudioRegion> regionCandidates;
+    
+    Array<int> indicesCandidates;
+    
+    for(int i=0; i<distanceArray.size(); i++){
+        if(distanceArray[i] < threshold){
+            indicesCandidates.add(i);
+        }
+    }
+    
+    int dArraySize = distanceArray.size();
+    
+    int regionStart = indicesCandidates[0];
+    int regionEnd = indicesCandidates[1];
+    for(int i=1; i<indicesCandidates.size(); i++){
+        
+        if(regionEnd - regionStart > stickyness){
+            regionCandidates.add(AudioRegion(regionStart, regionEnd, distanceArray.size()));
+            regionStart = indicesCandidates[i];
+        }
+        else{
+            regionEnd = indicesCandidates[i];
+        }
+    }
+    
+    return regionCandidates;
+}
+
 
 
 void AudioAnalysisController::actionListenerCallback(const String &message){
