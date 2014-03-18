@@ -14,6 +14,10 @@
 #include "JuceHeader.h"
 #include "AudioRegion.h"
 #include "SegaudioModel.h"
+#include "Eigen.h"
+#include <math.h>
+
+//using namespace Eigen;
 
 class AudioAnalysisController : public ActionListener
 {
@@ -29,7 +33,7 @@ public:
     
     void calculateDistances(Array<float>* distanceArray, AudioSampleBuffer* refRegionBuffer, AudioSampleBuffer* targetBuffer, AudioRegion refRegion, SignalFeaturesToUse* featuresToUse);
     
-    Array<float> calculateFeatureVector(AudioSampleBuffer* buffer, SignalFeaturesToUse* featuresToUse, AudioRegion region=AudioRegion());
+    Eigen::MatrixXf calculateFeatureMatrix(AudioSampleBuffer* buffer, SignalFeaturesToUse* featuresToUse, AudioRegion region=AudioRegion());
     
     
     float getLastMaxDistance();
@@ -40,18 +44,20 @@ public:
     
     Array<float> medianFilter(Array<float> distanceArray, int width);
     
+    int signum(float value);
+    
 private:
     
     AudioFormatManager* formatManager;
     
-    Array<float> refFeatures;
-    Array<float> targetFeatures;
+    Eigen::MatrixXf refFeatureMat;
+    Eigen::MatrixXf targetFeatureMat;
     
     float maxDistance;
     
     int windowSize;
     
-    float calculateMean(Array<float> values);
+//    float calculateMean(Array<float> values);
 
     float calculateBlockRMS(AudioSampleBuffer &block);
     

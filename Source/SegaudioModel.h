@@ -34,9 +34,19 @@ struct SignalFeaturesToUse{
     
     bool isNoneSelected(){
         if(rms || mfcc || sf || zcr){
-            return true;
+            return false;
         }
-        return false;
+        return true;
+    }
+    
+    int getNumSelected(){
+        int numSelected = 0;
+        if(rms) numSelected += 1;
+        if(mfcc) numSelected += 1;
+        if(sf) numSelected += 1;
+        if(zcr) numSelected += 1;
+        
+        return numSelected;
     }
 };
 

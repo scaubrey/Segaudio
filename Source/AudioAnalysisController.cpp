@@ -28,86 +28,91 @@ AudioAnalysisController::~AudioAnalysisController(){
 
 void AudioAnalysisController::calculateDistances(Array<float>* distanceArray, AudioSampleBuffer* refRegionBuffer, AudioSampleBuffer* targetBuffer, AudioRegion refRegion, SignalFeaturesToUse* featuresToUse){
     
-    distanceArray->clear(); // don't keep adding to it
+    distanceArray->clear(); // don't keep adding to it!
 
-    refFeatures = calculateFeatureVector(refRegionBuffer, featuresToUse, refRegion);
-    targetFeatures = calculateFeatureVector(targetBuffer, featuresToUse);
+    refFeatureMat = calculateFeatureMatrix(refRegionBuffer, featuresToUse, refRegion);
+    targetFeatureMat = calculateFeatureMatrix(targetBuffer, featuresToUse);
     
     
-    float avgRegionVal = calculateMean(refFeatures);
-    float maxDistanceVal = 0;
+    Eigen::MatrixXf avgRegionFeatures = refFeatureMat.colwise().mean();
     
-    for(int i=0; i<targetFeatures.size(); i++){
+    float maxDistanceVal = 0; // keep track of max for drawing
+    for(int i=0; i<targetFeatureMat.rows(); i++){
         
-        float rmsVal = targetFeatures[i];
+        float distanceVal = (targetFeatureMat.row(i) - avgRegionFeatures).squaredNorm();
         
-        float distanceVal = sqrtf(pow(fabs(rmsVal - avgRegionVal), 2));
         if(distanceVal > maxDistanceVal){
             maxDistanceVal = distanceVal;
         }
         
         distanceArray->add(distanceVal);
-        
     }
     maxDistance = maxDistanceVal;
 
 }
 
-Array<float> AudioAnalysisController::calculateFeatureVector(AudioSampleBuffer* buffer, SignalFeaturesToUse* featuresToUse, AudioRegion region){
+Eigen::MatrixXf AudioAnalysisController::calculateFeatureMatrix(AudioSampleBuffer* buffer, SignalFeaturesToUse* featuresToUse, AudioRegion region){
     
-    Array<float> featureVector = Array<float>();
+    if(featuresToUse->isNoneSelected()){
+        Eigen::MatrixXf featureMatrix = Eigen::MatrixXf::Zero(0, 0);
+        return featureMatrix;
+    }
     
+    // Separate into blocks
     int totalNumSamples = buffer->getNumSamples();
-
     int approxNumBlocks = floor(totalNumSamples / windowSize);
-    int numBlocks, startBlock, endBlock;
+    int numTotalBlocks, startBlock, endBlock;
     if(approxNumBlocks * windowSize == totalNumSamples){
-        numBlocks = approxNumBlocks;
+        numTotalBlocks = approxNumBlocks;
     }
     else{
-        numBlocks = approxNumBlocks + 1;
+        numTotalBlocks = approxNumBlocks + 1;
     }
     
     startBlock = 0;
-    endBlock = numBlocks;
+    endBlock = numTotalBlocks;
     
     if(region.isInitialized()){ // take subsection if provided
-        startBlock = floor(region.getStart(numBlocks));
-        endBlock = floor(region.getEnd(numBlocks));
+        startBlock = floor(region.getStart(numTotalBlocks));
+        endBlock = floor(region.getEnd(numTotalBlocks));
     }
 
+    // initialize feature matrix
+    int numBlocksToProcess = endBlock - startBlock;
+    int numFeaturesSelected = featuresToUse->getNumSelected();
+    Eigen::MatrixXf featureMatrix = Eigen::MatrixXf::Zero(numBlocksToProcess, numFeaturesSelected);
     
-    int blockIdx;
-    
+    // process blocks
+    int blockSampleIdx;
+    int blockIdx = 0;
     for(int i=startBlock; i<endBlock-1; i++){
         
-        blockIdx = i * windowSize;
+        int featureIdx = 0; // for indexing w/variable num features
+        
+        blockSampleIdx = i * windowSize; // sample idx of block
      
         AudioSampleBuffer block = AudioSampleBuffer(buffer->getNumChannels(), windowSize);
         
         for(int j=0; j<buffer->getNumChannels(); j++){
-            block.copyFrom(j, 0, *buffer, j, blockIdx, windowSize);
-        }
-        
-        if(featuresToUse->isNoneSelected()){
-            featureVector.add(0.0);
+            block.copyFrom(j, 0, *buffer, j, blockSampleIdx, windowSize);
         }
         
         if(featuresToUse->rms){
             float blockRMS = calculateBlockRMS(block);
-            featureVector.add(blockRMS);
-        }
-        if(featuresToUse->zcr){
-            float blockZCR = calculateZeroCrossRate(block);
-            featureVector.add(blockZCR);
+            featureMatrix(blockIdx, featureIdx) = blockRMS;
+            featureIdx += 1;
         }
         
-
+        if(featuresToUse->zcr){
+            float blockZCR = calculateZeroCrossRate(block);
+            featureMatrix(blockIdx, featureIdx) = blockZCR;
+            featureIdx += 1;
+        }
+        
+        blockIdx += 1;
     }
     
-    
-    return featureVector;
-    
+    return featureMatrix;
 }
 
 
@@ -118,7 +123,6 @@ float AudioAnalysisController::calculateBlockRMS(AudioSampleBuffer &block){
     
     for(int j=0; j<block.getNumChannels(); j++){
         for(int i=0; i<block.getNumSamples(); i++){
-//            std::cout << channelArray[j][i] << std::endl;
             runningTotal += powf(channelArray[j][i], 2);
         }
     }
@@ -130,19 +134,32 @@ float AudioAnalysisController::calculateBlockRMS(AudioSampleBuffer &block){
 
 float AudioAnalysisController::calculateZeroCrossRate(juce::AudioSampleBuffer &block){
     
+    int blockLength = block.getNumSamples();
+    int numZeroCrosses = 0;
+    float zcr;
     
-}
-
-float AudioAnalysisController::calculateMean(Array<float> values){
-    int numValues = values.size();
-    float runningAverage = 0;
+    float** channelArray = block.getArrayOfChannels();
     
-    for(int i=0; i<numValues; i++){
-        runningAverage = runningAverage + (values[i] - runningAverage) / (i + 1);
+    for(int j=0; j<block.getNumChannels(); j++){
+        for(int i=1; i<blockLength; i++){
+            numZeroCrosses += abs(signum(channelArray[j][i]) - signum(channelArray[j][i-1]));
+        }
     }
     
-    return runningAverage;
+    zcr = 1/(2*float(blockLength)) * float(numZeroCrosses);
+    return zcr;
 }
+
+//float AudioAnalysisController::calculateMean(Array<float> values){
+//    int numValues = values.size();
+//    float runningAverage = 0;
+//    
+//    for(int i=0; i<numValues; i++){
+//        runningAverage = runningAverage + (values[i] - runningAverage) / (i + 1);
+//    }
+//    
+//    return runningAverage;
+//}
 
 float AudioAnalysisController::getLastMaxDistance(){
     return maxDistance;
@@ -189,5 +206,10 @@ Array<AudioRegion> AudioAnalysisController::getClusterRegions(ClusterParameters*
 void AudioAnalysisController::actionListenerCallback(const String &message){
     
 //    std::cout << message;
-    
+}
+
+int AudioAnalysisController::signum(float value){
+    if(value > 0) return 1;
+    if(value < 0) return -1;
+    return 0;
 }
