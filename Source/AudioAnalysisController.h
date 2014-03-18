@@ -13,6 +13,7 @@
 
 #include "JuceHeader.h"
 #include "AudioRegion.h"
+#include "SegaudioModel.h"
 
 class AudioAnalysisController : public ActionListener
 {
@@ -26,29 +27,22 @@ public:
     void setTargetAudioReader(AudioFormatReader* incomingReader);
     bool isReady();
     
-    Array<float> calculateDistances(File srcFile, AudioRegion selectedRegion, File targetFile);
-    Array<float> calculateFeatureVector(AudioSampleBuffer* buffer, AudioRegion selectedRegion=AudioRegion());
+    void calculateDistances(Array<float>* distanceArray, AudioSampleBuffer* refRegionBuffer, AudioSampleBuffer* targetBuffer, AudioRegion refRegion, SignalFeaturesToUse* featuresToUse);
     
-    float calculateBlockRMS(AudioSampleBuffer &block);
+    Array<float> calculateFeatureVector(AudioSampleBuffer* buffer, SignalFeaturesToUse* featuresToUse, AudioRegion region=AudioRegion());
+    
     
     float getLastMaxDistance();
-    float calculateMean(Array<float> values);
     
     virtual void actionListenerCallback(const String &message);
     
-    Array<AudioRegion> getRegionsWithinThreshold(Array<float> distanceArray, float threshold, float stickyness);
+    Array<AudioRegion> getClusterRegions(ClusterParameters* clusterParams, Array<float>* distanceArray);
     
     Array<float> medianFilter(Array<float> distanceArray, int width);
     
 private:
     
     AudioFormatManager* formatManager;
-    
-    AudioFormatReader* referenceAudioReader;
-    AudioFormatReader* targetAudioReader;
-    
-//    AudioSampleBuffer* refBuffer;
-//    AudioSampleBuffer* targetBuffer;
     
     Array<float> refFeatures;
     Array<float> targetFeatures;
@@ -57,7 +51,12 @@ private:
     
     int windowSize;
     
+    float calculateMean(Array<float> values);
+
+    float calculateBlockRMS(AudioSampleBuffer &block);
     
+    float calculateZeroCrossRate(AudioSampleBuffer &block);
+
 };
 
 

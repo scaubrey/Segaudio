@@ -34,6 +34,7 @@ public:
     void shutdown()
     {
         // Add your application's shutdown code here..
+//        delete mainWindow;
         mainWindow = nullptr;
     }
 
@@ -60,22 +61,22 @@ public:
     class MainWindow    : public DocumentWindow
     {
     public:
-        MainWindow()  : DocumentWindow ("MainWindow",
+        MainWindow()  : DocumentWindow ("Segaudio",
                                         Colours::lightgrey,
                                         DocumentWindow::allButtons)
         {
             
-            appFormatManager = new AudioFormatManager();
-            appFormatManager->registerBasicFormats();
-            
-            appThumbCache = new AudioThumbnailCache(3);  // store 3 thumbnails
-            
             analysisController = new AudioAnalysisController;
             
-            setContentOwned (new MainComponent(*appFormatManager, *appThumbCache, *analysisController), true);
+            mainComponent = new MainComponent(*analysisController);
+            setContentOwned (mainComponent, true);
 
             maximiseButtonPressed();
             setVisible (true);
+            setResizable(true, true);
+
+//            menu.addItem(0, "Add File");
+//            MenuBarModel::setMacMainMenu();
         }
 
         void closeButtonPressed()
@@ -83,10 +84,12 @@ public:
             // This is called when the user tries to close this window. Here, we'll just
             // ask the app to quit when this happens, but you can change this to do
             // whatever you need.
-            appFormatManager = nullptr;
-            appThumbCache = nullptr;
+
+            delete analysisController;
             
             analysisController = nullptr;
+            
+            mainComponent = nullptr;
             
             JUCEApplication::getInstance()->systemRequestedQuit();
         }
@@ -102,9 +105,10 @@ public:
         JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (MainWindow)
         
         AudioAnalysisController* analysisController;
+        ScopedPointer<MainComponent> mainComponent;
         
-        AudioFormatManager* appFormatManager;
-        AudioThumbnailCache* appThumbCache;
+        PopupMenu menu;
+        
     };
     
 private:

@@ -11,7 +11,9 @@
 #ifndef AUDIOREGION_H_INCLUDED
 #define AUDIOREGION_H_INCLUDED
 
-class AudioRegion
+#include "JuceHeader.h"
+
+class AudioRegion //: public Component
 {
     
 public:

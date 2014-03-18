@@ -38,8 +38,7 @@
                                                                     //[/Comments]
 */
 class AudioSourceSelector  : public Component,
-                             public ActionBroadcaster,
-                             public ButtonListener
+                             public ActionBroadcaster
 {
 public:
     //==============================================================================
@@ -49,26 +48,37 @@ public:
     //==============================================================================
     //[UserMethods]     -- You can add your own custom methods in this section.
     void setSelectedRegion(int startX, int endX);
-    void getAudioSelection();
 
     bool hasFileLoaded();
     void setDraggable(bool isDraggable);
 
-    File getLoadedFile();
+    SegaudioFile* getLoadedFile();
+
+    void setFile(File &newFile);
 
     void drawRegion(Graphics &g);
     void drawWaveform(Graphics &g);
 
     AudioRegion getSelectedRegion();
-    
+
     void setCandidateRegions(Array<AudioRegion> newCandidateRegions);
-    
+
     void drawCandidateRegions(Graphics &g);
+
+    void clearAll();
+    void clearRegion();
+    
+    void drawAudioPositionBar(Graphics &g);
+    
+    float getPositionBarTime();
+    
+    void startPositionBar();
+    void stopPositionBar();
     //[/UserMethods]
 
+    
     void paint (Graphics& g);
     void resized();
-    void buttonClicked (Button* buttonThatWasClicked);
     void visibilityChanged();
     void mouseDown (const MouseEvent& e);
     void mouseDrag (const MouseEvent& e);
@@ -77,6 +87,9 @@ public:
 
 private:
     //[UserVariables]   -- You can add your own custom variables in this section.
+
+    String id;
+
     AudioThumbnail *thumbComponent;
 
     AudioThumbnailCache* thumbCache;
@@ -85,28 +98,62 @@ private:
 
     bool hasRegionSelected;
     bool fileLoaded;
+    
+    bool audioPLaying;
 
     int regionStartFraction;
     int regionEndFraction;
 
     AudioFormatManager* thumbFormatManager;
-    AudioFormatManager* controllerFormatManager;
     bool isDraggable;
 
     AudioAnalysisController* analysisController;
 
-    File selectedFile;
-    
+    SegaudioFile selectedFile;
+    int numChannels;
+    int numSamples;
+    int sampleRate;
+
     Array<AudioRegion> candidateRegions;
 
+    FileInputSource* fileInputSource;
+    
+    float audioPostionFrac;
+    
+    class PositionBarTimer : public Timer
+    {
+    public:
+
+        PositionBarTimer(float &positionFraction, int numSamples, int sampleRate){
+            positionFrac = &positionFraction;
+            totalSamples = numSamples;
+            fileSampleRate = sampleRate;
+        };
+        
+        ~PositionBarTimer(){
+             
+        };
+        
+        
+        virtual void timerCallback(){
+            *positionFrac += float(getTimerInterval()) * 0.001 / (totalSamples / fileSampleRate);
+            if(*positionFrac > 1){ // finished playing
+                stopTimer();
+            }
+        }
+        
+    private:
+        float* positionFrac;
+        int totalSamples;
+        int fileSampleRate;
+        
+    };
+    
+    ScopedPointer<PositionBarTimer> positionBarTimer;
+    
     //[/UserVariables]
 
     //==============================================================================
-    ScopedPointer<TextButton> playButton;
-    ScopedPointer<TextButton> stopButton;
-    ScopedPointer<TextButton> playSelectionButton;
-    ScopedPointer<TextButton> loadFileButton;
-    ScopedPointer<TextButton> clearSelectionButton;
 
 
     //==============================================================================
@@ -114,6 +161,8 @@ private:
 };
 
 //[EndFile] You can add extra defines here...
+
+
 //[/EndFile]
 
 #endif   // __JUCE_HEADER_90189DFC3624428__

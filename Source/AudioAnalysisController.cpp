@@ -12,74 +12,26 @@
 
 
 AudioAnalysisController::AudioAnalysisController(){
-    referenceAudioReader = nullptr;
-    targetAudioReader = nullptr;
-//    refBuffer = nullptr;
-//    targetBuffer = nullptr;
     
-    windowSize = 2048;
+    windowSize = 2048*4;
     
     formatManager = new AudioFormatManager();
     formatManager->registerBasicFormats();
     
-//    refBuffer = new AudioSampleBuffer(2, windowSize);
-//    refBuffer->clear();
-//    targetBuffer = new AudioSampleBuffer(2, windowSize);
-//    targetBuffer->clear();
-    
-
 };
 
 AudioAnalysisController::~AudioAnalysisController(){
-//    delete refBuffer;
-//    delete targetBuffer;
-//    
-//    refBuffer = 0;
-//    targetBuffer = 0;
+    
+    delete formatManager;
+    
 };
 
-
-//void AudioAnalysisController::setReferenceAudioReader(AudioFormatReader* incomingReader){
-//    referenceAudioReader = incomingReader;
-//    AudioSampleBuffer* tmpBuffer = new AudioSampleBuffer(incomingReader->numChannels, incomingReader->lengthInSamples);
-//    incomingReader->read(tmpBuffer, 0, incomingReader->lengthInSamples, 0, true, true);
-//    
-//    refBuffer = new AudioSampleBuffer(*tmpBuffer);
-//}
-//
-//void AudioAnalysisController::setTargetAudioReader(AudioFormatReader* incomingReader){
-//    targetAudioReader = incomingReader;
-//    AudioSampleBuffer* tmpBuffer = new AudioSampleBuffer(incomingReader->numChannels, incomingReader->lengthInSamples);
-//    incomingReader->read(tmpBuffer, 0, incomingReader->lengthInSamples, 0, true, true);
-//    
-//    targetBuffer = new AudioSampleBuffer(*tmpBuffer);
-//}
-//
-//bool AudioAnalysisController::isReady(){
-//    if(refBuffer and targetBuffer){
-//        return true;
-//    }
-//    return false;
-//}
-
-Array<float> AudioAnalysisController::calculateDistances(File srcFile, AudioRegion selectedRegion, File targetFile){
+void AudioAnalysisController::calculateDistances(Array<float>* distanceArray, AudioSampleBuffer* refRegionBuffer, AudioSampleBuffer* targetBuffer, AudioRegion refRegion, SignalFeaturesToUse* featuresToUse){
     
-    referenceAudioReader = formatManager->createReaderFor(srcFile);
-    targetAudioReader = formatManager->createReaderFor(targetFile);
-    
-    
-    AudioSampleBuffer* refBuffer = new AudioSampleBuffer(referenceAudioReader->numChannels, referenceAudioReader->lengthInSamples);
-    referenceAudioReader->read(refBuffer, 0, referenceAudioReader->lengthInSamples, 0, true, true);
+    distanceArray->clear(); // don't keep adding to it
 
-    
-    AudioSampleBuffer* targetBuffer = new AudioSampleBuffer(targetAudioReader->numChannels, targetAudioReader->lengthInSamples);
-    targetAudioReader->read(targetBuffer, 0, targetAudioReader->lengthInSamples, 0, true, true);
-
-    
-    Array<float> distanceArray;
-
-    refFeatures = calculateFeatureVector(refBuffer, selectedRegion);
-    targetFeatures = calculateFeatureVector(targetBuffer);
+    refFeatures = calculateFeatureVector(refRegionBuffer, featuresToUse, refRegion);
+    targetFeatures = calculateFeatureVector(targetBuffer, featuresToUse);
     
     
     float avgRegionVal = calculateMean(refFeatures);
@@ -94,15 +46,14 @@ Array<float> AudioAnalysisController::calculateDistances(File srcFile, AudioRegi
             maxDistanceVal = distanceVal;
         }
         
-        distanceArray.add(distanceVal);
+        distanceArray->add(distanceVal);
         
     }
     maxDistance = maxDistanceVal;
-    
-    return distanceArray;
+
 }
 
-Array<float> AudioAnalysisController::calculateFeatureVector(AudioSampleBuffer* buffer, AudioRegion selectedRegion){
+Array<float> AudioAnalysisController::calculateFeatureVector(AudioSampleBuffer* buffer, SignalFeaturesToUse* featuresToUse, AudioRegion region){
     
     Array<float> featureVector = Array<float>();
     
@@ -120,9 +71,9 @@ Array<float> AudioAnalysisController::calculateFeatureVector(AudioSampleBuffer* 
     startBlock = 0;
     endBlock = numBlocks;
     
-    if(selectedRegion.isInitialized()){
-        startBlock = floor(selectedRegion.getStart(numBlocks));
-        endBlock = floor(selectedRegion.getEnd(numBlocks));
+    if(region.isInitialized()){ // take subsection if provided
+        startBlock = floor(region.getStart(numBlocks));
+        endBlock = floor(region.getEnd(numBlocks));
     }
 
     
@@ -138,8 +89,19 @@ Array<float> AudioAnalysisController::calculateFeatureVector(AudioSampleBuffer* 
             block.copyFrom(j, 0, *buffer, j, blockIdx, windowSize);
         }
         
-        float blockRMS = calculateBlockRMS(block);
-        featureVector.add(blockRMS);
+        if(featuresToUse->isNoneSelected()){
+            featureVector.add(0.0);
+        }
+        
+        if(featuresToUse->rms){
+            float blockRMS = calculateBlockRMS(block);
+            featureVector.add(blockRMS);
+        }
+        if(featuresToUse->zcr){
+            float blockZCR = calculateZeroCrossRate(block);
+            featureVector.add(blockZCR);
+        }
+        
 
     }
     
@@ -166,6 +128,11 @@ float AudioAnalysisController::calculateBlockRMS(AudioSampleBuffer &block){
     return rms;
 }
 
+float AudioAnalysisController::calculateZeroCrossRate(juce::AudioSampleBuffer &block){
+    
+    
+}
+
 float AudioAnalysisController::calculateMean(Array<float> values){
     int numValues = values.size();
     float runningAverage = 0;
@@ -186,26 +153,25 @@ Array<float> AudioAnalysisController::medianFilter(Array<float> distanceArray, i
     // filter array
 }
 
-Array<AudioRegion> AudioAnalysisController::getRegionsWithinThreshold(Array<float> distanceArray, float threshold, float stickyness){
+Array<AudioRegion> AudioAnalysisController::getClusterRegions(ClusterParameters* clusterParams, Array<float>* distanceArray){
     
     Array<AudioRegion> regionCandidates;
     
     Array<int> indicesCandidates;
     
-    for(int i=0; i<distanceArray.size(); i++){
-        if(distanceArray[i] < threshold){
+    for(int i=0; i<distanceArray->size(); i++){
+        if((*distanceArray)[i] < clusterParams->threshold){
             indicesCandidates.add(i);
         }
     }
-    
-    int dArraySize = distanceArray.size();
-    
+        
     int regionStart = indicesCandidates[0];
     int regionEnd = indicesCandidates[1];
     for(int i=1; i<indicesCandidates.size(); i++){
-        if(indicesCandidates[i] - indicesCandidates[i-1] > 1){
-            if(regionEnd - regionStart > stickyness){
-                regionCandidates.add(AudioRegion(regionStart, regionEnd, distanceArray.size()));
+        if(indicesCandidates[i] - indicesCandidates[i-1] > clusterParams->regionConnectionWidth * 100 + 1){
+            float regionFracWidth = (float(regionEnd) - float(regionStart)) / distanceArray->size();
+            if(regionFracWidth > clusterParams->minRegionTimeWidth and regionFracWidth < clusterParams->maxRegionTimeWidth){
+                regionCandidates.add(AudioRegion(regionStart, regionEnd, distanceArray->size()));
             }
             regionStart = indicesCandidates[i];
         }

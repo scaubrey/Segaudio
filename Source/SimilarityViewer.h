@@ -36,10 +36,7 @@
                                                                     //[/Comments]
 */
 class SimilarityViewer  : public Component,
-                          public ActionBroadcaster,
-                          public SliderListener,
-                          public ButtonListener,
-                          public ComboBoxListener
+                          public ActionBroadcaster
 {
 public:
     //==============================================================================
@@ -48,23 +45,10 @@ public:
 
     //==============================================================================
     //[UserMethods]     -- You can add your own custom methods in this section.
-    void setDistanceArray(Array<float> newArray, float maxDistance);
+    void setTuningParameters(ClusterParameters* clusterTuningParams, Array<float>* newArray, float distance);
+
     void drawThreshold(Graphics &g);
     void drawSimilarityFunction(Graphics &g);
-
-    void setReadyToCompare(bool ready);
-
-    void getAudioRegionsUnderThreshold();
-
-    void drawRegions(Graphics &g);
-
-    void updateRegions();
-
-    Array<AudioRegion> getCandidateRegions();
-
-    void updateSimilarityFunction();
-
-    void updateComponent();
 
     void clear();
 
@@ -72,9 +56,6 @@ public:
 
     void paint (Graphics& g);
     void resized();
-    void sliderValueChanged (Slider* sliderThatWasMoved);
-    void buttonClicked (Button* buttonThatWasClicked);
-    void comboBoxChanged (ComboBox* comboBoxThatHasChanged);
 
 
 
@@ -82,38 +63,22 @@ private:
     //[UserVariables]   -- You can add your own custom variables in this section.
 
 
-    Array<float> distanceArray;
-    Array<float> filteredDistanceArray;
+    Array<float>* distanceArray;
+    Array<float>* filteredDistanceArray;
 
     float maxDistance;
-
-    bool readyToCompare;
-    AudioAnalysisController analysisController;
 
     float threshold;
     float stickyness;
     float smoothness;
 
-    Array<AudioRegion> regionCandidates;
+    Array<AudioRegion>* regionCandidates;
 
 
     //[/UserVariables]
 
     //==============================================================================
-    ScopedPointer<Component> simControlsContainer;
-    ScopedPointer<Slider> thresholdSlider;
-    ScopedPointer<Label> thresholdLabel;
-    ScopedPointer<TextButton> calcSimButton;
-    ScopedPointer<ToggleButton> rmsFeatureToggle;
-    ScopedPointer<ToggleButton> sfFeatureToggle;
     ScopedPointer<Component> graphContainer;
-    ScopedPointer<ToggleButton> mfccFeatureToggle;
-    ScopedPointer<Slider> stickynessSlider;
-    ScopedPointer<Label> stickynessLabel;
-    ScopedPointer<Slider> smoothnessSlider;
-    ScopedPointer<Label> smoothnessLabel;
-    ScopedPointer<ComboBox> presetComboBox;
-    ScopedPointer<Label> presetsLabel;
 
 
     //==============================================================================

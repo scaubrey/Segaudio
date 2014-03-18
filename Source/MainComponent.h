@@ -22,10 +22,11 @@
 
 //[Headers]     -- You can add your own extra header files here --
 #include "JuceHeader.h"
-#include "AudioSourceSelector.h"
-#include "CustomFileFilter.h"
-#include "SimilarityViewer.h"
 #include "AudioAnalysisController.h"
+#include "SegaudioModel.h"
+#include "ReferenceFileComponent.h"
+#include "TargetFileComponent.h"
+#include "ControlPanelComponent.h"
 //[/Headers]
 
 
@@ -43,15 +44,16 @@ class MainComponent  : public Component,
 {
 public:
     //==============================================================================
-    MainComponent (AudioFormatManager &appFormatManager, AudioThumbnailCache &appThumbCache, AudioAnalysisController &analysisController);
+    MainComponent (AudioAnalysisController &analysisController);
     ~MainComponent();
 
     //==============================================================================
     //[UserMethods]     -- You can add your own custom methods in this section.
     virtual void actionListenerCallback(const String &message);
-    
-    void updateTargetComponentRegions();
 
+    void updateTargetComponent();
+
+    bool isReadyToCompare();
     //[/UserMethods]
 
     void paint (Graphics& g);
@@ -62,14 +64,20 @@ public:
 private:
     //[UserVariables]   -- You can add your own custom variables in this section.
 
-    AudioAnalysisController analysisController;
+    AudioAnalysisController* analysisController;
+    AudioDeviceManager deviceManager;
+    SegaudioModel* appModel;
+
+    bool isRefFileLoaded;
+    bool isTargetFileLoaded;
+    bool isRegionSelected;
 
     //[/UserVariables]
 
     //==============================================================================
-    ScopedPointer<AudioSourceSelector> audioSrcSelector;
-    ScopedPointer<SimilarityViewer> similarityViewer;
-    ScopedPointer<AudioSourceSelector> targetFileSelector;
+    ScopedPointer<ReferenceFileComponent> referenceFileComponent;
+    ScopedPointer<TargetFileComponent> targetFileComponent;
+    ScopedPointer<ControlPanelComponent> controlPanelComponent;
 
 
     //==============================================================================

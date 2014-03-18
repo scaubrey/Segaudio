@@ -30,29 +30,6 @@
 AudioSourceSelector::AudioSourceSelector ()
 {
     setName ("audioSourceSelector");
-    addAndMakeVisible (playButton = new TextButton ("playButton"));
-    playButton->setButtonText (TRANS("Play"));
-    playButton->addListener (this);
-
-    addAndMakeVisible (stopButton = new TextButton ("stopButton"));
-    stopButton->setButtonText (TRANS("Stop"));
-    stopButton->addListener (this);
-
-    addAndMakeVisible (playSelectionButton = new TextButton ("playSelectionButton"));
-    playSelectionButton->setButtonText (TRANS("Play Selection"));
-    playSelectionButton->addListener (this);
-    playSelectionButton->setColour (TextButton::buttonColourId, Colour (0xfffffbb6));
-
-    addAndMakeVisible (loadFileButton = new TextButton ("loadFileButton"));
-    loadFileButton->setButtonText (TRANS("Load File"));
-    loadFileButton->addListener (this);
-    loadFileButton->setColour (TextButton::buttonColourId, Colour (0xfffbfbfd));
-
-    addAndMakeVisible (clearSelectionButton = new TextButton ("clearSelectionButton"));
-    clearSelectionButton->setButtonText (TRANS("Clear Selection"));
-    clearSelectionButton->addListener (this);
-    clearSelectionButton->setColour (TextButton::buttonColourId, Colour (0xfffffbb6));
-
 
     //[UserPreSize]
     //[/UserPreSize]
@@ -64,16 +41,19 @@ AudioSourceSelector::AudioSourceSelector ()
     thumbFormatManager = new AudioFormatManager();
     thumbFormatManager->registerBasicFormats();
 
-    controllerFormatManager = new AudioFormatManager();
-    controllerFormatManager->registerBasicFormats();
-
     thumbCache = new AudioThumbnailCache(1);
 
-    thumbComponent = new AudioThumbnail (500, *thumbFormatManager, *thumbCache);
+    thumbComponent = new AudioThumbnail (1000, *thumbFormatManager, *thumbCache);
+
+    fileInputSource = nullptr;
 
     isDraggable = true; // default to true
+    
+    audioPLaying = false;
 
     regionOverlay.clear();
+    
+    audioPostionFrac = 0.0f;
     //[/Constructor]
 }
 
@@ -82,21 +62,21 @@ AudioSourceSelector::~AudioSourceSelector()
     //[Destructor_pre]. You can add your own custom destruction code here..
     //[/Destructor_pre]
 
-    playButton = nullptr;
-    stopButton = nullptr;
-    playSelectionButton = nullptr;
-    loadFileButton = nullptr;
-    clearSelectionButton = nullptr;
 
 
     //[Destructor]. You can add your own custom destruction code here..
-    thumbComponent = nullptr;
-
+    thumbFormatManager->clearFormats();
     delete thumbFormatManager;
     thumbFormatManager = nullptr;
 
-    delete controllerFormatManager;
-    controllerFormatManager = nullptr;
+    thumbComponent->clear();
+    delete thumbComponent;
+    thumbComponent = nullptr;
+
+    thumbCache->clear();
+    delete thumbCache;
+    thumbCache = nullptr;
+
     //[/Destructor]
 }
 
@@ -106,7 +86,7 @@ void AudioSourceSelector::paint (Graphics& g)
     //[UserPrePaint] Add your own custom painting code here..
     //[/UserPrePaint]
 
-    g.fillAll (Colour (0xffbddfff));
+    g.fillAll (Colours::white);
 
     //[UserPaint] Add your own custom painting code here..
 
@@ -115,80 +95,24 @@ void AudioSourceSelector::paint (Graphics& g)
     if(hasRegionSelected){
         drawRegion(g);
     }
-    
+
     drawCandidateRegions(g);
+    
+    if(fileLoaded){
+        drawAudioPositionBar(g);
+    }
+    
+    if(audioPLaying){
+        repaint();
+    }
 
     //[/UserPaint]
 }
 
 void AudioSourceSelector::resized()
 {
-    playButton->setBounds (129, 8, 75, 24);
-    stopButton->setBounds (211, 8, 75, 24);
-    playSelectionButton->setBounds (412 - 100, 8, 100, 24);
-    loadFileButton->setBounds (proportionOfWidth (0.0087f), 8, 100, 24);
-    clearSelectionButton->setBounds (422, 8, 100, 24);
     //[UserResized] Add your own custom resize handling here..
     //[/UserResized]
-}
-
-void AudioSourceSelector::buttonClicked (Button* buttonThatWasClicked)
-{
-    //[UserbuttonClicked_Pre]
-    //[/UserbuttonClicked_Pre]
-
-    if (buttonThatWasClicked == playButton)
-    {
-        //[UserButtonCode_playButton] -- add your button handler code here..
-        sendActionMessage("playButton pressed in selector");
-        //[/UserButtonCode_playButton]
-    }
-    else if (buttonThatWasClicked == stopButton)
-    {
-        //[UserButtonCode_stopButton] -- add your button handler code here..
-        //[/UserButtonCode_stopButton]
-    }
-    else if (buttonThatWasClicked == playSelectionButton)
-    {
-        //[UserButtonCode_playSelectionButton] -- add your button handler code here..
-        //[/UserButtonCode_playSelectionButton]
-    }
-    else if (buttonThatWasClicked == loadFileButton)
-    {
-        //[UserButtonCode_loadFileButton] -- add your button handler code here..
-        FileChooser myChooser ("Please select the file you want to load...");
-        if (myChooser.browseForFileToOpen())
-        {
-            selectedFile = myChooser.getResult();
-            FileInputSource fileInput(selectedFile);
-            thumbComponent->setSource(&fileInput);
-
-            String name = getName();
-            if(name == "audioSrcSelector"){
-                sendActionMessage("setSourceFile");
-            }
-            else if(name == "targetFileSelector"){
-                sendActionMessage("setTargetFile");
-            }
-
-            fileLoaded = true;
-            repaint();
-        }
-        //[/UserButtonCode_loadFileButton]
-    }
-    else if (buttonThatWasClicked == clearSelectionButton)
-    {
-        //[UserButtonCode_clearSelectionButton] -- add your button handler code here..
-        regionOverlay.clear();
-        repaint();
-
-        sendActionMessage("srcRegionCleared");
-
-        //[/UserButtonCode_clearSelectionButton]
-    }
-
-    //[UserbuttonClicked_Post]
-    //[/UserbuttonClicked_Post]
 }
 
 void AudioSourceSelector::visibilityChanged()
@@ -200,7 +124,16 @@ void AudioSourceSelector::visibilityChanged()
 void AudioSourceSelector::mouseDown (const MouseEvent& e)
 {
     //[UserCode_mouseDown] -- Add your code here...
-    std::cout << "clicked: " << e.getMouseDownX();
+    int mouseX = e.getMouseDownX();
+    
+    audioPostionFrac = float(mouseX) / getWidth();
+    
+    if(audioPLaying){
+        sendActionMessage("audioPositionUpdateWhilePlaying"); // update audio and keep playing 
+    }
+    
+    repaint();
+    
     //[/UserCode_mouseDown]
 }
 
@@ -229,6 +162,18 @@ void AudioSourceSelector::mouseDrag (const MouseEvent& e)
 
 //[MiscUserCode] You can add your own definitions of your custom methods or any other code here...
 
+void AudioSourceSelector::clearAll(){
+    clearRegion();
+    // clear file?
+}
+
+void AudioSourceSelector::clearRegion(){
+    regionOverlay.clear();
+    repaint();
+
+    sendActionMessage("srcRegionCleared");
+}
+
 void AudioSourceSelector::setSelectedRegion(int startX, int endX){
 
     regionOverlay  = AudioRegion(startX, endX, getWidth());
@@ -239,15 +184,9 @@ void AudioSourceSelector::setSelectedRegion(int startX, int endX){
     sendActionMessage("srcRegionSelected");
 }
 
-void AudioSourceSelector::getAudioSelection(){
-
-}
 
 void AudioSourceSelector::setDraggable(bool makeDraggable){
     isDraggable = makeDraggable;
-
-    playSelectionButton->setVisible(false);
-    clearSelectionButton->setVisible(false);
 
 }
 
@@ -255,8 +194,27 @@ bool AudioSourceSelector::hasFileLoaded(){
     return fileLoaded;
 }
 
-File AudioSourceSelector::getLoadedFile(){
-    return selectedFile;
+SegaudioFile* AudioSourceSelector::getLoadedFile(){
+    return &selectedFile;
+}
+
+void AudioSourceSelector::setFile(File &newFile){
+
+    fileInputSource = new FileInputSource(newFile);
+    thumbComponent->setSource(fileInputSource);
+    
+    ScopedPointer<AudioFormatReader> tmpReader = thumbFormatManager->createReaderFor(newFile);
+    numChannels = tmpReader->numChannels;
+    numSamples = tmpReader->lengthInSamples;
+    sampleRate = tmpReader->sampleRate;
+    
+    positionBarTimer = new PositionBarTimer(audioPostionFrac, numSamples, sampleRate);
+    
+    selectedFile.setFile(newFile);
+    
+    fileLoaded = true;
+    audioPostionFrac = 0;
+    repaint();
 }
 
 void AudioSourceSelector::drawRegion(juce::Graphics &g){
@@ -292,7 +250,7 @@ AudioRegion AudioSourceSelector::getSelectedRegion(){
 }
 
 void AudioSourceSelector::setCandidateRegions(Array<AudioRegion> newCandidateRegions){
-    
+
     candidateRegions = newCandidateRegions;
     repaint();
 }
@@ -301,17 +259,48 @@ void AudioSourceSelector::drawCandidateRegions(juce::Graphics &g){
 
     g.setColour(Colours::black);
     g.setOpacity(0.5);
-    
+
     for(int i=0; i<candidateRegions.size(); i++){
-        
-        
+
+
         int startX = candidateRegions[i].getStart(getWidth());
         int width = candidateRegions[i].getEnd(getWidth()) - startX;
-        
+
         g.fillRect(startX, 0, width, getHeight());
-        
+
     }
 }
+
+void AudioSourceSelector::drawAudioPositionBar(Graphics &g){
+    g.setColour(Colours::red);
+    g.setOpacity(0.8);
+    
+    int positionBarInPixels = round(audioPostionFrac * getWidth());
+    
+    g.drawLine(positionBarInPixels, 0, positionBarInPixels, getHeight());
+    
+}
+
+float AudioSourceSelector::getPositionBarTime(){
+    float currentPositionBarTime = audioPostionFrac * float(numSamples) / float(sampleRate);
+    return currentPositionBarTime;
+}
+
+void AudioSourceSelector::startPositionBar(){
+    if(fileLoaded){
+        positionBarTimer->startTimer(50);
+    }
+    audioPLaying = true;
+};
+
+void AudioSourceSelector::stopPositionBar(){
+    if(positionBarTimer->isTimerRunning()){
+        positionBarTimer->stopTimer();
+    }
+    
+    audioPLaying = false;
+}
+
 //[/MiscUserCode]
 
 
@@ -333,24 +322,7 @@ BEGIN_JUCER_METADATA
     <METHOD name="mouseDown (const MouseEvent&amp; e)"/>
     <METHOD name="visibilityChanged()"/>
   </METHODS>
-  <BACKGROUND backgroundColour="ffbddfff"/>
-  <TEXTBUTTON name="playButton" id="2e944592a12d5b22" memberName="playButton"
-              virtualName="" explicitFocusOrder="0" pos="129 8 75 24" buttonText="Play"
-              connectedEdges="0" needsCallback="1" radioGroupId="0"/>
-  <TEXTBUTTON name="stopButton" id="b3bb395d3bc0e4a9" memberName="stopButton"
-              virtualName="" explicitFocusOrder="0" pos="211 8 75 24" buttonText="Stop"
-              connectedEdges="0" needsCallback="1" radioGroupId="0"/>
-  <TEXTBUTTON name="playSelectionButton" id="8e3de633a39789c" memberName="playSelectionButton"
-              virtualName="" explicitFocusOrder="0" pos="412r 8 100 24" bgColOff="fffffbb6"
-              buttonText="Play Selection" connectedEdges="0" needsCallback="1"
-              radioGroupId="0"/>
-  <TEXTBUTTON name="loadFileButton" id="3d0772bc202e3d3" memberName="loadFileButton"
-              virtualName="" explicitFocusOrder="0" pos="0.868% 8 100 24" bgColOff="fffbfbfd"
-              buttonText="Load File" connectedEdges="0" needsCallback="1" radioGroupId="0"/>
-  <TEXTBUTTON name="clearSelectionButton" id="93b16b318257d1ed" memberName="clearSelectionButton"
-              virtualName="" explicitFocusOrder="0" pos="422 8 100 24" bgColOff="fffffbb6"
-              buttonText="Clear Selection" connectedEdges="0" needsCallback="1"
-              radioGroupId="0"/>
+  <BACKGROUND backgroundColour="ffffffff"/>
 </JUCER_COMPONENT>
 
 END_JUCER_METADATA
