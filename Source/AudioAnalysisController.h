@@ -46,6 +46,11 @@ public:
     
     int signum(float value);
     
+    Array<AudioRegion> invertClusterRegions(Array<AudioRegion> &regions);
+    
+    bool saveRegionsToFile(Array<AudioRegion> &regions, AudioSampleBuffer* sourceBuffer, File &destinationFile, bool useSeparateFiles);
+    
+    
 private:
     
     AudioFormatManager* formatManager;
@@ -62,6 +67,10 @@ private:
     float calculateBlockRMS(AudioSampleBuffer &block);
     
     float calculateZeroCrossRate(AudioSampleBuffer &block);
+    
+    float calculateSprectralFlux(AudioSampleBuffer &block);
+    
+    Eigen::RowVectorXf calculateMFCC(AudioSampleBuffer &block);
 
 };
 

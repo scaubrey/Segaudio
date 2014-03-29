@@ -53,7 +53,7 @@ void AudioAnalysisController::calculateDistances(Array<float>* distanceArray, Au
 
 Eigen::MatrixXf AudioAnalysisController::calculateFeatureMatrix(AudioSampleBuffer* buffer, SignalFeaturesToUse* featuresToUse, AudioRegion region){
     
-    if(featuresToUse->isNoneSelected()){
+    if(featuresToUse->isNoneSelected()){ // skip all this if no features selected
         Eigen::MatrixXf featureMatrix = Eigen::MatrixXf::Zero(0, 0);
         return featureMatrix;
     }
@@ -77,16 +77,19 @@ Eigen::MatrixXf AudioAnalysisController::calculateFeatureMatrix(AudioSampleBuffe
         endBlock = floor(region.getEnd(numTotalBlocks));
     }
 
-    // initialize feature matrix
+    // initialize vars for feature matrix
     int numBlocksToProcess = endBlock - startBlock;
     int numFeaturesSelected = featuresToUse->getNumSelected();
     Eigen::MatrixXf featureMatrix = Eigen::MatrixXf::Zero(numBlocksToProcess, numFeaturesSelected);
     
-    // process blocks
-    int blockSampleIdx;
+    //=== Process blocks
+    float rmsMean=0, rmsStd=0, rmsVar=0, zcrMean=0, zcrStd=0, zcrVar=0, tmpDelta=0; // for running feature standardization
+    int rmsIdx=0, zcrIdx=0;
+    int blockSampleIdx = 0, numProcessedBlocks = 0;
     int blockIdx = 0;
-    for(int i=startBlock; i<endBlock-1; i++){
+    for(int i=startBlock; i<endBlock-1; i++){ // TODO get last block!
         
+        numProcessedBlocks += 1;
         int featureIdx = 0; // for indexing w/variable num features
         
         blockSampleIdx = i * windowSize; // sample idx of block
@@ -97,19 +100,55 @@ Eigen::MatrixXf AudioAnalysisController::calculateFeatureMatrix(AudioSampleBuffe
             block.copyFrom(j, 0, *buffer, j, blockSampleIdx, windowSize);
         }
         
+        // TODO turn buffer into matrix here
+        // TODO how to deal with multichannel?
+        
         if(featuresToUse->rms){
+            rmsIdx = featureIdx;
             float blockRMS = calculateBlockRMS(block);
+            tmpDelta = blockRMS - rmsMean;
+            rmsMean = rmsMean + tmpDelta / numProcessedBlocks;
+            rmsVar = rmsVar + tmpDelta*(blockRMS - rmsMean);
             featureMatrix(blockIdx, featureIdx) = blockRMS;
             featureIdx += 1;
         }
         
         if(featuresToUse->zcr){
+            zcrIdx = featureIdx;
             float blockZCR = calculateZeroCrossRate(block);
+            tmpDelta = blockZCR - zcrMean;
+            zcrMean = zcrMean + tmpDelta / numProcessedBlocks;
+            zcrVar = zcrVar + tmpDelta*(blockZCR - zcrMean);
             featureMatrix(blockIdx, featureIdx) = blockZCR;
             featureIdx += 1;
         }
         
+        if(featuresToUse->sf){
+            float blockSf = calculateSprectralFlux(block);
+            featureMatrix(blockIdx, featureIdx) = blockSf;
+            featureIdx += 1;
+        }
+        
+        if(featuresToUse->mfcc){
+            Eigen::RowVectorXf blockMFCC = calculateMFCC(block);
+            featureMatrix.block(blockIdx, featureIdx, 1, 12) = blockMFCC;
+            featureIdx += 12; // note 12 spots taken!
+        }
+        
         blockIdx += 1;
+    }
+    
+    float test = featureMatrix.col(rmsIdx).mean();
+    
+    //=== Standardize features
+    if(featuresToUse->rms){
+        rmsStd = sqrtf(rmsVar/numProcessedBlocks);
+//        featureMatrix.col(rmsIdx) = (featureMatrix.col(rmsIdx) - Eigen::MatrixXf::Constant(numBlocksToProcess, 1, rmsMean)) / rmsStd;
+    }
+    
+    if(featuresToUse->zcr){
+        zcrStd = sqrtf(zcrVar/numProcessedBlocks);
+//        featureMatrix.col(zcrIdx) = (featureMatrix.col(zcrIdx) - Eigen::MatrixXf::Constant(numBlocksToProcess, 1, zcrMean)) / zcrStd;
     }
     
     return featureMatrix;
@@ -150,6 +189,19 @@ float AudioAnalysisController::calculateZeroCrossRate(juce::AudioSampleBuffer &b
     return zcr;
 }
 
+float AudioAnalysisController::calculateSprectralFlux(AudioSampleBuffer &block){
+    
+    return 0;
+    
+}
+
+Eigen::RowVectorXf AudioAnalysisController::calculateMFCC(AudioSampleBuffer &block){
+    
+    Eigen::VectorXf stubMfcc = Eigen::RowVectorXf::Zero(12).transpose();
+    return stubMfcc;
+}
+
+
 //float AudioAnalysisController::calculateMean(Array<float> values){
 //    int numValues = values.size();
 //    float runningAverage = 0;
@@ -174,28 +226,39 @@ Array<AudioRegion> AudioAnalysisController::getClusterRegions(ClusterParameters*
     
     Array<AudioRegion> regionCandidates;
     
-    Array<int> indicesCandidates;
+    Array<int> acceptedBlocks;
     
-    for(int i=0; i<distanceArray->size(); i++){
-        if((*distanceArray)[i] < clusterParams->threshold){
-            indicesCandidates.add(i);
+    int numBlocks = distanceArray->size();
+    
+    for(int blockIdx=0; blockIdx<numBlocks; blockIdx++){
+        if((*distanceArray)[blockIdx] < clusterParams->threshold * maxDistance * 1 / 10){
+            acceptedBlocks.add(blockIdx);
         }
     }
-        
-    int regionStart = indicesCandidates[0];
-    int regionEnd = indicesCandidates[1];
-    for(int i=1; i<indicesCandidates.size(); i++){
-        if(indicesCandidates[i] - indicesCandidates[i-1] > clusterParams->regionConnectionWidth * 100 + 1){
-            float regionFracWidth = (float(regionEnd) - float(regionStart)) / distanceArray->size();
-            if(regionFracWidth > clusterParams->minRegionTimeWidth and regionFracWidth < clusterParams->maxRegionTimeWidth){
-                regionCandidates.add(AudioRegion(regionStart, regionEnd, distanceArray->size()));
+    
+    
+    int numAcceptedBlocks = acceptedBlocks.size();
+    int regionStart = acceptedBlocks[0];
+    int regionEnd = acceptedBlocks[1];
+    for(int blockIdx=1; blockIdx<numAcceptedBlocks; blockIdx++){
+        if(acceptedBlocks[blockIdx] - acceptedBlocks[blockIdx-1] > clusterParams->regionConnectionWidth*float(numBlocks)/5 + 1){
+            float regionFracWidth = (float(regionEnd) - float(regionStart)) / numBlocks;
+            if(regionFracWidth > clusterParams->minRegionTimeWidth / 10 and regionFracWidth < clusterParams->maxRegionTimeWidth){
+                regionCandidates.add(AudioRegion(regionStart, regionEnd, numBlocks));
             }
-            regionStart = indicesCandidates[i];
+            regionStart = acceptedBlocks[blockIdx];
+            regionEnd = acceptedBlocks[blockIdx];
         }
-        
         else{
-            regionEnd = indicesCandidates[i];
+            regionEnd = acceptedBlocks[blockIdx];
+            if(blockIdx == numAcceptedBlocks - 1){
+                regionCandidates.add(AudioRegion(regionStart, regionEnd, numBlocks));
+            }
         }
+    }
+    
+    if(clusterParams->shouldInvertRegions){
+        regionCandidates = invertClusterRegions(regionCandidates);
     }
     
     return regionCandidates;
@@ -212,4 +275,31 @@ int AudioAnalysisController::signum(float value){
     if(value > 0) return 1;
     if(value < 0) return -1;
     return 0;
+}
+
+Array<AudioRegion> AudioAnalysisController::invertClusterRegions(Array<AudioRegion> &regions){
+    
+    Array<AudioRegion> invertedRegions;
+    
+    int numRegions = regions.size();
+    
+    for(int i=0; i<numRegions-1; i++){
+        invertedRegions.add(AudioRegion(regions[i].getEnd(), regions[i+1].getStart()));
+    }
+    
+    if(regions[0].getStart() != 0.0f){
+        invertedRegions.add(AudioRegion(0.0f, regions[0].getStart()));
+    }
+    
+    if(regions[numRegions-1].getEnd() != 1.0f){
+        invertedRegions.add(AudioRegion(regions[numRegions-1].getEnd(), 1.0f));
+    }
+    
+    return invertedRegions;
+    
+}
+
+bool AudioAnalysisController::saveRegionsToFile(Array<AudioRegion> &regions, AudioSampleBuffer* sourceBuffer, File &destinationFile, bool useSeparateFiles){
+    
+    return false;
 }

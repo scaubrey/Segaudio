@@ -124,6 +124,16 @@ float TargetContainer::getPositionBarTime(){
 void TargetContainer::actionListenerCallback(const juce::String &message){
     sendActionMessage(message);
 }
+
+void TargetContainer::setCalculatingMask(bool status){
+//    similarityViewer->clear();
+    
+    similarityViewer->setCalculating(status);
+}
+
+void TargetContainer::clearSimilarity(){
+    similarityViewer->clear();
+}
 //[/MiscUserCode]
 
 

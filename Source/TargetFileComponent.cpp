@@ -234,6 +234,15 @@ void TargetFileComponent::stopAudio(){
     container->stopAudio();
     audioTransport.stop();
 }
+
+void TargetFileComponent::setCalculatingMask(bool status){
+    container->setCalculatingMask(status);
+}
+
+void TargetFileComponent::clearSimilarity(){
+    container->clearSimilarity();
+}
+
 //[/MiscUserCode]
 
 

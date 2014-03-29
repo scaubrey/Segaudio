@@ -67,16 +67,15 @@ public:
 
     void clearAll();
     void clearRegion();
-    
+
     void drawAudioPositionBar(Graphics &g);
-    
+
     float getPositionBarTime();
-    
+
     void startPositionBar();
     void stopPositionBar();
     //[/UserMethods]
 
-    
     void paint (Graphics& g);
     void resized();
     void visibilityChanged();
@@ -98,7 +97,7 @@ private:
 
     bool hasRegionSelected;
     bool fileLoaded;
-    
+
     bool audioPLaying;
 
     int regionStartFraction;
@@ -117,9 +116,9 @@ private:
     Array<AudioRegion> candidateRegions;
 
     FileInputSource* fileInputSource;
-    
+
     float audioPostionFrac;
-    
+
     class PositionBarTimer : public Timer
     {
     public:
@@ -129,28 +128,28 @@ private:
             totalSamples = numSamples;
             fileSampleRate = sampleRate;
         };
-        
+
         ~PositionBarTimer(){
-             
+
         };
-        
-        
+
+
         virtual void timerCallback(){
             *positionFrac += float(getTimerInterval()) * 0.001 / (totalSamples / fileSampleRate);
             if(*positionFrac > 1){ // finished playing
                 stopTimer();
             }
         }
-        
+
     private:
         float* positionFrac;
         int totalSamples;
         int fileSampleRate;
-        
+
     };
-    
+
     ScopedPointer<PositionBarTimer> positionBarTimer;
-    
+
     //[/UserVariables]
 
     //==============================================================================

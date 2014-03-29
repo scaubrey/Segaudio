@@ -142,26 +142,50 @@ void MainComponent::actionListenerCallback(const juce::String &message){
     }
     else if(message == "calculateSimilarity"){
 
+        targetFileComponent->clearSimilarity();
+        targetFileComponent->setCalculatingMask(true);
+        
         analysisController->calculateDistances(appModel->getDistanceArray(), appModel->getFileBuffer("0"), appModel->getFileBuffer("1"), appModel->getRefRegion(), controlPanelComponent->getSignalFeaturesToUse(appModel->getSignalFeaturesToUse()));
         appModel->setMaxDistance(analysisController->getLastMaxDistance());
+        
+        targetFileComponent->setCalculatingMask(false);
 
-        updateTargetComponent();
+        newRegionsUpdate();
     }
     else if(message == "clusterParamsChanged"){
-        updateTargetComponent();
+        newRegionsUpdate();
+    }
+    else if(message == "exportRegions"){
+        FileChooser myChooser ("Saving...");
+        if (myChooser.browseForFileToSave(true))
+        {
+            File destinationFile = myChooser.getResult();
+
+            DBG(destinationFile.getFullPathName());
+            
+            ClusterParameters* clusterTuningParams = controlPanelComponent->getClusterParams();
+            Array<AudioRegion> clusterRegions = analysisController->getClusterRegions(clusterTuningParams, appModel->getDistanceArray());
+
+            
+            analysisController->saveRegionsToFile(clusterRegions, appModel->getFileBuffer("1"), destinationFile, true);
+        }
     }
 
     std::cout << "Message fired: " << message << std::endl;
 
 }
 
-void MainComponent::updateTargetComponent(){
+void MainComponent::newRegionsUpdate(){
 
     ClusterParameters* clusterTuningParams = controlPanelComponent->getClusterParams();
     Array<AudioRegion> clusterRegions = analysisController->getClusterRegions(clusterTuningParams, appModel->getDistanceArray());
 
     targetFileComponent->update(clusterTuningParams, clusterRegions, appModel->getDistanceArray(), appModel->getMaxDistance());
+    
+    controlPanelComponent->newRegionsUpdate(clusterRegions);
 }
+
+
 
 bool MainComponent::isReadyToCompare(){
     if(isRefFileLoaded and isTargetFileLoaded and isRegionSelected){

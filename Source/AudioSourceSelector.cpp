@@ -150,6 +150,7 @@ void AudioSourceSelector::mouseDrag (const MouseEvent& e)
             endX = startX;
             startX = tmp;
         }
+    
 
 //        std::cout << startX << " " << endX << std::endl;;
 

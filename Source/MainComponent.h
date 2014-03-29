@@ -51,7 +51,7 @@ public:
     //[UserMethods]     -- You can add your own custom methods in this section.
     virtual void actionListenerCallback(const String &message);
 
-    void updateTargetComponent();
+    void newRegionsUpdate();
 
     bool isReadyToCompare();
     //[/UserMethods]

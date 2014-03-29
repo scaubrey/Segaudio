@@ -18,12 +18,14 @@
 struct ClusterParameters{
     float threshold;
     
-    int regionConnectionWidth;
+    float regionConnectionWidth;
     
     float medianFilterWidth;
     
     float minRegionTimeWidth;
     float maxRegionTimeWidth;
+    
+    bool shouldInvertRegions;
 };
 
 struct SignalFeaturesToUse{
@@ -42,7 +44,7 @@ struct SignalFeaturesToUse{
     int getNumSelected(){
         int numSelected = 0;
         if(rms) numSelected += 1;
-        if(mfcc) numSelected += 1;
+        if(mfcc) numSelected += 12; // note 12 features!
         if(sf) numSelected += 1;
         if(zcr) numSelected += 1;
         

@@ -52,6 +52,8 @@ public:
 
     void setCalcEnabled(bool readyForCalc);
     void setClusterTuningEnabled(bool readyToTune);
+
+    void newRegionsUpdate(Array<AudioRegion> &newRegions);
     //[/UserMethods]
 
     void paint (Graphics& g);
@@ -76,16 +78,19 @@ private:
     ScopedPointer<ToggleButton> sfFeatureToggle;
     ScopedPointer<ToggleButton> mfccFeatureToggle;
     ScopedPointer<Label> stickynessLabel;
-    ScopedPointer<Label> smoothnessLabel;
     ScopedPointer<ComboBox> presetComboBox;
     ScopedPointer<Label> presetsLabel;
     ScopedPointer<Slider> stickynessSlider;
-    ScopedPointer<Slider> smoothingSlider;
     ScopedPointer<Label> widthLabel;
     ScopedPointer<Slider> widthSlider;
     ScopedPointer<Label> label;
     ScopedPointer<Label> label2;
     ScopedPointer<ToggleButton> zcrFeatureToggle;
+    ScopedPointer<ToggleButton> invertRegionsToggle;
+    ScopedPointer<TextButton> exportSeparateButton;
+    ScopedPointer<Label> regionDescriptionLabel;
+    ScopedPointer<Label> regionCountLabel;
+    ScopedPointer<TextButton> exportTogetherButton;
 
 
     //==============================================================================

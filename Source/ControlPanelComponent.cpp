@@ -31,7 +31,7 @@
 ControlPanelComponent::ControlPanelComponent ()
 {
     addAndMakeVisible (thresholdSlider = new Slider ("thresholdSlider"));
-    thresholdSlider->setRange (0, 1, 0.01);
+    thresholdSlider->setRange (0, 1, 0.0001);
     thresholdSlider->setSliderStyle (Slider::LinearHorizontal);
     thresholdSlider->setTextBoxStyle (Slider::TextBoxLeft, true, 40, 20);
     thresholdSlider->addListener (this);
@@ -65,20 +65,12 @@ ControlPanelComponent::ControlPanelComponent ()
     mfccFeatureToggle->addListener (this);
 
     addAndMakeVisible (stickynessLabel = new Label ("stickynessLabel",
-                                                    TRANS("Stickyness")));
+                                                    TRANS("Smoothing")));
     stickynessLabel->setFont (Font (15.00f, Font::plain));
     stickynessLabel->setJustificationType (Justification::centredLeft);
     stickynessLabel->setEditable (false, false, false);
     stickynessLabel->setColour (TextEditor::textColourId, Colours::black);
     stickynessLabel->setColour (TextEditor::backgroundColourId, Colour (0x00000000));
-
-    addAndMakeVisible (smoothnessLabel = new Label ("smoothnessLabel",
-                                                    TRANS("Smoothing\n")));
-    smoothnessLabel->setFont (Font (15.00f, Font::plain));
-    smoothnessLabel->setJustificationType (Justification::centredLeft);
-    smoothnessLabel->setEditable (false, false, false);
-    smoothnessLabel->setColour (TextEditor::textColourId, Colours::black);
-    smoothnessLabel->setColour (TextEditor::backgroundColourId, Colour (0x00000000));
 
     addAndMakeVisible (presetComboBox = new ComboBox ("presetComboBox"));
     presetComboBox->setEditableText (false);
@@ -104,12 +96,6 @@ ControlPanelComponent::ControlPanelComponent ()
     stickynessSlider->setSliderStyle (Slider::LinearHorizontal);
     stickynessSlider->setTextBoxStyle (Slider::TextBoxLeft, true, 40, 20);
     stickynessSlider->addListener (this);
-
-    addAndMakeVisible (smoothingSlider = new Slider ("smoothingSlider"));
-    smoothingSlider->setRange (0, 1, 0.01);
-    smoothingSlider->setSliderStyle (Slider::LinearHorizontal);
-    smoothingSlider->setTextBoxStyle (Slider::TextBoxLeft, true, 40, 20);
-    smoothingSlider->addListener (this);
 
     addAndMakeVisible (widthLabel = new Label ("widthLabel",
                                                TRANS("Width")));
@@ -146,6 +132,37 @@ ControlPanelComponent::ControlPanelComponent ()
     zcrFeatureToggle->setButtonText (TRANS("ZCR"));
     zcrFeatureToggle->addListener (this);
 
+    addAndMakeVisible (invertRegionsToggle = new ToggleButton ("invertRegionsToggle"));
+    invertRegionsToggle->setTooltip (TRANS("Invert Regions"));
+    invertRegionsToggle->setButtonText (TRANS("Invert Regions"));
+    invertRegionsToggle->addListener (this);
+
+    addAndMakeVisible (exportSeparateButton = new TextButton ("exportSeparateButton"));
+    exportSeparateButton->setButtonText (TRANS("Export All"));
+    exportSeparateButton->addListener (this);
+    exportSeparateButton->setColour (TextButton::buttonColourId, Colours::coral);
+
+    addAndMakeVisible (regionDescriptionLabel = new Label ("regionDescriptionLabel",
+                                                           TRANS("# Regions:")));
+    regionDescriptionLabel->setFont (Font (15.00f, Font::plain));
+    regionDescriptionLabel->setJustificationType (Justification::centredLeft);
+    regionDescriptionLabel->setEditable (false, false, false);
+    regionDescriptionLabel->setColour (TextEditor::textColourId, Colours::black);
+    regionDescriptionLabel->setColour (TextEditor::backgroundColourId, Colour (0x00000000));
+
+    addAndMakeVisible (regionCountLabel = new Label ("new label",
+                                                     TRANS("0")));
+    regionCountLabel->setFont (Font (15.00f, Font::plain));
+    regionCountLabel->setJustificationType (Justification::centredLeft);
+    regionCountLabel->setEditable (false, false, false);
+    regionCountLabel->setColour (TextEditor::textColourId, Colours::black);
+    regionCountLabel->setColour (TextEditor::backgroundColourId, Colour (0x00000000));
+
+    addAndMakeVisible (exportTogetherButton = new TextButton ("exportTogetherButton"));
+    exportTogetherButton->setButtonText (TRANS("Export as 1 File"));
+    exportTogetherButton->addListener (this);
+    exportTogetherButton->setColour (TextButton::buttonColourId, Colours::coral);
+
 
     //[UserPreSize]
     //[/UserPreSize]
@@ -174,16 +191,19 @@ ControlPanelComponent::~ControlPanelComponent()
     sfFeatureToggle = nullptr;
     mfccFeatureToggle = nullptr;
     stickynessLabel = nullptr;
-    smoothnessLabel = nullptr;
     presetComboBox = nullptr;
     presetsLabel = nullptr;
     stickynessSlider = nullptr;
-    smoothingSlider = nullptr;
     widthLabel = nullptr;
     widthSlider = nullptr;
     label = nullptr;
     label2 = nullptr;
     zcrFeatureToggle = nullptr;
+    invertRegionsToggle = nullptr;
+    exportSeparateButton = nullptr;
+    regionDescriptionLabel = nullptr;
+    regionCountLabel = nullptr;
+    exportTogetherButton = nullptr;
 
 
     //[Destructor]. You can add your own custom destruction code here..
@@ -223,16 +243,19 @@ void ControlPanelComponent::resized()
     sfFeatureToggle->setBounds (24, proportionOfHeight (0.2283f), 50, 24);
     mfccFeatureToggle->setBounds (24, proportionOfHeight (0.1787f), 50, 24);
     stickynessLabel->setBounds (proportionOfWidth (0.0186f), proportionOfHeight (0.4467f), 72, 18);
-    smoothnessLabel->setBounds (proportionOfWidth (0.0186f), proportionOfHeight (0.5050f), 80, 24);
     presetComboBox->setBounds (96, 96, 100, 24);
     presetsLabel->setBounds (21, 94, 60, 24);
     stickynessSlider->setBounds (proportionOfWidth (0.0279f), proportionOfHeight (0.4764f), proportionOfWidth (0.8498f), 16);
-    smoothingSlider->setBounds (proportionOfWidth (0.0279f), proportionOfHeight (0.5360f), proportionOfWidth (0.8498f), 16);
-    widthLabel->setBounds (proportionOfWidth (0.0186f), proportionOfHeight (0.5658f), 80, 24);
-    widthSlider->setBounds (proportionOfWidth (0.0279f), proportionOfHeight (0.5955f), proportionOfWidth (0.8498f), 16);
+    widthLabel->setBounds (proportionOfWidth (0.0186f), proportionOfHeight (0.5062f), 80, 24);
+    widthSlider->setBounds (proportionOfWidth (0.0279f), proportionOfHeight (0.5360f), proportionOfWidth (0.8498f), 16);
     label->setBounds (16, 272, 150, 24);
     label2->setBounds (16, 56, 150, 24);
     zcrFeatureToggle->setBounds (96, proportionOfHeight (0.2283f), 50, 24);
+    invertRegionsToggle->setBounds (proportionOfWidth (0.0279f), proportionOfHeight (0.5955f), 120, 24);
+    exportSeparateButton->setBounds (8, proportionOfHeight (0.9529f), 80, 24);
+    regionDescriptionLabel->setBounds (proportionOfWidth (0.0093f), proportionOfHeight (0.9032f), 80, 24);
+    regionCountLabel->setBounds ((proportionOfWidth (0.0093f)) + 80, proportionOfHeight (0.9032f), 56, 24);
+    exportTogetherButton->setBounds (104, proportionOfHeight (0.9529f), 104, 24);
     //[UserResized] Add your own custom resize handling here..
     //[/UserResized]
 }
@@ -253,12 +276,6 @@ void ControlPanelComponent::sliderValueChanged (Slider* sliderThatWasMoved)
         //[UserSliderCode_stickynessSlider] -- add your slider handling code here..
         sendActionMessage("clusterParamsChanged");
         //[/UserSliderCode_stickynessSlider]
-    }
-    else if (sliderThatWasMoved == smoothingSlider)
-    {
-        //[UserSliderCode_smoothingSlider] -- add your slider handling code here..
-        sendActionMessage("clusterParamsChanged");
-        //[/UserSliderCode_smoothingSlider]
     }
     else if (sliderThatWasMoved == widthSlider)
     {
@@ -302,6 +319,22 @@ void ControlPanelComponent::buttonClicked (Button* buttonThatWasClicked)
         //[UserButtonCode_zcrFeatureToggle] -- add your button handler code here..
         //[/UserButtonCode_zcrFeatureToggle]
     }
+    else if (buttonThatWasClicked == invertRegionsToggle)
+    {
+        //[UserButtonCode_invertRegionsToggle] -- add your button handler code here..
+        sendActionMessage("clusterParamsChanged");
+        //[/UserButtonCode_invertRegionsToggle]
+    }
+    else if (buttonThatWasClicked == exportSeparateButton)
+    {
+        //[UserButtonCode_exportSeparateButton] -- add your button handler code here..
+        //[/UserButtonCode_exportSeparateButton]
+    }
+    else if (buttonThatWasClicked == exportTogetherButton)
+    {
+        //[UserButtonCode_exportTogetherButton] -- add your button handler code here..
+        //[/UserButtonCode_exportTogetherButton]
+    }
 
     //[UserbuttonClicked_Post]
     //[/UserbuttonClicked_Post]
@@ -315,7 +348,31 @@ void ControlPanelComponent::comboBoxChanged (ComboBox* comboBoxThatHasChanged)
     if (comboBoxThatHasChanged == presetComboBox)
     {
         //[UserComboBoxCode_presetComboBox] -- add your combo box handling code here..
-        sendActionMessage("clusterParamsChanged");
+
+        if(presetComboBox->getText() == "Speech"){
+            mfccFeatureToggle->setToggleState(true, dontSendNotification);
+            rmsFeatureToggle->setToggleState(false, dontSendNotification);
+            sfFeatureToggle->setToggleState(false, dontSendNotification);
+            zcrFeatureToggle->setToggleState(false, dontSendNotification);
+        }
+        else if(presetComboBox->getText() == "Silence"){
+            mfccFeatureToggle->setToggleState(false, dontSendNotification);
+            rmsFeatureToggle->setToggleState(true, dontSendNotification);
+            sfFeatureToggle->setToggleState(false, dontSendNotification);
+            zcrFeatureToggle->setToggleState(false, dontSendNotification);
+        }
+        else if(presetComboBox->getText() == "Noise"){
+            mfccFeatureToggle->setToggleState(false, dontSendNotification);
+            rmsFeatureToggle->setToggleState(false, dontSendNotification);
+            sfFeatureToggle->setToggleState(false, dontSendNotification);
+            zcrFeatureToggle->setToggleState(true, dontSendNotification);
+        }
+        else if(presetComboBox->getText() == "Music"){
+            mfccFeatureToggle->setToggleState(false, dontSendNotification);
+            rmsFeatureToggle->setToggleState(false, dontSendNotification);
+            sfFeatureToggle->setToggleState(true, dontSendNotification);
+            zcrFeatureToggle->setToggleState(false, dontSendNotification);
+        }
         //[/UserComboBoxCode_presetComboBox]
     }
 
@@ -332,7 +389,9 @@ ClusterParameters* ControlPanelComponent::getClusterParams(){
     clusterParams->regionConnectionWidth = stickynessSlider->getValue();
     clusterParams->minRegionTimeWidth = widthSlider->getMinValue();
     clusterParams->maxRegionTimeWidth = widthSlider->getMaxValue();
-    clusterParams->medianFilterWidth = smoothingSlider->getValue();
+//    clusterParams->medianFilterWidth = smoothingSlider->getValue();
+
+    clusterParams->shouldInvertRegions = invertRegionsToggle->getToggleState();
 
     return clusterParams;
 }
@@ -357,10 +416,15 @@ void ControlPanelComponent::setCalcEnabled(bool readyForCalc){
 
 void ControlPanelComponent::setClusterTuningEnabled(bool readyToTune){
     thresholdSlider->setEnabled(readyToTune);
-    smoothingSlider->setEnabled(readyToTune);
+//    smoothingSlider->setEnabled(readyToTune);
     widthSlider->setEnabled(readyToTune);
     stickynessSlider->setEnabled(readyToTune);
 }
+
+void ControlPanelComponent::newRegionsUpdate(Array<AudioRegion> &newRegions){
+    regionCountLabel->setText(String(newRegions.size()), dontSendNotification);
+}
+
 
 //[/MiscUserCode]
 
@@ -386,7 +450,7 @@ BEGIN_JUCER_METADATA
   </BACKGROUND>
   <SLIDER name="thresholdSlider" id="2ddea841d6d652ab" memberName="thresholdSlider"
           virtualName="" explicitFocusOrder="0" pos="2.794% 41.687% 84.983% 16"
-          min="0" max="1" int="0.010000000000000000208" style="LinearHorizontal"
+          min="0" max="1" int="0.00010000000000000000479" style="LinearHorizontal"
           textBoxPos="TextBoxLeft" textBoxEditable="0" textBoxWidth="40"
           textBoxHeight="20" skewFactor="1"/>
   <LABEL name="new label" id="4f564f498f058971" memberName="thresholdLabel"
@@ -411,14 +475,9 @@ BEGIN_JUCER_METADATA
                 state="0"/>
   <LABEL name="stickynessLabel" id="32983a34059e5df1" memberName="stickynessLabel"
          virtualName="" explicitFocusOrder="0" pos="1.863% 44.665% 72 18"
-         edTextCol="ff000000" edBkgCol="0" labelText="Stickyness" editableSingleClick="0"
+         edTextCol="ff000000" edBkgCol="0" labelText="Smoothing" editableSingleClick="0"
          editableDoubleClick="0" focusDiscardsChanges="0" fontname="Default font"
          fontsize="15" bold="0" italic="0" justification="33"/>
-  <LABEL name="smoothnessLabel" id="b8d50e7cbed6b69c" memberName="smoothnessLabel"
-         virtualName="" explicitFocusOrder="0" pos="1.863% 50.496% 80 24"
-         edTextCol="ff000000" edBkgCol="0" labelText="Smoothing&#10;"
-         editableSingleClick="0" editableDoubleClick="0" focusDiscardsChanges="0"
-         fontname="Default font" fontsize="15" bold="0" italic="0" justification="33"/>
   <COMBOBOX name="presetComboBox" id="2a56f7bafaec946f" memberName="presetComboBox"
             virtualName="" explicitFocusOrder="0" pos="96 96 100 24" editable="0"
             layout="33" items="Speech&#10;Music&#10;Noise&#10;Silence" textWhenNonSelected="Custom"
@@ -433,18 +492,13 @@ BEGIN_JUCER_METADATA
           min="0" max="1" int="0.010000000000000000208" style="LinearHorizontal"
           textBoxPos="TextBoxLeft" textBoxEditable="0" textBoxWidth="40"
           textBoxHeight="20" skewFactor="1"/>
-  <SLIDER name="smoothingSlider" id="11086795620394cc" memberName="smoothingSlider"
-          virtualName="" explicitFocusOrder="0" pos="2.794% 53.598% 84.983% 16"
-          min="0" max="1" int="0.010000000000000000208" style="LinearHorizontal"
-          textBoxPos="TextBoxLeft" textBoxEditable="0" textBoxWidth="40"
-          textBoxHeight="20" skewFactor="1"/>
   <LABEL name="widthLabel" id="fb630a6f3e08259a" memberName="widthLabel"
-         virtualName="" explicitFocusOrder="0" pos="1.863% 56.576% 80 24"
+         virtualName="" explicitFocusOrder="0" pos="1.863% 50.62% 80 24"
          edTextCol="ff000000" edBkgCol="0" labelText="Width" editableSingleClick="0"
          editableDoubleClick="0" focusDiscardsChanges="0" fontname="Default font"
          fontsize="15" bold="0" italic="0" justification="33"/>
   <SLIDER name="widthSlider" id="51e7ac04e76a9203" memberName="widthSlider"
-          virtualName="" explicitFocusOrder="0" pos="2.794% 59.553% 84.983% 16"
+          virtualName="" explicitFocusOrder="0" pos="2.794% 53.598% 84.983% 16"
           min="0" max="1" int="0.010000000000000000208" style="TwoValueHorizontal"
           textBoxPos="NoTextBox" textBoxEditable="0" textBoxWidth="40"
           textBoxHeight="20" skewFactor="1"/>
@@ -462,6 +516,29 @@ BEGIN_JUCER_METADATA
                 virtualName="" explicitFocusOrder="0" pos="96 22.829% 50 24"
                 tooltip="Zero Cross Rate" buttonText="ZCR" connectedEdges="0"
                 needsCallback="1" radioGroupId="0" state="0"/>
+  <TOGGLEBUTTON name="invertRegionsToggle" id="b0589c37aecfe236" memberName="invertRegionsToggle"
+                virtualName="" explicitFocusOrder="0" pos="2.794% 59.553% 120 24"
+                tooltip="Invert Regions" buttonText="Invert Regions" connectedEdges="0"
+                needsCallback="1" radioGroupId="0" state="0"/>
+  <TEXTBUTTON name="exportSeparateButton" id="a631088d4d356323" memberName="exportSeparateButton"
+              virtualName="" explicitFocusOrder="0" pos="8 95.285% 80 24" bgColOff="ffff7f50"
+              buttonText="Export All" connectedEdges="0" needsCallback="1"
+              radioGroupId="0"/>
+  <LABEL name="regionDescriptionLabel" id="a04caca43e46440c" memberName="regionDescriptionLabel"
+         virtualName="" explicitFocusOrder="0" pos="0.931% 90.323% 80 24"
+         edTextCol="ff000000" edBkgCol="0" labelText="# Regions:" editableSingleClick="0"
+         editableDoubleClick="0" focusDiscardsChanges="0" fontname="Default font"
+         fontsize="15" bold="0" italic="0" justification="33"/>
+  <LABEL name="new label" id="a0c4f9bc684a7ae" memberName="regionCountLabel"
+         virtualName="" explicitFocusOrder="0" pos="80 90.323% 56 24"
+         posRelativeX="a04caca43e46440c" edTextCol="ff000000" edBkgCol="0"
+         labelText="0" editableSingleClick="0" editableDoubleClick="0"
+         focusDiscardsChanges="0" fontname="Default font" fontsize="15"
+         bold="0" italic="0" justification="33"/>
+  <TEXTBUTTON name="exportTogetherButton" id="25f3e25ff473f3ef" memberName="exportTogetherButton"
+              virtualName="" explicitFocusOrder="0" pos="104 95.285% 104 24"
+              bgColOff="ffff7f50" buttonText="Export as 1 File" connectedEdges="0"
+              needsCallback="1" radioGroupId="0"/>
 </JUCER_COMPONENT>
 
 END_JUCER_METADATA

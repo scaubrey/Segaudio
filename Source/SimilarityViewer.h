@@ -36,7 +36,8 @@
                                                                     //[/Comments]
 */
 class SimilarityViewer  : public Component,
-                          public ActionBroadcaster
+                          public ActionBroadcaster,
+                          public Timer
 {
 public:
     //==============================================================================
@@ -52,6 +53,11 @@ public:
 
     void clear();
 
+    void setCalculating(bool isWaiting);
+    
+    void drawWaitGraphic(Graphics &g);
+    
+    void timerCallback() override;
     //[/UserMethods]
 
     void paint (Graphics& g);
@@ -72,7 +78,9 @@ private:
     float stickyness;
     float smoothness;
 
-    Array<AudioRegion>* regionCandidates;
+    bool isWaiting;
+    
+    Rectangle<int> waitGraphic;
 
 
     //[/UserVariables]

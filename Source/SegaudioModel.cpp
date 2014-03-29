@@ -15,7 +15,7 @@
 SegaudioModel::SegaudioModel(int maxFiles) :
     maxFiles(maxFiles)
 {
-
+    // TODO set max files here?
 }
 
 SegaudioModel::~SegaudioModel(){
@@ -29,7 +29,7 @@ bool SegaudioModel::addFile(SegaudioFile* newFile, String componentId){
     }
 
     files.set(componentId, newFile);
-    return false;
+    return true;
 }
     
 

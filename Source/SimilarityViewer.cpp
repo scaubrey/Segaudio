@@ -43,9 +43,14 @@ SimilarityViewer::SimilarityViewer ()
     stickyness = 0;
     threshold = 0;
     maxDistance = 0;
-    
+
     distanceArray = NULL;
     filteredDistanceArray = NULL;
+    
+    isWaiting = false;
+    
+    waitGraphic = Rectangle<int>(0, 0, getWidth()/50, getHeight());
+  
     //[/Constructor]
 }
 
@@ -72,12 +77,14 @@ void SimilarityViewer::paint (Graphics& g)
 
     //[UserPaint] Add your own custom painting code here..
 
+    if(maxDistance != 0 and !isWaiting){
+        drawSimilarityFunction(g);
+        drawThreshold(g);
+    }
     
-    drawThreshold(g);
-    
-    if(maxDistance != 0) drawSimilarityFunction(g);
-
-//    drawRegions(g);
+    if(isWaiting){
+        drawWaitGraphic(g);
+    }
 
     //[/UserPaint]
 }
@@ -93,11 +100,11 @@ void SimilarityViewer::resized()
 
 //[MiscUserCode] You can add your own definitions of your custom methods or any other code here...
 void SimilarityViewer::setTuningParameters(ClusterParameters* clusterTuningParams, Array<float>* newArray, float distance){
-    
+
     threshold = clusterTuningParams->threshold;
     stickyness = clusterTuningParams->regionConnectionWidth;
     smoothness = clusterTuningParams->medianFilterWidth;
-    
+
     distanceArray = newArray;
     filteredDistanceArray = distanceArray;
     maxDistance = distance;
@@ -107,7 +114,7 @@ void SimilarityViewer::setTuningParameters(ClusterParameters* clusterTuningParam
 void SimilarityViewer::drawThreshold(Graphics &g){
 
     g.setColour(Colours::blueviolet);
-    g.drawHorizontalLine(graphContainer->getHeight() - threshold * graphContainer->getHeight(), getX(), getWidth());
+    g.drawHorizontalLine(graphContainer->getHeight() - threshold * graphContainer->getHeight() * 1/10, getX(), getWidth());
 
 }
 
@@ -148,9 +155,31 @@ void SimilarityViewer::clear(){
     distanceArray->clear();
     filteredDistanceArray->clear();
 
-    regionCandidates->clear();
-    sendActionMessage("candidateRegionsUpdated");
     repaint();
+}
+
+void SimilarityViewer::setCalculating(bool status){
+    isWaiting = status;
+    if(isWaiting){
+        startTimer(10);
+    }
+    else{
+        stopTimer();
+    }
+}
+
+void SimilarityViewer::timerCallback(){
+    int oldX = waitGraphic.getX();
+    float speed = 100.0f; // pixels/sec
+    
+    int newX = oldX + speed * 0.05;
+    if(newX > getWidth()) newX = 0;
+    
+    waitGraphic.setX(newX);
+}
+
+void SimilarityViewer::drawWaitGraphic(Graphics &g){
+    g.fillRect(waitGraphic);
 }
 
 //[/MiscUserCode]
@@ -166,9 +195,10 @@ void SimilarityViewer::clear(){
 BEGIN_JUCER_METADATA
 
 <JUCER_COMPONENT documentType="Component" className="SimilarityViewer" componentName=""
-                 parentClasses="public Component, public ActionBroadcaster" constructorParams=""
-                 variableInitialisers="" snapPixels="8" snapActive="1" snapShown="1"
-                 overlayOpacity="0.330" fixedSize="0" initialWidth="800" initialHeight="300">
+                 parentClasses="public Component, public ActionBroadcaster, public Timer"
+                 constructorParams="" variableInitialisers="" snapPixels="8" snapActive="1"
+                 snapShown="1" overlayOpacity="0.330" fixedSize="0" initialWidth="800"
+                 initialHeight="300">
   <BACKGROUND backgroundColour="ffffffff"/>
   <GENERICCOMPONENT name="graphContainer" id="a6f81aed259b1d6e" memberName="graphContainer"
                     virtualName="" explicitFocusOrder="0" pos="0 0% 100% 89.95%"
