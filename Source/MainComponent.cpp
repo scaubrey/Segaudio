@@ -155,6 +155,16 @@ void MainComponent::actionListenerCallback(const juce::String &message){
     else if(message == "clusterParamsChanged"){
         newRegionsUpdate();
     }
+    else if(message == "search"){
+        controlPanelComponent->getSearchParameters(appModel->getSearchParameters());
+                                                   
+        analysisController->findRegions(appModel->getSearchParameters(), appModel->getDistanceArray(), appModel->getClusterParams());
+        
+        // set found params on control panel
+        controlPanelComponent->setClusterParams(appModel->getClusterParams());
+        
+        newRegionsUpdate();
+    }
     else if(message == "exportRegions"){
         
         ClusterParameters* clusterTuningParams = controlPanelComponent->getClusterParams();

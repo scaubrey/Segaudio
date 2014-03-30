@@ -103,7 +103,7 @@ void SimilarityViewer::setTuningParameters(ClusterParameters* clusterTuningParam
 
     threshold = clusterTuningParams->threshold;
     stickyness = clusterTuningParams->regionConnectionWidth;
-    smoothness = clusterTuningParams->medianFilterWidth;
+//    smoothness = clusterTuningParams->medianFilterWidth;
 
     distanceArray = newArray;
     filteredDistanceArray = distanceArray;
@@ -114,7 +114,7 @@ void SimilarityViewer::setTuningParameters(ClusterParameters* clusterTuningParam
 void SimilarityViewer::drawThreshold(Graphics &g){
 
     g.setColour(Colours::blueviolet);
-    g.drawHorizontalLine(graphContainer->getHeight() - threshold * graphContainer->getHeight() * 1/10, getX(), getWidth());
+    g.drawHorizontalLine(graphContainer->getHeight() - threshold * graphContainer->getHeight() * 1, getX(), getWidth());
 
 }
 

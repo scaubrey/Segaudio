@@ -98,7 +98,7 @@ ControlPanelComponent::ControlPanelComponent ()
     stickynessSlider->addListener (this);
 
     addAndMakeVisible (widthLabel = new Label ("widthLabel",
-                                               TRANS("Width")));
+                                               TRANS("Width Filter")));
     widthLabel->setFont (Font (15.00f, Font::plain));
     widthLabel->setJustificationType (Justification::centredLeft);
     widthLabel->setEditable (false, false, false);
@@ -111,21 +111,21 @@ ControlPanelComponent::ControlPanelComponent ()
     widthSlider->setTextBoxStyle (Slider::NoTextBox, true, 40, 20);
     widthSlider->addListener (this);
 
-    addAndMakeVisible (label = new Label ("new label",
-                                          TRANS("Cluster Tuning")));
-    label->setFont (Font (18.00f, Font::plain));
-    label->setJustificationType (Justification::centredLeft);
-    label->setEditable (false, false, false);
-    label->setColour (TextEditor::textColourId, Colours::black);
-    label->setColour (TextEditor::backgroundColourId, Colour (0x00000000));
+    addAndMakeVisible (header2 = new Label ("header2",
+                                            TRANS("Cluster Tuning")));
+    header2->setFont (Font (18.00f, Font::plain));
+    header2->setJustificationType (Justification::centredLeft);
+    header2->setEditable (false, false, false);
+    header2->setColour (TextEditor::textColourId, Colours::black);
+    header2->setColour (TextEditor::backgroundColourId, Colour (0x00000000));
 
-    addAndMakeVisible (label2 = new Label ("new label",
-                                           TRANS("Feature Selection")));
-    label2->setFont (Font (18.00f, Font::plain));
-    label2->setJustificationType (Justification::centredLeft);
-    label2->setEditable (false, false, false);
-    label2->setColour (TextEditor::textColourId, Colours::black);
-    label2->setColour (TextEditor::backgroundColourId, Colour (0x00000000));
+    addAndMakeVisible (header1 = new Label ("header1",
+                                            TRANS("Feature Selection")));
+    header1->setFont (Font (18.00f, Font::plain));
+    header1->setJustificationType (Justification::centredLeft);
+    header1->setEditable (false, false, false);
+    header1->setColour (TextEditor::textColourId, Colours::black);
+    header1->setColour (TextEditor::backgroundColourId, Colour (0x00000000));
 
     addAndMakeVisible (zcrFeatureToggle = new ToggleButton ("zcrFeatureToggle"));
     zcrFeatureToggle->setTooltip (TRANS("Zero Cross Rate"));
@@ -163,6 +163,67 @@ ControlPanelComponent::ControlPanelComponent ()
     saveSingleFileToggleButton->addListener (this);
     saveSingleFileToggleButton->setToggleState (true, dontSendNotification);
 
+    addAndMakeVisible (widthMinLabel = new Label ("widthMinLabel",
+                                                  TRANS("0")));
+    widthMinLabel->setFont (Font (15.00f, Font::plain));
+    widthMinLabel->setJustificationType (Justification::centredLeft);
+    widthMinLabel->setEditable (false, false, false);
+    widthMinLabel->setColour (TextEditor::textColourId, Colours::black);
+    widthMinLabel->setColour (TextEditor::backgroundColourId, Colour (0x00000000));
+
+    addAndMakeVisible (widthMaxLabel = new Label ("widthMinLabel",
+                                                  TRANS("0")));
+    widthMaxLabel->setFont (Font (15.00f, Font::plain));
+    widthMaxLabel->setJustificationType (Justification::centredLeft);
+    widthMaxLabel->setEditable (false, false, false);
+    widthMaxLabel->setColour (TextEditor::textColourId, Colours::black);
+    widthMaxLabel->setColour (TextEditor::backgroundColourId, Colour (0x00000000));
+
+    addAndMakeVisible (numRegionsComboBox = new ComboBox ("numRegionsComboBox"));
+    numRegionsComboBox->setEditableText (false);
+    numRegionsComboBox->setJustificationType (Justification::centredLeft);
+    numRegionsComboBox->setTextWhenNothingSelected (TRANS("# of Regions"));
+    numRegionsComboBox->setTextWhenNoChoicesAvailable (TRANS("(no choices)"));
+    numRegionsComboBox->addItem (TRANS("1"), 1);
+    numRegionsComboBox->addItem (TRANS("2"), 2);
+    numRegionsComboBox->addItem (TRANS("3"), 3);
+    numRegionsComboBox->addItem (TRANS("4"), 4);
+    numRegionsComboBox->addItem (TRANS("5"), 5);
+    numRegionsComboBox->addItem (TRANS("6"), 6);
+    numRegionsComboBox->addItem (TRANS("7"), 7);
+    numRegionsComboBox->addItem (TRANS("8"), 8);
+    numRegionsComboBox->addItem (TRANS("9"), 9);
+    numRegionsComboBox->addListener (this);
+
+    addAndMakeVisible (header3 = new Label ("header3",
+                                            TRANS("Smart Search")));
+    header3->setFont (Font (18.00f, Font::plain));
+    header3->setJustificationType (Justification::centredLeft);
+    header3->setEditable (false, false, false);
+    header3->setColour (TextEditor::textColourId, Colours::black);
+    header3->setColour (TextEditor::backgroundColourId, Colour (0x00000000));
+
+    addAndMakeVisible (searchPercentComboBox = new ComboBox ("searchPercentComboBox"));
+    searchPercentComboBox->setEditableText (false);
+    searchPercentComboBox->setJustificationType (Justification::centredLeft);
+    searchPercentComboBox->setTextWhenNothingSelected (TRANS("% of File"));
+    searchPercentComboBox->setTextWhenNoChoicesAvailable (TRANS("(no choices)"));
+    searchPercentComboBox->addItem (TRANS("10"), 1);
+    searchPercentComboBox->addItem (TRANS("20"), 2);
+    searchPercentComboBox->addItem (TRANS("30"), 3);
+    searchPercentComboBox->addItem (TRANS("40"), 4);
+    searchPercentComboBox->addItem (TRANS("50"), 5);
+    searchPercentComboBox->addListener (this);
+
+    addAndMakeVisible (searchButton = new TextButton ("searchButton"));
+    searchButton->setButtonText (TRANS("Search"));
+    searchButton->addListener (this);
+
+    addAndMakeVisible (widthFilterSearchToggle = new ToggleButton ("widthFilterSearchToggle"));
+    widthFilterSearchToggle->setTooltip (TRANS("Invert Regions"));
+    widthFilterSearchToggle->setButtonText (TRANS("Use Width Filter"));
+    widthFilterSearchToggle->addListener (this);
+
 
     //[UserPreSize]
     //[/UserPreSize]
@@ -196,14 +257,21 @@ ControlPanelComponent::~ControlPanelComponent()
     stickynessSlider = nullptr;
     widthLabel = nullptr;
     widthSlider = nullptr;
-    label = nullptr;
-    label2 = nullptr;
+    header2 = nullptr;
+    header1 = nullptr;
     zcrFeatureToggle = nullptr;
     invertRegionsToggle = nullptr;
     exportSeparateButton = nullptr;
     regionDescriptionLabel = nullptr;
     regionCountLabel = nullptr;
     saveSingleFileToggleButton = nullptr;
+    widthMinLabel = nullptr;
+    widthMaxLabel = nullptr;
+    numRegionsComboBox = nullptr;
+    header3 = nullptr;
+    searchPercentComboBox = nullptr;
+    searchButton = nullptr;
+    widthFilterSearchToggle = nullptr;
 
 
     //[Destructor]. You can add your own custom destruction code here..
@@ -219,7 +287,7 @@ void ControlPanelComponent::paint (Graphics& g)
     g.fillAll (Colour (0xffffc96d));
 
     g.setColour (Colour (0xff2a75a5));
-    g.fillRect (12, 260, 788, 4);
+    g.fillRect (12, proportionOfHeight (0.2928f), 788, 4);
 
     g.setColour (Colours::black);
     g.setFont (Font ("Arial", 22.00f, Font::plain));
@@ -228,7 +296,13 @@ void ControlPanelComponent::paint (Graphics& g)
                 Justification::centred, true);
 
     g.setColour (Colour (0xff2a75a5));
-    g.fillRect (12, 44, 788, 4);
+    g.fillRect (12, proportionOfHeight (0.0546f), 788, 4);
+
+    g.setColour (Colour (0xff2a75a5));
+    g.fillRect (12, proportionOfHeight (0.7097f), 788, 4);
+
+    g.setColour (Colour (0xff2a75a5));
+    g.fillRect (12, proportionOfHeight (0.8883f), 788, 4);
 
     //[UserPaint] Add your own custom painting code here..
     //[/UserPaint]
@@ -236,26 +310,33 @@ void ControlPanelComponent::paint (Graphics& g)
 
 void ControlPanelComponent::resized()
 {
-    thresholdSlider->setBounds (proportionOfWidth (0.0279f), proportionOfHeight (0.4169f), proportionOfWidth (0.8498f), 16);
-    thresholdLabel->setBounds (proportionOfWidth (0.0186f), proportionOfHeight (0.3871f), 80, 17);
-    calcSimButton->setBounds (getWidth() - 61 - 86, 224, 86, 20);
-    rmsFeatureToggle->setBounds (96, proportionOfHeight (0.1787f), 50, 24);
-    sfFeatureToggle->setBounds (24, proportionOfHeight (0.2283f), 50, 24);
-    mfccFeatureToggle->setBounds (24, proportionOfHeight (0.1787f), 50, 24);
-    stickynessLabel->setBounds (proportionOfWidth (0.0186f), proportionOfHeight (0.4467f), 72, 18);
+    thresholdSlider->setBounds (proportionOfWidth (0.0279f), proportionOfHeight (0.3983f), proportionOfWidth (0.8498f), 16);
+    thresholdLabel->setBounds (proportionOfWidth (0.0186f), proportionOfHeight (0.3673f), 80, 17);
+    calcSimButton->setBounds (getWidth() - 61 - 86, 184, 86, 20);
+    rmsFeatureToggle->setBounds (96, proportionOfHeight (0.1774f), 50, 24);
+    sfFeatureToggle->setBounds (24, proportionOfHeight (0.2270f), 50, 24);
+    mfccFeatureToggle->setBounds (24, proportionOfHeight (0.1774f), 50, 24);
+    stickynessLabel->setBounds (proportionOfWidth (0.0186f), proportionOfHeight (0.4280f), 72, 18);
     presetComboBox->setBounds (96, 96, 100, 24);
     presetsLabel->setBounds (21, 94, 60, 24);
-    stickynessSlider->setBounds (proportionOfWidth (0.0279f), proportionOfHeight (0.4764f), proportionOfWidth (0.8498f), 16);
-    widthLabel->setBounds (proportionOfWidth (0.0186f), proportionOfHeight (0.5062f), 80, 24);
-    widthSlider->setBounds (proportionOfWidth (0.0279f), proportionOfHeight (0.5360f), proportionOfWidth (0.8498f), 16);
-    label->setBounds (16, 272, 150, 24);
-    label2->setBounds (16, 56, 150, 24);
-    zcrFeatureToggle->setBounds (96, proportionOfHeight (0.2283f), 50, 24);
-    invertRegionsToggle->setBounds (proportionOfWidth (0.0279f), proportionOfHeight (0.5955f), 120, 24);
+    stickynessSlider->setBounds (proportionOfWidth (0.0279f), proportionOfHeight (0.4578f), proportionOfWidth (0.8498f), 16);
+    widthLabel->setBounds (proportionOfWidth (0.0186f), proportionOfHeight (0.5248f), 80, 24);
+    widthSlider->setBounds (proportionOfWidth (0.0279f), proportionOfHeight (0.5546f), proportionOfWidth (0.8498f), 16);
+    header2->setBounds (16, 256, 150, 24);
+    header1->setBounds (16, 56, 150, 24);
+    zcrFeatureToggle->setBounds (96, proportionOfHeight (0.2270f), 50, 24);
+    invertRegionsToggle->setBounds (proportionOfWidth (0.0279f), proportionOfHeight (0.6452f), 120, 24);
     exportSeparateButton->setBounds (8, proportionOfHeight (0.9529f), 104, 24);
-    regionDescriptionLabel->setBounds (proportionOfWidth (0.0093f), proportionOfHeight (0.9032f), 72, 24);
-    regionCountLabel->setBounds ((proportionOfWidth (0.0093f)) + 80, proportionOfHeight (0.9032f), 56, 24);
+    regionDescriptionLabel->setBounds (proportionOfWidth (0.0105f), proportionOfHeight (0.9020f), 72, 24);
+    regionCountLabel->setBounds ((proportionOfWidth (0.0105f)) + 80, proportionOfHeight (0.9020f), 56, 24);
     saveSingleFileToggleButton->setBounds ((8) + 120, proportionOfHeight (0.9529f), 112, 24);
+    widthMinLabel->setBounds ((proportionOfWidth (0.0279f)) + 0, (proportionOfHeight (0.5546f)) + 17, 56, 24);
+    widthMaxLabel->setBounds ((proportionOfWidth (0.0279f)) + roundFloatToInt ((proportionOfWidth (0.8498f)) * 0.9644f), (proportionOfHeight (0.5546f)) + 25, 48, 24);
+    numRegionsComboBox->setBounds ((16) + 8, proportionOfHeight (0.7841f), 120, 24);
+    header3->setBounds (16, proportionOfHeight (0.7246f), 120, 24);
+    searchPercentComboBox->setBounds ((16) + 144, proportionOfHeight (0.7841f), 104, 24);
+    searchButton->setBounds (24, proportionOfHeight (0.8437f), 150, 24);
+    widthFilterSearchToggle->setBounds ((16) + 136, proportionOfHeight (0.7246f), 120, 24);
     //[UserResized] Add your own custom resize handling here..
     //[/UserResized]
 }
@@ -280,6 +361,8 @@ void ControlPanelComponent::sliderValueChanged (Slider* sliderThatWasMoved)
     else if (sliderThatWasMoved == widthSlider)
     {
         //[UserSliderCode_widthSlider] -- add your slider handling code here..
+        widthMinLabel->setText(String(widthSlider->getMinValue()), dontSendNotification);
+        widthMaxLabel->setText(String(widthSlider->getMaxValue()), dontSendNotification);
         sendActionMessage("clusterParamsChanged");
         //[/UserSliderCode_widthSlider]
     }
@@ -336,6 +419,17 @@ void ControlPanelComponent::buttonClicked (Button* buttonThatWasClicked)
         //[UserButtonCode_saveSingleFileToggleButton] -- add your button handler code here..
         //[/UserButtonCode_saveSingleFileToggleButton]
     }
+    else if (buttonThatWasClicked == searchButton)
+    {
+        //[UserButtonCode_searchButton] -- add your button handler code here..
+        sendActionMessage("search");
+        //[/UserButtonCode_searchButton]
+    }
+    else if (buttonThatWasClicked == widthFilterSearchToggle)
+    {
+        //[UserButtonCode_widthFilterSearchToggle] -- add your button handler code here..
+        //[/UserButtonCode_widthFilterSearchToggle]
+    }
 
     //[UserbuttonClicked_Post]
     //[/UserbuttonClicked_Post]
@@ -376,6 +470,16 @@ void ControlPanelComponent::comboBoxChanged (ComboBox* comboBoxThatHasChanged)
         }
         //[/UserComboBoxCode_presetComboBox]
     }
+    else if (comboBoxThatHasChanged == numRegionsComboBox)
+    {
+        //[UserComboBoxCode_numRegionsComboBox] -- add your combo box handling code here..
+        //[/UserComboBoxCode_numRegionsComboBox]
+    }
+    else if (comboBoxThatHasChanged == searchPercentComboBox)
+    {
+        //[UserComboBoxCode_searchPercentComboBox] -- add your combo box handling code here..
+        //[/UserComboBoxCode_searchPercentComboBox]
+    }
 
     //[UsercomboBoxChanged_Post]
     //[/UsercomboBoxChanged_Post]
@@ -397,6 +501,12 @@ ClusterParameters* ControlPanelComponent::getClusterParams(){
     return clusterParams;
 }
 
+void ControlPanelComponent::setClusterParams(ClusterParameters* clusterParams){
+    thresholdSlider->setValue(clusterParams->threshold);
+    stickynessSlider->setValue(clusterParams->regionConnectionWidth);
+}
+
+
 SignalFeaturesToUse* ControlPanelComponent::getSignalFeaturesToUse(SignalFeaturesToUse* featuresToUse){
 
     featuresToUse->rms = rmsFeatureToggle->getToggleState();
@@ -408,9 +518,9 @@ SignalFeaturesToUse* ControlPanelComponent::getSignalFeaturesToUse(SignalFeature
 }
 
 ExportParameters* ControlPanelComponent::getExportParameters(ExportParameters* exportParams){
-    
+
     exportParams->asOneFile = saveSingleFileToggleButton->getToggleState();
-    
+
     return exportParams;
 }
 
@@ -433,6 +543,16 @@ void ControlPanelComponent::newRegionsUpdate(Array<AudioRegion> &newRegions){
     regionCountLabel->setText(String(newRegions.size()), dontSendNotification);
 }
 
+void ControlPanelComponent::getSearchParameters(SearchParameters* searchParams){
+    searchParams->numRegions = numRegionsComboBox->getSelectedId();
+    searchParams->filePercentage = searchPercentComboBox->getSelectedId()*10;
+
+    searchParams->useWidthFilter = widthFilterSearchToggle->getToggleState();
+    searchParams->minWidth = widthSlider->getMinValue();
+    searchParams->maxWidth = widthSlider->getMaxValue();
+
+//    return searchParams;
+}
 
 //[/MiscUserCode]
 
@@ -451,38 +571,40 @@ BEGIN_JUCER_METADATA
                  variableInitialisers="" snapPixels="8" snapActive="1" snapShown="1"
                  overlayOpacity="0.330" fixedSize="0" initialWidth="600" initialHeight="400">
   <BACKGROUND backgroundColour="ffffc96d">
-    <RECT pos="12 260 788 4" fill="solid: ff2a75a5" hasStroke="0"/>
+    <RECT pos="12 29.28% 788 4" fill="solid: ff2a75a5" hasStroke="0"/>
     <TEXT pos="-70C 4 140 36" fill="solid: ff000000" hasStroke="0" text="Control Panel"
           fontname="Arial" fontsize="22" bold="0" italic="0" justification="36"/>
-    <RECT pos="12 44 788 4" fill="solid: ff2a75a5" hasStroke="0"/>
+    <RECT pos="12 5.459% 788 4" fill="solid: ff2a75a5" hasStroke="0"/>
+    <RECT pos="12 70.968% 788 4" fill="solid: ff2a75a5" hasStroke="0"/>
+    <RECT pos="12 88.834% 788 4" fill="solid: ff2a75a5" hasStroke="0"/>
   </BACKGROUND>
   <SLIDER name="thresholdSlider" id="2ddea841d6d652ab" memberName="thresholdSlider"
-          virtualName="" explicitFocusOrder="0" pos="2.794% 41.687% 84.983% 16"
+          virtualName="" explicitFocusOrder="0" pos="2.794% 39.826% 84.983% 16"
           min="0" max="1" int="0.00010000000000000000479" style="LinearHorizontal"
           textBoxPos="TextBoxLeft" textBoxEditable="0" textBoxWidth="40"
           textBoxHeight="20" skewFactor="1"/>
   <LABEL name="new label" id="4f564f498f058971" memberName="thresholdLabel"
-         virtualName="" explicitFocusOrder="0" pos="1.863% 38.71% 80 17"
+         virtualName="" explicitFocusOrder="0" pos="1.863% 36.725% 80 17"
          edTextCol="ff000000" edBkgCol="0" labelText="Threshold" editableSingleClick="0"
          editableDoubleClick="0" focusDiscardsChanges="0" fontname="Default font"
          fontsize="15" bold="0" italic="0" justification="33"/>
   <TEXTBUTTON name="calcSimButton" id="9ce3f6b1681a8658" memberName="calcSimButton"
-              virtualName="" explicitFocusOrder="0" pos="61Rr 224 86 20" bgColOff="ff97fc74"
+              virtualName="" explicitFocusOrder="0" pos="61Rr 184 86 20" bgColOff="ff97fc74"
               buttonText="Calculate" connectedEdges="0" needsCallback="1" radioGroupId="0"/>
   <TOGGLEBUTTON name="rmsFeatureToggle" id="92a1f05376de0623" memberName="rmsFeatureToggle"
-                virtualName="" explicitFocusOrder="0" pos="96 17.866% 50 24"
+                virtualName="" explicitFocusOrder="0" pos="96 17.742% 50 24"
                 tooltip="Root Mean Square" buttonText="RMS" connectedEdges="0"
                 needsCallback="1" radioGroupId="0" state="1"/>
   <TOGGLEBUTTON name="sfFeatureToggle" id="9eb603aec59d0a37" memberName="sfFeatureToggle"
-                virtualName="" explicitFocusOrder="0" pos="24 22.829% 50 24"
+                virtualName="" explicitFocusOrder="0" pos="24 22.705% 50 24"
                 tooltip="Spectral Flux" buttonText="SF" connectedEdges="0" needsCallback="1"
                 radioGroupId="0" state="0"/>
   <TOGGLEBUTTON name="mfccFeatureToggle" id="f946313658ff3956" memberName="mfccFeatureToggle"
-                virtualName="" explicitFocusOrder="0" pos="24 17.866% 50 24"
+                virtualName="" explicitFocusOrder="0" pos="24 17.742% 50 24"
                 buttonText="MFCC" connectedEdges="0" needsCallback="1" radioGroupId="0"
                 state="0"/>
   <LABEL name="stickynessLabel" id="32983a34059e5df1" memberName="stickynessLabel"
-         virtualName="" explicitFocusOrder="0" pos="1.863% 44.665% 72 18"
+         virtualName="" explicitFocusOrder="0" pos="1.863% 42.804% 72 18"
          edTextCol="ff000000" edBkgCol="0" labelText="Smoothing" editableSingleClick="0"
          editableDoubleClick="0" focusDiscardsChanges="0" fontname="Default font"
          fontsize="15" bold="0" italic="0" justification="33"/>
@@ -496,36 +618,36 @@ BEGIN_JUCER_METADATA
          focusDiscardsChanges="0" fontname="Default font" fontsize="15"
          bold="0" italic="0" justification="33"/>
   <SLIDER name="stickynessSlider" id="64d7b64d40a66223" memberName="stickynessSlider"
-          virtualName="" explicitFocusOrder="0" pos="2.794% 47.643% 84.983% 16"
+          virtualName="" explicitFocusOrder="0" pos="2.794% 45.782% 84.983% 16"
           min="0" max="1" int="0.010000000000000000208" style="LinearHorizontal"
           textBoxPos="TextBoxLeft" textBoxEditable="0" textBoxWidth="40"
           textBoxHeight="20" skewFactor="1"/>
   <LABEL name="widthLabel" id="fb630a6f3e08259a" memberName="widthLabel"
-         virtualName="" explicitFocusOrder="0" pos="1.863% 50.62% 80 24"
-         edTextCol="ff000000" edBkgCol="0" labelText="Width" editableSingleClick="0"
+         virtualName="" explicitFocusOrder="0" pos="1.863% 52.481% 80 24"
+         edTextCol="ff000000" edBkgCol="0" labelText="Width Filter" editableSingleClick="0"
          editableDoubleClick="0" focusDiscardsChanges="0" fontname="Default font"
          fontsize="15" bold="0" italic="0" justification="33"/>
   <SLIDER name="widthSlider" id="51e7ac04e76a9203" memberName="widthSlider"
-          virtualName="" explicitFocusOrder="0" pos="2.794% 53.598% 84.983% 16"
+          virtualName="" explicitFocusOrder="0" pos="2.794% 55.459% 84.983% 16"
           min="0" max="1" int="0.010000000000000000208" style="TwoValueHorizontal"
           textBoxPos="NoTextBox" textBoxEditable="0" textBoxWidth="40"
           textBoxHeight="20" skewFactor="1"/>
-  <LABEL name="new label" id="4feb41a7e4880c44" memberName="label" virtualName=""
-         explicitFocusOrder="0" pos="16 272 150 24" edTextCol="ff000000"
+  <LABEL name="header2" id="4feb41a7e4880c44" memberName="header2" virtualName=""
+         explicitFocusOrder="0" pos="16 256 150 24" edTextCol="ff000000"
          edBkgCol="0" labelText="Cluster Tuning" editableSingleClick="0"
          editableDoubleClick="0" focusDiscardsChanges="0" fontname="Default font"
          fontsize="18" bold="0" italic="0" justification="33"/>
-  <LABEL name="new label" id="e7329f5e02bd959" memberName="label2" virtualName=""
+  <LABEL name="header1" id="e7329f5e02bd959" memberName="header1" virtualName=""
          explicitFocusOrder="0" pos="16 56 150 24" edTextCol="ff000000"
          edBkgCol="0" labelText="Feature Selection" editableSingleClick="0"
          editableDoubleClick="0" focusDiscardsChanges="0" fontname="Default font"
          fontsize="18" bold="0" italic="0" justification="33"/>
   <TOGGLEBUTTON name="zcrFeatureToggle" id="e8b2bb7bef7e0e1f" memberName="zcrFeatureToggle"
-                virtualName="" explicitFocusOrder="0" pos="96 22.829% 50 24"
+                virtualName="" explicitFocusOrder="0" pos="96 22.705% 50 24"
                 tooltip="Zero Cross Rate" buttonText="ZCR" connectedEdges="0"
                 needsCallback="1" radioGroupId="0" state="0"/>
   <TOGGLEBUTTON name="invertRegionsToggle" id="b0589c37aecfe236" memberName="invertRegionsToggle"
-                virtualName="" explicitFocusOrder="0" pos="2.794% 59.553% 120 24"
+                virtualName="" explicitFocusOrder="0" pos="2.794% 64.516% 120 24"
                 tooltip="Invert Regions" buttonText="Invert Regions" connectedEdges="0"
                 needsCallback="1" radioGroupId="0" state="0"/>
   <TEXTBUTTON name="exportSeparateButton" id="a631088d4d356323" memberName="exportSeparateButton"
@@ -533,12 +655,12 @@ BEGIN_JUCER_METADATA
               bgColOff="ffff7f50" buttonText="Export Regions" connectedEdges="0"
               needsCallback="1" radioGroupId="0"/>
   <LABEL name="regionDescriptionLabel" id="a04caca43e46440c" memberName="regionDescriptionLabel"
-         virtualName="" explicitFocusOrder="0" pos="0.931% 90.323% 72 24"
+         virtualName="" explicitFocusOrder="0" pos="1.048% 90.199% 72 24"
          edTextCol="ff000000" edBkgCol="0" labelText="# Regions:" editableSingleClick="0"
          editableDoubleClick="0" focusDiscardsChanges="0" fontname="Default font"
          fontsize="15" bold="0" italic="0" justification="33"/>
   <LABEL name="new label" id="a0c4f9bc684a7ae" memberName="regionCountLabel"
-         virtualName="" explicitFocusOrder="0" pos="80 90.323% 56 24"
+         virtualName="" explicitFocusOrder="0" pos="80 90.199% 56 24"
          posRelativeX="a04caca43e46440c" edTextCol="ff000000" edBkgCol="0"
          labelText="0" editableSingleClick="0" editableDoubleClick="0"
          focusDiscardsChanges="0" fontname="Default font" fontsize="15"
@@ -547,6 +669,38 @@ BEGIN_JUCER_METADATA
                 virtualName="" explicitFocusOrder="0" pos="120 95.285% 112 24"
                 posRelativeX="a631088d4d356323" buttonText="As One File" connectedEdges="0"
                 needsCallback="1" radioGroupId="0" state="1"/>
+  <LABEL name="widthMinLabel" id="a0b81fc5519f0525" memberName="widthMinLabel"
+         virtualName="" explicitFocusOrder="0" pos="0 17 56 24" posRelativeX="51e7ac04e76a9203"
+         posRelativeY="51e7ac04e76a9203" edTextCol="ff000000" edBkgCol="0"
+         labelText="0" editableSingleClick="0" editableDoubleClick="0"
+         focusDiscardsChanges="0" fontname="Default font" fontsize="15"
+         bold="0" italic="0" justification="33"/>
+  <LABEL name="widthMinLabel" id="1321e6b8d7b57a1d" memberName="widthMaxLabel"
+         virtualName="" explicitFocusOrder="0" pos="96.438% 25 48 24"
+         posRelativeX="51e7ac04e76a9203" posRelativeY="51e7ac04e76a9203"
+         edTextCol="ff000000" edBkgCol="0" labelText="0" editableSingleClick="0"
+         editableDoubleClick="0" focusDiscardsChanges="0" fontname="Default font"
+         fontsize="15" bold="0" italic="0" justification="33"/>
+  <COMBOBOX name="numRegionsComboBox" id="47e3c11d037570f1" memberName="numRegionsComboBox"
+            virtualName="" explicitFocusOrder="0" pos="8 78.412% 120 24"
+            posRelativeX="74213fc8a34693ad" editable="0" layout="33" items="1&#10;2&#10;3&#10;4&#10;5&#10;6&#10;7&#10;8&#10;9"
+            textWhenNonSelected="# of Regions" textWhenNoItems="(no choices)"/>
+  <LABEL name="header3" id="74213fc8a34693ad" memberName="header3" virtualName=""
+         explicitFocusOrder="0" pos="16 72.457% 120 24" edTextCol="ff000000"
+         edBkgCol="0" labelText="Smart Search" editableSingleClick="0"
+         editableDoubleClick="0" focusDiscardsChanges="0" fontname="Default font"
+         fontsize="18" bold="0" italic="0" justification="33"/>
+  <COMBOBOX name="searchPercentComboBox" id="da9bbdad378a720a" memberName="searchPercentComboBox"
+            virtualName="" explicitFocusOrder="0" pos="144 78.412% 104 24"
+            posRelativeX="74213fc8a34693ad" editable="0" layout="33" items="10&#10;20&#10;30&#10;40&#10;50"
+            textWhenNonSelected="% of File" textWhenNoItems="(no choices)"/>
+  <TEXTBUTTON name="searchButton" id="f6b9cb23f7da3ea9" memberName="searchButton"
+              virtualName="" explicitFocusOrder="0" pos="24 84.367% 150 24"
+              buttonText="Search" connectedEdges="0" needsCallback="1" radioGroupId="0"/>
+  <TOGGLEBUTTON name="widthFilterSearchToggle" id="46345d311cd9365e" memberName="widthFilterSearchToggle"
+                virtualName="" explicitFocusOrder="0" pos="136 72.457% 120 24"
+                posRelativeX="74213fc8a34693ad" tooltip="Invert Regions" buttonText="Use Width Filter"
+                connectedEdges="0" needsCallback="1" radioGroupId="0" state="0"/>
 </JUCER_COMPONENT>
 
 END_JUCER_METADATA

@@ -92,7 +92,7 @@ Eigen::MatrixXf AudioAnalysisController::calculateFeatureMatrix(AudioSampleBuffe
         numProcessedBlocks += 1;
         int featureIdx = 0; // for indexing w/variable num features
         
-        //===Break get samples into block
+        //---Break samples into block
         blockSampleIdx = i * windowSize; // sample idx of block
         AudioSampleBuffer asbBlock = AudioSampleBuffer(buffer->getNumChannels(), windowSize);
         for(int j=0; j<buffer->getNumChannels(); j++){
@@ -105,9 +105,11 @@ Eigen::MatrixXf AudioAnalysisController::calculateFeatureMatrix(AudioSampleBuffe
         Eigen::FFT<float> fft;
         Eigen::RowVectorXcf blockFft;
         
-        fft.SetFlag(fft.HalfSpectrum);
-        fft.fwd(blockFft, mBlock);
-        
+        //---Calculate fft only if we use features that need it
+        if(featuresToUse->needFft()){
+            fft.SetFlag(fft.HalfSpectrum);
+            fft.fwd(blockFft, mBlock);
+        }
         
         if(featuresToUse->rms){
             rmsIdx = featureIdx;
@@ -143,9 +145,7 @@ Eigen::MatrixXf AudioAnalysisController::calculateFeatureMatrix(AudioSampleBuffe
         
         blockIdx += 1;
     }
-    
-    float test = featureMatrix.col(rmsIdx).mean();
-    
+        
     //=== Standardize features
     if(featuresToUse->rms){
         rmsStd = sqrtf(rmsVar/numProcessedBlocks);
@@ -263,6 +263,7 @@ Eigen::RowVectorXf AudioAnalysisController::calculateMFCC(Eigen::RowVectorXcf &b
     }
     
     // Take discrete cosine transform of log energies
+    // Ref: http://www.haberdar.org/Discrete-Cosine-Transform-Tutorial.htm
     Eigen::RowVectorXf mfccs = Eigen::RowVectorXf::Zero(1, 12); float w;
     for(int i=0; i<numFilterBanks; i++){
         w = 0;
@@ -277,25 +278,9 @@ Eigen::RowVectorXf AudioAnalysisController::calculateMFCC(Eigen::RowVectorXcf &b
 }
 
 
-//float AudioAnalysisController::calculateMean(Array<float> values){
-//    int numValues = values.size();
-//    float runningAverage = 0;
-//    
-//    for(int i=0; i<numValues; i++){
-//        runningAverage = runningAverage + (values[i] - runningAverage) / (i + 1);
-//    }
-//    
-//    return runningAverage;
-//}
-
 float AudioAnalysisController::getLastMaxDistance(){
     return maxDistance;
 }
-
-//Array<float> AudioAnalysisController::medianFilter(Array<float> distanceArray, int width){
-//    // check that width is odd
-//    // filter array
-//}
 
 Array<AudioRegion> AudioAnalysisController::getClusterRegions(ClusterParameters* clusterParams, Array<float>* distanceArray){
     
@@ -306,7 +291,7 @@ Array<AudioRegion> AudioAnalysisController::getClusterRegions(ClusterParameters*
     int numBlocks = distanceArray->size();
     
     for(int blockIdx=0; blockIdx<numBlocks; blockIdx++){
-        if((*distanceArray)[blockIdx] < clusterParams->threshold * maxDistance * 1 / 10){
+        if((*distanceArray)[blockIdx] < clusterParams->threshold * maxDistance * 1){
             acceptedBlocks.add(blockIdx);
         }
     }
@@ -371,6 +356,51 @@ Array<AudioRegion> AudioAnalysisController::invertClusterRegions(Array<AudioRegi
     }
     
     return invertedRegions;
+    
+}
+
+void AudioAnalysisController::findRegions(SearchParameters* searchParams, Array<float>* distanceArray, ClusterParameters* bestParams){
+    
+    ClusterParameters candidateParams;
+    int numTestIncrements = 100;
+    float minCost = FLT_MAX, cost;
+    
+    if(searchParams->useWidthFilter){
+        candidateParams.minRegionTimeWidth = searchParams->minWidth;
+        candidateParams.maxRegionTimeWidth = searchParams->maxWidth;
+    }
+    
+    for(int i=0; i<numTestIncrements; i++){
+        
+        candidateParams.threshold = float(i) / numTestIncrements;
+        
+        for(int j=0; j<numTestIncrements; j++){
+            candidateParams.regionConnectionWidth = float(j) / numTestIncrements;
+            Array<AudioRegion> regions = getClusterRegions(&candidateParams, distanceArray);
+            cost = getRegionCost(regions, searchParams);
+            if(cost < minCost){
+                bestParams->threshold = candidateParams.threshold;
+                bestParams->regionConnectionWidth = candidateParams.regionConnectionWidth;
+                minCost = cost;
+            }
+        }
+    }
+}
+
+float AudioAnalysisController::getRegionCost(Array<AudioRegion> &regions, SearchParameters* searchParams){
+ 
+    float weightNumRegion = 1; float weightPercentage = 2;
+    float cost;
+    int numRegions = regions.size();
+    
+    float regionFilePercentage = 0;
+    for(int i; i<numRegions; i++){
+        regionFilePercentage += (regions[i].getEnd() - regions[i].getStart());
+    }
+    
+    cost = weightNumRegion*abs(searchParams->numRegions - numRegions) + weightPercentage*fabs(searchParams->filePercentage - regionFilePercentage);
+    
+    return cost;
     
 }
 

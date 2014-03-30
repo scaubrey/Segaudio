@@ -48,16 +48,18 @@ public:
     //==============================================================================
     //[UserMethods]     -- You can add your own custom methods in this section.
     ClusterParameters* getClusterParams();
+    void setClusterParams(ClusterParameters* clusterParams);
+
     SignalFeaturesToUse* getSignalFeaturesToUse(SignalFeaturesToUse* featuresToUse);
-    
+
     ExportParameters* getExportParameters(ExportParameters* exportParams);
 
     void setCalcEnabled(bool readyForCalc);
     void setClusterTuningEnabled(bool readyToTune);
 
     void newRegionsUpdate(Array<AudioRegion> &newRegions);
-    
-    
+
+    void getSearchParameters(SearchParameters* searchParams);
     //[/UserMethods]
 
     void paint (Graphics& g);
@@ -88,14 +90,21 @@ private:
     ScopedPointer<Slider> stickynessSlider;
     ScopedPointer<Label> widthLabel;
     ScopedPointer<Slider> widthSlider;
-    ScopedPointer<Label> label;
-    ScopedPointer<Label> label2;
+    ScopedPointer<Label> header2;
+    ScopedPointer<Label> header1;
     ScopedPointer<ToggleButton> zcrFeatureToggle;
     ScopedPointer<ToggleButton> invertRegionsToggle;
     ScopedPointer<TextButton> exportSeparateButton;
     ScopedPointer<Label> regionDescriptionLabel;
     ScopedPointer<Label> regionCountLabel;
     ScopedPointer<ToggleButton> saveSingleFileToggleButton;
+    ScopedPointer<Label> widthMinLabel;
+    ScopedPointer<Label> widthMaxLabel;
+    ScopedPointer<ComboBox> numRegionsComboBox;
+    ScopedPointer<Label> header3;
+    ScopedPointer<ComboBox> searchPercentComboBox;
+    ScopedPointer<TextButton> searchButton;
+    ScopedPointer<ToggleButton> widthFilterSearchToggle;
 
 
     //==============================================================================

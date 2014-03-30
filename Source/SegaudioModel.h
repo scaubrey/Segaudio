@@ -16,23 +16,23 @@
 #include "AudioRegion.h"
 
 struct ClusterParameters{
-    float threshold;
+    float threshold = 0;
     
-    float regionConnectionWidth;
+    float regionConnectionWidth = 1;
     
-    float medianFilterWidth;
+//    float medianFilterWidth;
     
-    float minRegionTimeWidth;
-    float maxRegionTimeWidth;
+    float minRegionTimeWidth = 0;
+    float maxRegionTimeWidth = 1;
     
-    bool shouldInvertRegions;
+    bool shouldInvertRegions = false;
 };
 
 struct SignalFeaturesToUse{
-    bool rms;
-    bool mfcc;
-    bool sf;
-    bool zcr;
+    bool rms = false;
+    bool mfcc = false;
+    bool sf = false;
+    bool zcr = false;
     
     bool isNoneSelected(){
         if(rms || mfcc || sf || zcr){
@@ -50,11 +50,25 @@ struct SignalFeaturesToUse{
         
         return numSelected;
     }
+    
+    bool needFft(){
+        if(mfcc || sf) return true;
+        return false;
+    }
 };
 
 struct ExportParameters{
-    bool asOneFile;
+    bool asOneFile = false;
     Array<AudioRegion> clusterRegions;
+};
+
+struct SearchParameters{
+    int numRegions;
+    int filePercentage;
+    
+    bool useWidthFilter = false;
+    float minWidth = 0;
+    float maxWidth = 1;
 };
 
 class SegaudioModel
@@ -65,6 +79,8 @@ public:
     ~SegaudioModel();
     
     bool addFile(SegaudioFile* newFile, String componentId);
+    
+    ClusterParameters* getClusterParams();
     
     void setClusterParams(ClusterParameters newParams);
     
@@ -84,6 +100,8 @@ public:
     
     ExportParameters* getExportParameters();
     
+    SearchParameters* getSearchParameters();
+    
 private:
         
     int maxFiles;
@@ -101,6 +119,8 @@ private:
     SignalFeaturesToUse featuresToUse;
     
     ExportParameters exportParameters;
+    
+    SearchParameters searchParameters;
 };
 
 

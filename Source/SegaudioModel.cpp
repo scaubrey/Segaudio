@@ -31,7 +31,10 @@ bool SegaudioModel::addFile(SegaudioFile* newFile, String componentId){
     files.set(componentId, newFile);
     return true;
 }
-    
+
+ClusterParameters* SegaudioModel::getClusterParams(){
+    return &clusterParams;
+}
 
 void SegaudioModel::setClusterParams(ClusterParameters newParams){
     clusterParams = newParams;
@@ -73,4 +76,8 @@ SignalFeaturesToUse* SegaudioModel::getSignalFeaturesToUse(){
 
 ExportParameters* SegaudioModel::getExportParameters(){
     return &exportParameters;
+}
+
+SearchParameters* SegaudioModel::getSearchParameters(){
+    return &searchParameters;
 }
