@@ -70,3 +70,7 @@ AudioSampleBuffer* SegaudioModel::getFileBuffer(String componenetId){
 SignalFeaturesToUse* SegaudioModel::getSignalFeaturesToUse(){
     return &featuresToUse;
 }
+
+ExportParameters* SegaudioModel::getExportParameters(){
+    return &exportParameters;
+}

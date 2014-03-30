@@ -138,7 +138,7 @@ ControlPanelComponent::ControlPanelComponent ()
     invertRegionsToggle->addListener (this);
 
     addAndMakeVisible (exportSeparateButton = new TextButton ("exportSeparateButton"));
-    exportSeparateButton->setButtonText (TRANS("Export All"));
+    exportSeparateButton->setButtonText (TRANS("Export Regions"));
     exportSeparateButton->addListener (this);
     exportSeparateButton->setColour (TextButton::buttonColourId, Colours::coral);
 
@@ -158,10 +158,10 @@ ControlPanelComponent::ControlPanelComponent ()
     regionCountLabel->setColour (TextEditor::textColourId, Colours::black);
     regionCountLabel->setColour (TextEditor::backgroundColourId, Colour (0x00000000));
 
-    addAndMakeVisible (exportTogetherButton = new TextButton ("exportTogetherButton"));
-    exportTogetherButton->setButtonText (TRANS("Export as 1 File"));
-    exportTogetherButton->addListener (this);
-    exportTogetherButton->setColour (TextButton::buttonColourId, Colours::coral);
+    addAndMakeVisible (saveSingleFileToggleButton = new ToggleButton ("saveSingleFileToggleButton"));
+    saveSingleFileToggleButton->setButtonText (TRANS("As One File"));
+    saveSingleFileToggleButton->addListener (this);
+    saveSingleFileToggleButton->setToggleState (true, dontSendNotification);
 
 
     //[UserPreSize]
@@ -203,7 +203,7 @@ ControlPanelComponent::~ControlPanelComponent()
     exportSeparateButton = nullptr;
     regionDescriptionLabel = nullptr;
     regionCountLabel = nullptr;
-    exportTogetherButton = nullptr;
+    saveSingleFileToggleButton = nullptr;
 
 
     //[Destructor]. You can add your own custom destruction code here..
@@ -252,10 +252,10 @@ void ControlPanelComponent::resized()
     label2->setBounds (16, 56, 150, 24);
     zcrFeatureToggle->setBounds (96, proportionOfHeight (0.2283f), 50, 24);
     invertRegionsToggle->setBounds (proportionOfWidth (0.0279f), proportionOfHeight (0.5955f), 120, 24);
-    exportSeparateButton->setBounds (8, proportionOfHeight (0.9529f), 80, 24);
-    regionDescriptionLabel->setBounds (proportionOfWidth (0.0093f), proportionOfHeight (0.9032f), 80, 24);
+    exportSeparateButton->setBounds (8, proportionOfHeight (0.9529f), 104, 24);
+    regionDescriptionLabel->setBounds (proportionOfWidth (0.0093f), proportionOfHeight (0.9032f), 72, 24);
     regionCountLabel->setBounds ((proportionOfWidth (0.0093f)) + 80, proportionOfHeight (0.9032f), 56, 24);
-    exportTogetherButton->setBounds (104, proportionOfHeight (0.9529f), 104, 24);
+    saveSingleFileToggleButton->setBounds ((8) + 120, proportionOfHeight (0.9529f), 112, 24);
     //[UserResized] Add your own custom resize handling here..
     //[/UserResized]
 }
@@ -328,12 +328,13 @@ void ControlPanelComponent::buttonClicked (Button* buttonThatWasClicked)
     else if (buttonThatWasClicked == exportSeparateButton)
     {
         //[UserButtonCode_exportSeparateButton] -- add your button handler code here..
+        sendActionMessage("exportRegions");
         //[/UserButtonCode_exportSeparateButton]
     }
-    else if (buttonThatWasClicked == exportTogetherButton)
+    else if (buttonThatWasClicked == saveSingleFileToggleButton)
     {
-        //[UserButtonCode_exportTogetherButton] -- add your button handler code here..
-        //[/UserButtonCode_exportTogetherButton]
+        //[UserButtonCode_saveSingleFileToggleButton] -- add your button handler code here..
+        //[/UserButtonCode_saveSingleFileToggleButton]
     }
 
     //[UserbuttonClicked_Post]
@@ -404,6 +405,13 @@ SignalFeaturesToUse* ControlPanelComponent::getSignalFeaturesToUse(SignalFeature
     featuresToUse->zcr = zcrFeatureToggle->getToggleState();
 
     return featuresToUse;
+}
+
+ExportParameters* ControlPanelComponent::getExportParameters(ExportParameters* exportParams){
+    
+    exportParams->asOneFile = saveSingleFileToggleButton->getToggleState();
+    
+    return exportParams;
 }
 
 void ControlPanelComponent::setCalcEnabled(bool readyForCalc){
@@ -521,11 +529,11 @@ BEGIN_JUCER_METADATA
                 tooltip="Invert Regions" buttonText="Invert Regions" connectedEdges="0"
                 needsCallback="1" radioGroupId="0" state="0"/>
   <TEXTBUTTON name="exportSeparateButton" id="a631088d4d356323" memberName="exportSeparateButton"
-              virtualName="" explicitFocusOrder="0" pos="8 95.285% 80 24" bgColOff="ffff7f50"
-              buttonText="Export All" connectedEdges="0" needsCallback="1"
-              radioGroupId="0"/>
+              virtualName="" explicitFocusOrder="0" pos="8 95.285% 104 24"
+              bgColOff="ffff7f50" buttonText="Export Regions" connectedEdges="0"
+              needsCallback="1" radioGroupId="0"/>
   <LABEL name="regionDescriptionLabel" id="a04caca43e46440c" memberName="regionDescriptionLabel"
-         virtualName="" explicitFocusOrder="0" pos="0.931% 90.323% 80 24"
+         virtualName="" explicitFocusOrder="0" pos="0.931% 90.323% 72 24"
          edTextCol="ff000000" edBkgCol="0" labelText="# Regions:" editableSingleClick="0"
          editableDoubleClick="0" focusDiscardsChanges="0" fontname="Default font"
          fontsize="15" bold="0" italic="0" justification="33"/>
@@ -535,10 +543,10 @@ BEGIN_JUCER_METADATA
          labelText="0" editableSingleClick="0" editableDoubleClick="0"
          focusDiscardsChanges="0" fontname="Default font" fontsize="15"
          bold="0" italic="0" justification="33"/>
-  <TEXTBUTTON name="exportTogetherButton" id="25f3e25ff473f3ef" memberName="exportTogetherButton"
-              virtualName="" explicitFocusOrder="0" pos="104 95.285% 104 24"
-              bgColOff="ffff7f50" buttonText="Export as 1 File" connectedEdges="0"
-              needsCallback="1" radioGroupId="0"/>
+  <TOGGLEBUTTON name="saveSingleFileToggleButton" id="f85d7a508934cb85" memberName="saveSingleFileToggleButton"
+                virtualName="" explicitFocusOrder="0" pos="120 95.285% 112 24"
+                posRelativeX="a631088d4d356323" buttonText="As One File" connectedEdges="0"
+                needsCallback="1" radioGroupId="0" state="1"/>
 </JUCER_COMPONENT>
 
 END_JUCER_METADATA

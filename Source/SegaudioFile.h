@@ -14,7 +14,7 @@
 #include "JuceHeader.h"
 #include "AudioRegion.h"
 
-class SegaudioFile
+class SegaudioFile : public File
 {
   
 public:

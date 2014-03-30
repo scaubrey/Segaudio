@@ -92,20 +92,26 @@ Eigen::MatrixXf AudioAnalysisController::calculateFeatureMatrix(AudioSampleBuffe
         numProcessedBlocks += 1;
         int featureIdx = 0; // for indexing w/variable num features
         
+        //===Break get samples into block
         blockSampleIdx = i * windowSize; // sample idx of block
-     
-        AudioSampleBuffer block = AudioSampleBuffer(buffer->getNumChannels(), windowSize);
-        
+        AudioSampleBuffer asbBlock = AudioSampleBuffer(buffer->getNumChannels(), windowSize);
         for(int j=0; j<buffer->getNumChannels(); j++){
-            block.copyFrom(j, 0, *buffer, j, blockSampleIdx, windowSize);
+            asbBlock.copyFrom(j, 0, *buffer, j, blockSampleIdx, windowSize);
         }
         
-        // TODO turn buffer into matrix here
-        // TODO how to deal with multichannel?
+        // TODO average data from all channels
+        
+        Eigen::Map<Eigen::RowVectorXf> mBlock(asbBlock.getSampleData(0), windowSize);
+        Eigen::FFT<float> fft;
+        Eigen::RowVectorXcf blockFft;
+        
+        fft.SetFlag(fft.HalfSpectrum);
+        fft.fwd(blockFft, mBlock);
+        
         
         if(featuresToUse->rms){
             rmsIdx = featureIdx;
-            float blockRMS = calculateBlockRMS(block);
+            float blockRMS = calculateBlockRMS(asbBlock);
             tmpDelta = blockRMS - rmsMean;
             rmsMean = rmsMean + tmpDelta / numProcessedBlocks;
             rmsVar = rmsVar + tmpDelta*(blockRMS - rmsMean);
@@ -115,7 +121,7 @@ Eigen::MatrixXf AudioAnalysisController::calculateFeatureMatrix(AudioSampleBuffe
         
         if(featuresToUse->zcr){
             zcrIdx = featureIdx;
-            float blockZCR = calculateZeroCrossRate(block);
+            float blockZCR = calculateZeroCrossRate(asbBlock);
             tmpDelta = blockZCR - zcrMean;
             zcrMean = zcrMean + tmpDelta / numProcessedBlocks;
             zcrVar = zcrVar + tmpDelta*(blockZCR - zcrMean);
@@ -124,13 +130,13 @@ Eigen::MatrixXf AudioAnalysisController::calculateFeatureMatrix(AudioSampleBuffe
         }
         
         if(featuresToUse->sf){
-            float blockSf = calculateSprectralFlux(block);
+            float blockSf = calculateSprectralFlux(blockFft);
             featureMatrix(blockIdx, featureIdx) = blockSf;
             featureIdx += 1;
         }
         
         if(featuresToUse->mfcc){
-            Eigen::RowVectorXf blockMFCC = calculateMFCC(block);
+            Eigen::RowVectorXf blockMFCC = calculateMFCC(blockFft, 44100);
             featureMatrix.block(blockIdx, featureIdx, 1, 12) = blockMFCC;
             featureIdx += 12; // note 12 spots taken!
         }
@@ -189,16 +195,85 @@ float AudioAnalysisController::calculateZeroCrossRate(juce::AudioSampleBuffer &b
     return zcr;
 }
 
-float AudioAnalysisController::calculateSprectralFlux(AudioSampleBuffer &block){
-    
+float AudioAnalysisController::calculateSprectralFlux(Eigen::RowVectorXcf &blockFft){
     return 0;
-    
 }
 
-Eigen::RowVectorXf AudioAnalysisController::calculateMFCC(AudioSampleBuffer &block){
+Eigen::RowVectorXf AudioAnalysisController::calculateMFCC(Eigen::RowVectorXcf &blockFft, int sampleRate){
+        
+    // for reference: http://practicalcryptography.com/miscellaneous/machine-learning/guide-mel-frequency-cepstral-coefficients-mfccs/
     
-    Eigen::VectorXf stubMfcc = Eigen::RowVectorXf::Zero(12).transpose();
-    return stubMfcc;
+    //---Initial params
+    int numFilterBanks = 12; // num triangular filter banks applied to dft
+    int numBankPts = numFilterBanks+2; 
+    
+    // Set min and max frequencies for our filter bank
+    float minFreq = 200.0f; // Hz, start filter banks here
+    float maxFreq = 8000.0f; // Hz, end here
+    // TODO maxFreq has to be less that sample rate
+
+    //---Convert to mel scale so we can get linearly spaced banks
+    float minMel = 1125.0f * log(1 + minFreq/700);
+    float maxMel = 1125.0f * log(1 + maxFreq/700);
+    
+    //---Calculate linearly spaced bank locations on mel scale
+    Array<float> melBankLocations;
+    for(int i=0; i<numBankPts; i++){
+        melBankLocations.add(minMel + i*((maxMel - minMel)/numFilterBanks));
+    }
+    
+    //---Convert bank pts back to hertz
+    Array<float> freqBankLocations;
+    for(int i=0; i<numBankPts; i++){
+        freqBankLocations.add((exp(melBankLocations[i] / 1125.0f) - 1) * 700);
+    }
+    
+    //---Round pts to nearest actual fft bin
+    Array<float> freqBankBinIdxs;
+    for(int i=0; i<numBankPts; i++){
+        freqBankBinIdxs.add(floor((windowSize/2+1)*freqBankLocations[i] / sampleRate));
+    }
+    
+    //---Get power spectrum estimate of dft
+    Eigen::RowVectorXf periodogram = (blockFft.array().abs().pow(2) / windowSize).matrix();
+
+    //---Apply triangular banks to periodogram
+    Eigen::RowVectorXf logEnergies = Eigen::RowVectorXf::Zero(1, numFilterBanks);
+    for(int i=0; i<numFilterBanks; i++){
+                
+        int bankBinStart = freqBankBinIdxs[i]; // triangle starts one before filter center
+        int bankBinEnd = freqBankBinIdxs[i+2]; // ends one pt after
+        int numFftBins = bankBinEnd - bankBinStart;
+        
+        Eigen::RowVectorXf triangleBankValues = Eigen::RowVectorXf::Zero(1, numFftBins);
+
+        for(int j=0; j<numFftBins; j++){
+            if(j < float(numFftBins)/2){
+                triangleBankValues[j] = float(j) / (numFftBins / 2); // scale 0 to 1
+            }
+            else{
+                triangleBankValues[j] = (numFftBins - float(j)) / (numFftBins / 2); // scale 1 back to 0
+            }
+            //DBG(triangleBankValues[j]);
+        }
+        
+        float energy = (triangleBankValues.array() * periodogram.block(0, bankBinStart, 1, numFftBins).array()).sum();
+        
+        logEnergies[i] = log(energy);
+    }
+    
+    // Take discrete cosine transform of log energies
+    Eigen::RowVectorXf mfccs = Eigen::RowVectorXf::Zero(1, 12); float w;
+    for(int i=0; i<numFilterBanks; i++){
+        w = 0;
+        
+        for(int j=0; j<numFilterBanks-1; j++){
+            w += logEnergies[j] * cos(M_PI * (float(j)+1/2) * i / numFilterBanks);
+        }
+        mfccs[i] = w;
+    }
+    
+    return mfccs.transpose(); // return as column
 }
 
 
@@ -217,10 +292,10 @@ float AudioAnalysisController::getLastMaxDistance(){
     return maxDistance;
 }
 
-Array<float> AudioAnalysisController::medianFilter(Array<float> distanceArray, int width){
-    // check that width is odd
-    // filter array
-}
+//Array<float> AudioAnalysisController::medianFilter(Array<float> distanceArray, int width){
+//    // check that width is odd
+//    // filter array
+//}
 
 Array<AudioRegion> AudioAnalysisController::getClusterRegions(ClusterParameters* clusterParams, Array<float>* distanceArray){
     

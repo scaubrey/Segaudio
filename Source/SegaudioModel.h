@@ -52,6 +52,11 @@ struct SignalFeaturesToUse{
     }
 };
 
+struct ExportParameters{
+    bool asOneFile;
+    Array<AudioRegion> clusterRegions;
+};
+
 class SegaudioModel
 {
 public:
@@ -77,6 +82,8 @@ public:
     
     SignalFeaturesToUse* getSignalFeaturesToUse();
     
+    ExportParameters* getExportParameters();
+    
 private:
         
     int maxFiles;
@@ -92,6 +99,8 @@ private:
     float maxDistance;
     
     SignalFeaturesToUse featuresToUse;
+    
+    ExportParameters exportParameters;
 };
 
 

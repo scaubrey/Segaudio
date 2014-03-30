@@ -49,11 +49,15 @@ public:
     //[UserMethods]     -- You can add your own custom methods in this section.
     ClusterParameters* getClusterParams();
     SignalFeaturesToUse* getSignalFeaturesToUse(SignalFeaturesToUse* featuresToUse);
+    
+    ExportParameters* getExportParameters(ExportParameters* exportParams);
 
     void setCalcEnabled(bool readyForCalc);
     void setClusterTuningEnabled(bool readyToTune);
 
     void newRegionsUpdate(Array<AudioRegion> &newRegions);
+    
+    
     //[/UserMethods]
 
     void paint (Graphics& g);
@@ -68,6 +72,7 @@ private:
     //[UserVariables]   -- You can add your own custom variables in this section.
     ScopedPointer<ClusterParameters> clusterParams;
     ScopedPointer<SignalFeaturesToUse> featuresToUse;
+
     //[/UserVariables]
 
     //==============================================================================
@@ -90,7 +95,7 @@ private:
     ScopedPointer<TextButton> exportSeparateButton;
     ScopedPointer<Label> regionDescriptionLabel;
     ScopedPointer<Label> regionCountLabel;
-    ScopedPointer<TextButton> exportTogetherButton;
+    ScopedPointer<ToggleButton> saveSingleFileToggleButton;
 
 
     //==============================================================================

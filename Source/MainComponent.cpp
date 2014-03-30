@@ -156,16 +156,26 @@ void MainComponent::actionListenerCallback(const juce::String &message){
         newRegionsUpdate();
     }
     else if(message == "exportRegions"){
-        FileChooser myChooser ("Saving...");
+        
+        ClusterParameters* clusterTuningParams = controlPanelComponent->getClusterParams();
+        Array<AudioRegion> clusterRegions = analysisController->getClusterRegions(clusterTuningParams, appModel->getDistanceArray());
+        
+        ExportParameters* exportParams = appModel->getExportParameters();
+        controlPanelComponent->getExportParameters(exportParams);
+        String prompt = "Saving " + String(clusterRegions.size()) + " regions";
+        if(exportParams->asOneFile){
+            prompt += " as one file...";
+        }
+        else{
+            prompt += " as multiple files...";
+        }
+
+        FileChooser myChooser (prompt);
         if (myChooser.browseForFileToSave(true))
         {
             File destinationFile = myChooser.getResult();
 
             DBG(destinationFile.getFullPathName());
-            
-            ClusterParameters* clusterTuningParams = controlPanelComponent->getClusterParams();
-            Array<AudioRegion> clusterRegions = analysisController->getClusterRegions(clusterTuningParams, appModel->getDistanceArray());
-
             
             analysisController->saveRegionsToFile(clusterRegions, appModel->getFileBuffer("1"), destinationFile, true);
         }

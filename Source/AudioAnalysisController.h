@@ -15,6 +15,7 @@
 #include "AudioRegion.h"
 #include "SegaudioModel.h"
 #include "Eigen.h"
+#include "Eigen/FFT.h"
 #include <math.h>
 
 //using namespace Eigen;
@@ -41,9 +42,7 @@ public:
     virtual void actionListenerCallback(const String &message);
     
     Array<AudioRegion> getClusterRegions(ClusterParameters* clusterParams, Array<float>* distanceArray);
-    
-    Array<float> medianFilter(Array<float> distanceArray, int width);
-    
+        
     int signum(float value);
     
     Array<AudioRegion> invertClusterRegions(Array<AudioRegion> &regions);
@@ -68,9 +67,9 @@ private:
     
     float calculateZeroCrossRate(AudioSampleBuffer &block);
     
-    float calculateSprectralFlux(AudioSampleBuffer &block);
+    float calculateSprectralFlux(Eigen::RowVectorXcf &blockFft);
     
-    Eigen::RowVectorXf calculateMFCC(AudioSampleBuffer &block);
+    Eigen::RowVectorXf calculateMFCC(Eigen::RowVectorXcf &blockFft, int sampleRate);
 
 };
 
