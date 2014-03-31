@@ -47,10 +47,14 @@ public:
     
     Array<AudioRegion> invertClusterRegions(Array<AudioRegion> &regions);
     
-    void findRegions(SearchParameters* searchParams, Array<float>* distanceArray, ClusterParameters* bestParams);
+    void findRegionsGridSearch(SearchParameters* searchParams, Array<float>* distanceArray, ClusterParameters* bestParams);
+    
+    void findRegionsBinarySearch(SearchParameters* searchParams, Array<float>* distanceArray, ClusterParameters* bestParams);
+    
+    void findRegionsGradientDescent(SearchParameters* searchParams, Array<float>* distanceArray, ClusterParameters* bestParams);
     
     float getRegionCost(Array<AudioRegion> &regions, SearchParameters* searchParams);
-    
+        
     bool saveRegionsToFile(Array<AudioRegion> &regions, AudioSampleBuffer* sourceBuffer, File &destinationFile, bool useSeparateFiles);
     
     

@@ -64,7 +64,7 @@ struct ExportParameters{
 
 struct SearchParameters{
     int numRegions;
-    int filePercentage;
+    float filePercentage;
     
     bool useWidthFilter = false;
     float minWidth = 0;

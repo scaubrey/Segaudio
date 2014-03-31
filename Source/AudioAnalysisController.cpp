@@ -359,7 +359,7 @@ Array<AudioRegion> AudioAnalysisController::invertClusterRegions(Array<AudioRegi
     
 }
 
-void AudioAnalysisController::findRegions(SearchParameters* searchParams, Array<float>* distanceArray, ClusterParameters* bestParams){
+void AudioAnalysisController::findRegionsGridSearch(SearchParameters* searchParams, Array<float>* distanceArray, ClusterParameters* bestParams){
     
     ClusterParameters candidateParams;
     int numTestIncrements = 100;
@@ -370,13 +370,22 @@ void AudioAnalysisController::findRegions(SearchParameters* searchParams, Array<
         candidateParams.maxRegionTimeWidth = searchParams->maxWidth;
     }
     
-    for(int i=0; i<numTestIncrements; i++){
+    for(int i=0; i<numTestIncrements*10; i++){
         
-        candidateParams.threshold = float(i) / numTestIncrements;
+        candidateParams.threshold = float(i) / (numTestIncrements*10);
         
         for(int j=0; j<numTestIncrements; j++){
             candidateParams.regionConnectionWidth = float(j) / numTestIncrements;
             Array<AudioRegion> regions = getClusterRegions(&candidateParams, distanceArray);
+            
+            if(regions.size() == searchParams->numRegions){
+                DBG("match: " + String(candidateParams.threshold) + " " + String(candidateParams.regionConnectionWidth) + " " + String(cost));
+            }
+            
+            if(regions.size() < searchParams->numRegions){
+                continue; // skip if the smoothing parameter past the target num
+            }
+            
             cost = getRegionCost(regions, searchParams);
             if(cost < minCost){
                 bestParams->threshold = candidateParams.threshold;
@@ -387,18 +396,100 @@ void AudioAnalysisController::findRegions(SearchParameters* searchParams, Array<
     }
 }
 
+void AudioAnalysisController::findRegionsBinarySearch(SearchParameters* searchParams, Array<float>* distanceArray, ClusterParameters* bestParams){
+    
+    ClusterParameters candidateParams;
+//    int numTestIncrements = 100;
+    float minCost = FLT_MAX, cost;
+    
+    if(searchParams->useWidthFilter){
+        candidateParams.minRegionTimeWidth = searchParams->minWidth;
+        candidateParams.maxRegionTimeWidth = searchParams->maxWidth;
+    }
+    
+    candidateParams.regionConnectionWidth = 0;
+    int numChanges = 0; int numRegions = 0; int prevNumRegions = 0;
+    float leftBoundary = 0; float rightBoundary = 1;
+    Array<AudioRegion> regions = Array<AudioRegion>();
+    
+    while(regions.size() != searchParams->numRegions){
+        
+        candidateParams.threshold = (rightBoundary - leftBoundary)/2;
+        
+        regions = getClusterRegions(&candidateParams, distanceArray);
+        
+        cost = getRegionCost(regions, searchParams);
+        if(cost < minCost){
+            bestParams->threshold = candidateParams.threshold;
+            bestParams->regionConnectionWidth = candidateParams.regionConnectionWidth;
+            minCost = cost;
+            
+            numChanges = 0;
+        }
+        else{
+            numChanges += 1;
+        }
+        
+        numRegions = regions.size();
+        
+        prevNumRegions = numRegions;
+        
+        if(numChanges > 100){
+            break;
+        }
+        
+        if(numRegions == searchParams->numRegions){
+            DBG("match: " + String(candidateParams.threshold) + " " + String(candidateParams.regionConnectionWidth) + " " + String(cost));
+        }
+        
+        if(numRegions > searchParams->numRegions){
+            rightBoundary = (rightBoundary - leftBoundary)/2;
+        }
+        else{
+            leftBoundary = (rightBoundary - leftBoundary)/2;
+        }
+    }
+}
+
+void findRegionsGradientDescent(SearchParameters* searchParams, Array<float>* distanceArray, ClusterParameters* bestParams){
+    
+    int numIterations = 1;
+    float convergePrecision = 0.00001;
+    float stepSize = 0.001f;
+    
+    float thresh_old = 0;
+    float thresh_new = static_cast <float> (rand()) / static_cast <float> (RAND_MAX);;
+    float smooth_old = 0;
+    float smooth_new = static_cast <float> (rand()) / static_cast <float> (RAND_MAX);;
+    
+    for(int i=0; i<numIterations; i++){
+        
+//        while(abs(thresh_new - thresh_old) > convergePrecision){
+//            
+//            thresh_old = thresh_new;
+//            thresh_new = thresh_old - stepSize * 
+//            
+//        }
+        
+    }
+}
+
+
+
 float AudioAnalysisController::getRegionCost(Array<AudioRegion> &regions, SearchParameters* searchParams){
  
-    float weightNumRegion = 1; float weightPercentage = 2;
+    float weightNumRegion = 1.0f; float weightPercentage = 2.0f;
     float cost;
     int numRegions = regions.size();
     
-    float regionFilePercentage = 0;
-    for(int i; i<numRegions; i++){
+    float regionFilePercentage = 0.0f;
+    for(int i=0; i<numRegions; i++){
         regionFilePercentage += (regions[i].getEnd() - regions[i].getStart());
     }
     
-    cost = weightNumRegion*abs(searchParams->numRegions - numRegions) + weightPercentage*fabs(searchParams->filePercentage - regionFilePercentage);
+//    DBG("file percentage" + String(regionFilePercentage));
+    
+    cost = weightNumRegion*pow(abs(searchParams->numRegions - numRegions), 2) + weightPercentage*pow(fabs(searchParams->filePercentage - regionFilePercentage), 2);
     
     return cost;
     

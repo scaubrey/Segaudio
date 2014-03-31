@@ -31,9 +31,9 @@
 ControlPanelComponent::ControlPanelComponent ()
 {
     addAndMakeVisible (thresholdSlider = new Slider ("thresholdSlider"));
-    thresholdSlider->setRange (0, 1, 0.0001);
+    thresholdSlider->setRange (0, 1, 1e-06);
     thresholdSlider->setSliderStyle (Slider::LinearHorizontal);
-    thresholdSlider->setTextBoxStyle (Slider::TextBoxLeft, true, 40, 20);
+    thresholdSlider->setTextBoxStyle (Slider::TextBoxLeft, true, 60, 20);
     thresholdSlider->addListener (this);
 
     addAndMakeVisible (thresholdLabel = new Label ("new label",
@@ -208,11 +208,24 @@ ControlPanelComponent::ControlPanelComponent ()
     searchPercentComboBox->setJustificationType (Justification::centredLeft);
     searchPercentComboBox->setTextWhenNothingSelected (TRANS("% of File"));
     searchPercentComboBox->setTextWhenNoChoicesAvailable (TRANS("(no choices)"));
-    searchPercentComboBox->addItem (TRANS("10"), 1);
-    searchPercentComboBox->addItem (TRANS("20"), 2);
-    searchPercentComboBox->addItem (TRANS("30"), 3);
-    searchPercentComboBox->addItem (TRANS("40"), 4);
-    searchPercentComboBox->addItem (TRANS("50"), 5);
+    searchPercentComboBox->addItem (TRANS("1"), 1);
+    searchPercentComboBox->addItem (TRANS("2"), 2);
+    searchPercentComboBox->addItem (TRANS("3"), 3);
+    searchPercentComboBox->addItem (TRANS("4"), 4);
+    searchPercentComboBox->addItem (TRANS("5"), 5);
+    searchPercentComboBox->addItem (TRANS("6"), 6);
+    searchPercentComboBox->addItem (TRANS("7"), 7);
+    searchPercentComboBox->addItem (TRANS("8"), 8);
+    searchPercentComboBox->addItem (TRANS("9"), 9);
+    searchPercentComboBox->addItem (TRANS("10"), 10);
+    searchPercentComboBox->addItem (TRANS("15"), 11);
+    searchPercentComboBox->addItem (TRANS("20"), 12);
+    searchPercentComboBox->addItem (TRANS("25"), 13);
+    searchPercentComboBox->addItem (TRANS("30"), 14);
+    searchPercentComboBox->addItem (TRANS("35"), 15);
+    searchPercentComboBox->addItem (TRANS("40"), 16);
+    searchPercentComboBox->addItem (TRANS("45"), 17);
+    searchPercentComboBox->addItem (TRANS("50"), 18);
     searchPercentComboBox->addListener (this);
 
     addAndMakeVisible (searchButton = new TextButton ("searchButton"));
@@ -544,8 +557,8 @@ void ControlPanelComponent::newRegionsUpdate(Array<AudioRegion> &newRegions){
 }
 
 void ControlPanelComponent::getSearchParameters(SearchParameters* searchParams){
-    searchParams->numRegions = numRegionsComboBox->getSelectedId();
-    searchParams->filePercentage = searchPercentComboBox->getSelectedId()*10;
+    searchParams->numRegions = numRegionsComboBox->getText().getIntValue();
+    searchParams->filePercentage = float(searchPercentComboBox->getText().getFloatValue()) / 100.0f;
 
     searchParams->useWidthFilter = widthFilterSearchToggle->getToggleState();
     searchParams->minWidth = widthSlider->getMinValue();
@@ -580,8 +593,8 @@ BEGIN_JUCER_METADATA
   </BACKGROUND>
   <SLIDER name="thresholdSlider" id="2ddea841d6d652ab" memberName="thresholdSlider"
           virtualName="" explicitFocusOrder="0" pos="2.794% 39.826% 84.983% 16"
-          min="0" max="1" int="0.00010000000000000000479" style="LinearHorizontal"
-          textBoxPos="TextBoxLeft" textBoxEditable="0" textBoxWidth="40"
+          min="0" max="1" int="9.9999999999999995475e-07" style="LinearHorizontal"
+          textBoxPos="TextBoxLeft" textBoxEditable="0" textBoxWidth="60"
           textBoxHeight="20" skewFactor="1"/>
   <LABEL name="new label" id="4f564f498f058971" memberName="thresholdLabel"
          virtualName="" explicitFocusOrder="0" pos="1.863% 36.725% 80 17"
@@ -692,7 +705,7 @@ BEGIN_JUCER_METADATA
          fontsize="18" bold="0" italic="0" justification="33"/>
   <COMBOBOX name="searchPercentComboBox" id="da9bbdad378a720a" memberName="searchPercentComboBox"
             virtualName="" explicitFocusOrder="0" pos="144 78.412% 104 24"
-            posRelativeX="74213fc8a34693ad" editable="0" layout="33" items="10&#10;20&#10;30&#10;40&#10;50"
+            posRelativeX="74213fc8a34693ad" editable="0" layout="33" items="1&#10;2&#10;3&#10;4&#10;5&#10;6&#10;7&#10;8&#10;9&#10;10&#10;15&#10;20&#10;25&#10;30&#10;35&#10;40&#10;45&#10;50"
             textWhenNonSelected="% of File" textWhenNoItems="(no choices)"/>
   <TEXTBUTTON name="searchButton" id="f6b9cb23f7da3ea9" memberName="searchButton"
               virtualName="" explicitFocusOrder="0" pos="24 84.367% 150 24"
