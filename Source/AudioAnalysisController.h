@@ -77,6 +77,8 @@ private:
     
     float calculateSprectralFlux(Eigen::RowVectorXcf &blockFft);
     
+    float calculateSpectralCentroid(Eigen::RowVectorXcf &blockFft);
+    
     Eigen::RowVectorXf calculateMFCC(Eigen::RowVectorXcf &blockFft, int sampleRate);
 
 };

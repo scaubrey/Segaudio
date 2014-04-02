@@ -141,6 +141,10 @@ void SimilarityViewer::drawSimilarityFunction(Graphics &g){
         currentXPixel = floor((i) * graphLengthInPixels / distanceArray->size());
 
         currentRms = graphContainer->getY() + graphContainer->getHeight() - (*filteredDistanceArray)[i] * yScale;
+        
+        if(currentRms != currentRms){
+            currentRms = 0;
+        }
 
         g.drawLine(lastXPixel, lastRms, currentXPixel, currentRms, 1.0f);
 

@@ -62,10 +62,10 @@ public:
     float getPositionBarTime();
 
     void actionListenerCallback(const String &message);
-    
+
     void setCalculatingMask(bool status);
 
-    
+
     void clearSimilarity();
     //[/UserMethods]
 

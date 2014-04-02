@@ -58,9 +58,9 @@ public:
     SegaudioFile* getLoadedFile();
 
     void setPlayable(bool isPlayable);
-    
+
     void actionListenerCallback(const juce::String &message);
-    
+
     void playAudio();
     void stopAudio();
 

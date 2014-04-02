@@ -40,7 +40,7 @@ ReferenceContainer::ReferenceContainer ()
 
 
     //[Constructor] You can add your own custom stuff here..
-    
+
     audioSelector->addActionListener(this);
     //[/Constructor]
 }
@@ -116,9 +116,9 @@ float ReferenceContainer::getPositionBarTime(){
 }
 
 void ReferenceContainer::actionListenerCallback(const juce::String &message){
-    
+
     sendActionMessage(message);
-    
+
 }
 //[/MiscUserCode]
 

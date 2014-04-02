@@ -55,10 +55,10 @@ ControlPanelComponent::ControlPanelComponent ()
     rmsFeatureToggle->addListener (this);
     rmsFeatureToggle->setToggleState (true, dontSendNotification);
 
-    addAndMakeVisible (sfFeatureToggle = new ToggleButton ("sfFeatureToggle"));
-    sfFeatureToggle->setTooltip (TRANS("Spectral Flux"));
-    sfFeatureToggle->setButtonText (TRANS("SF"));
-    sfFeatureToggle->addListener (this);
+    addAndMakeVisible (scFeatureToggle = new ToggleButton ("scFeatureToggle"));
+    scFeatureToggle->setTooltip (TRANS("Spectral Centroid"));
+    scFeatureToggle->setButtonText (TRANS("SC"));
+    scFeatureToggle->addListener (this);
 
     addAndMakeVisible (mfccFeatureToggle = new ToggleButton ("mfccFeatureToggle"));
     mfccFeatureToggle->setButtonText (TRANS("MFCC"));
@@ -262,7 +262,7 @@ ControlPanelComponent::~ControlPanelComponent()
     thresholdLabel = nullptr;
     calcSimButton = nullptr;
     rmsFeatureToggle = nullptr;
-    sfFeatureToggle = nullptr;
+    scFeatureToggle = nullptr;
     mfccFeatureToggle = nullptr;
     stickynessLabel = nullptr;
     presetComboBox = nullptr;
@@ -327,7 +327,7 @@ void ControlPanelComponent::resized()
     thresholdLabel->setBounds (proportionOfWidth (0.0186f), proportionOfHeight (0.3673f), 80, 17);
     calcSimButton->setBounds (getWidth() - 61 - 86, 184, 86, 20);
     rmsFeatureToggle->setBounds (96, proportionOfHeight (0.1774f), 50, 24);
-    sfFeatureToggle->setBounds (24, proportionOfHeight (0.2270f), 50, 24);
+    scFeatureToggle->setBounds (24, proportionOfHeight (0.2270f), 50, 24);
     mfccFeatureToggle->setBounds (24, proportionOfHeight (0.1774f), 50, 24);
     stickynessLabel->setBounds (proportionOfWidth (0.0186f), proportionOfHeight (0.4280f), 72, 18);
     presetComboBox->setBounds (96, 96, 100, 24);
@@ -348,7 +348,7 @@ void ControlPanelComponent::resized()
     numRegionsComboBox->setBounds ((16) + 8, proportionOfHeight (0.7841f), 120, 24);
     header3->setBounds (16, proportionOfHeight (0.7246f), 120, 24);
     searchPercentComboBox->setBounds ((16) + 144, proportionOfHeight (0.7841f), 104, 24);
-    searchButton->setBounds (24, proportionOfHeight (0.8437f), 150, 24);
+    searchButton->setBounds (24, proportionOfHeight (0.8437f), 96, 24);
     widthFilterSearchToggle->setBounds ((16) + 136, proportionOfHeight (0.7246f), 120, 24);
     //[UserResized] Add your own custom resize handling here..
     //[/UserResized]
@@ -374,8 +374,8 @@ void ControlPanelComponent::sliderValueChanged (Slider* sliderThatWasMoved)
     else if (sliderThatWasMoved == widthSlider)
     {
         //[UserSliderCode_widthSlider] -- add your slider handling code here..
-        widthMinLabel->setText(String(widthSlider->getMinValue()), dontSendNotification);
-        widthMaxLabel->setText(String(widthSlider->getMaxValue()), dontSendNotification);
+        widthMinLabel->setText(String(widthSlider->getMinValue()*100) + "%", dontSendNotification);
+        widthMaxLabel->setText(String(widthSlider->getMaxValue()*100) + "%", dontSendNotification);
         sendActionMessage("clusterParamsChanged");
         //[/UserSliderCode_widthSlider]
     }
@@ -400,10 +400,10 @@ void ControlPanelComponent::buttonClicked (Button* buttonThatWasClicked)
         //[UserButtonCode_rmsFeatureToggle] -- add your button handler code here..
         //[/UserButtonCode_rmsFeatureToggle]
     }
-    else if (buttonThatWasClicked == sfFeatureToggle)
+    else if (buttonThatWasClicked == scFeatureToggle)
     {
-        //[UserButtonCode_sfFeatureToggle] -- add your button handler code here..
-        //[/UserButtonCode_sfFeatureToggle]
+        //[UserButtonCode_scFeatureToggle] -- add your button handler code here..
+        //[/UserButtonCode_scFeatureToggle]
     }
     else if (buttonThatWasClicked == mfccFeatureToggle)
     {
@@ -460,25 +460,25 @@ void ControlPanelComponent::comboBoxChanged (ComboBox* comboBoxThatHasChanged)
         if(presetComboBox->getText() == "Speech"){
             mfccFeatureToggle->setToggleState(true, dontSendNotification);
             rmsFeatureToggle->setToggleState(false, dontSendNotification);
-            sfFeatureToggle->setToggleState(false, dontSendNotification);
+            scFeatureToggle->setToggleState(false, dontSendNotification);
             zcrFeatureToggle->setToggleState(false, dontSendNotification);
         }
         else if(presetComboBox->getText() == "Silence"){
             mfccFeatureToggle->setToggleState(false, dontSendNotification);
             rmsFeatureToggle->setToggleState(true, dontSendNotification);
-            sfFeatureToggle->setToggleState(false, dontSendNotification);
+            scFeatureToggle->setToggleState(false, dontSendNotification);
             zcrFeatureToggle->setToggleState(false, dontSendNotification);
         }
         else if(presetComboBox->getText() == "Noise"){
             mfccFeatureToggle->setToggleState(false, dontSendNotification);
             rmsFeatureToggle->setToggleState(false, dontSendNotification);
-            sfFeatureToggle->setToggleState(false, dontSendNotification);
+            scFeatureToggle->setToggleState(false, dontSendNotification);
             zcrFeatureToggle->setToggleState(true, dontSendNotification);
         }
         else if(presetComboBox->getText() == "Music"){
             mfccFeatureToggle->setToggleState(false, dontSendNotification);
             rmsFeatureToggle->setToggleState(false, dontSendNotification);
-            sfFeatureToggle->setToggleState(true, dontSendNotification);
+            scFeatureToggle->setToggleState(true, dontSendNotification);
             zcrFeatureToggle->setToggleState(false, dontSendNotification);
         }
         //[/UserComboBoxCode_presetComboBox]
@@ -524,7 +524,7 @@ SignalFeaturesToUse* ControlPanelComponent::getSignalFeaturesToUse(SignalFeature
 
     featuresToUse->rms = rmsFeatureToggle->getToggleState();
     featuresToUse->mfcc = mfccFeatureToggle->getToggleState();
-    featuresToUse->sf = sfFeatureToggle->getToggleState();
+    featuresToUse->sc = scFeatureToggle->getToggleState();
     featuresToUse->zcr = zcrFeatureToggle->getToggleState();
 
     return featuresToUse;
@@ -541,7 +541,7 @@ void ControlPanelComponent::setCalcEnabled(bool readyForCalc){
     setEnabled(readyForCalc);
     rmsFeatureToggle->setEnabled(readyForCalc);
     mfccFeatureToggle->setEnabled(readyForCalc);
-    sfFeatureToggle->setEnabled(readyForCalc);
+    scFeatureToggle->setEnabled(readyForCalc);
     calcSimButton->setEnabled(readyForCalc);
 }
 
@@ -608,10 +608,10 @@ BEGIN_JUCER_METADATA
                 virtualName="" explicitFocusOrder="0" pos="96 17.742% 50 24"
                 tooltip="Root Mean Square" buttonText="RMS" connectedEdges="0"
                 needsCallback="1" radioGroupId="0" state="1"/>
-  <TOGGLEBUTTON name="sfFeatureToggle" id="9eb603aec59d0a37" memberName="sfFeatureToggle"
+  <TOGGLEBUTTON name="scFeatureToggle" id="9eb603aec59d0a37" memberName="scFeatureToggle"
                 virtualName="" explicitFocusOrder="0" pos="24 22.705% 50 24"
-                tooltip="Spectral Flux" buttonText="SF" connectedEdges="0" needsCallback="1"
-                radioGroupId="0" state="0"/>
+                tooltip="Spectral Centroid" buttonText="SF" connectedEdges="0"
+                needsCallback="1" radioGroupId="0" state="0"/>
   <TOGGLEBUTTON name="mfccFeatureToggle" id="f946313658ff3956" memberName="mfccFeatureToggle"
                 virtualName="" explicitFocusOrder="0" pos="24 17.742% 50 24"
                 buttonText="MFCC" connectedEdges="0" needsCallback="1" radioGroupId="0"
@@ -708,7 +708,7 @@ BEGIN_JUCER_METADATA
             posRelativeX="74213fc8a34693ad" editable="0" layout="33" items="1&#10;2&#10;3&#10;4&#10;5&#10;6&#10;7&#10;8&#10;9&#10;10&#10;15&#10;20&#10;25&#10;30&#10;35&#10;40&#10;45&#10;50"
             textWhenNonSelected="% of File" textWhenNoItems="(no choices)"/>
   <TEXTBUTTON name="searchButton" id="f6b9cb23f7da3ea9" memberName="searchButton"
-              virtualName="" explicitFocusOrder="0" pos="24 84.367% 150 24"
+              virtualName="" explicitFocusOrder="0" pos="24 84.367% 96 24"
               buttonText="Search" connectedEdges="0" needsCallback="1" radioGroupId="0"/>
   <TOGGLEBUTTON name="widthFilterSearchToggle" id="46345d311cd9365e" memberName="widthFilterSearchToggle"
                 virtualName="" explicitFocusOrder="0" pos="136 72.457% 120 24"

@@ -54,9 +54,9 @@ public:
     void clear();
 
     void setCalculating(bool isWaiting);
-    
+
     void drawWaitGraphic(Graphics &g);
-    
+
     void timerCallback() override;
     //[/UserMethods]
 
@@ -79,7 +79,7 @@ private:
     float smoothness;
 
     bool isWaiting;
-    
+
     Rectangle<int> waitGraphic;
 
 

@@ -75,6 +75,8 @@ private:
     ScopedPointer<ClusterParameters> clusterParams;
     ScopedPointer<SignalFeaturesToUse> featuresToUse;
 
+
+
     //[/UserVariables]
 
     //==============================================================================
@@ -82,7 +84,7 @@ private:
     ScopedPointer<Label> thresholdLabel;
     ScopedPointer<TextButton> calcSimButton;
     ScopedPointer<ToggleButton> rmsFeatureToggle;
-    ScopedPointer<ToggleButton> sfFeatureToggle;
+    ScopedPointer<ToggleButton> scFeatureToggle;
     ScopedPointer<ToggleButton> mfccFeatureToggle;
     ScopedPointer<Label> stickynessLabel;
     ScopedPointer<ComboBox> presetComboBox;

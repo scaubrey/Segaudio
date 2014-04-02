@@ -39,7 +39,19 @@ void AudioAnalysisController::calculateDistances(Array<float>* distanceArray, Au
     float maxDistanceVal = 0; // keep track of max for drawing
     for(int i=0; i<targetFeatureMat.rows(); i++){
         
-        float distanceVal = (targetFeatureMat.row(i) - avgRegionFeatures).squaredNorm();
+        float distanceVal;
+        
+        if(featuresToUse->getNumSelected() < 2){
+            distanceVal = (targetFeatureMat.row(i) - avgRegionFeatures).squaredNorm();
+        }
+        else{
+            // cosine distance
+            float tmp1 = (targetFeatureMat.row(i).array() * avgRegionFeatures.array()).sum();
+            float tmp2 = sqrt(targetFeatureMat.row(i).array().pow(2).sum());
+            float tmp3 = sqrt(avgRegionFeatures.array().pow(2).sum());
+            
+            distanceVal = 1 - tmp1 / (tmp2 * tmp3);
+        }
         
         if(distanceVal > maxDistanceVal){
             maxDistanceVal = distanceVal;
@@ -137,13 +149,19 @@ Eigen::MatrixXf AudioAnalysisController::calculateFeatureMatrix(AudioSampleBuffe
             featureIdx += 1;
         }
         
+        if(featuresToUse->sc){
+            float blockSc = calculateSpectralCentroid(blockFft);
+            featureMatrix(blockIdx, featureIdx) = blockSc;
+            featureIdx += 1;
+        }        
+        
         if(featuresToUse->mfcc){
             Eigen::RowVectorXf blockMFCC = calculateMFCC(blockFft, 44100);
             featureMatrix.block(blockIdx, featureIdx, 1, 12) = blockMFCC;
             featureIdx += 12; // note 12 spots taken!
         }
         
-        blockIdx += 1;
+        blockIdx += 1; // keep track of where to put features in matrix
     }
         
     //=== Standardize features
@@ -197,6 +215,22 @@ float AudioAnalysisController::calculateZeroCrossRate(juce::AudioSampleBuffer &b
 
 float AudioAnalysisController::calculateSprectralFlux(Eigen::RowVectorXcf &blockFft){
     return 0;
+}
+
+float AudioAnalysisController::calculateSpectralCentroid(Eigen::RowVectorXcf &blockFft){
+    
+    int fftLength = blockFft.size();
+    
+    Eigen::RowVectorXf weights = Eigen::RowVectorXf::LinSpaced(Eigen::Sequential, fftLength, 0, fftLength-1);
+    
+    DBG(weights.rows());
+    DBG(weights.cols());
+    DBG(blockFft.rows());
+    DBG(blockFft.cols());
+    
+    float sc = (blockFft.array().abs().pow(2) * weights.array()).sum() / blockFft.array().abs().pow(2).sum();
+    
+    return sc;
 }
 
 Eigen::RowVectorXf AudioAnalysisController::calculateMFCC(Eigen::RowVectorXcf &blockFft, int sampleRate){
@@ -489,7 +523,7 @@ float AudioAnalysisController::getRegionCost(Array<AudioRegion> &regions, Search
     
 //    DBG("file percentage" + String(regionFilePercentage));
     
-    cost = weightNumRegion*pow(abs(searchParams->numRegions - numRegions), 2) + weightPercentage*pow(fabs(searchParams->filePercentage - regionFilePercentage), 2);
+    cost = weightNumRegion*pow(abs(searchParams->numRegions - numRegions), 2) + weightPercentage*pow(fabs(searchParams->filePercentage - regionFilePercentage) + 1, 2);
     
     return cost;
     

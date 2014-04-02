@@ -52,7 +52,7 @@ public:
 
     bool hasFileLoaded();
     AudioRegion getSelectedRegion();
-    
+
     SegaudioFile* getLoadedFile();
 
     void clearRegion();
@@ -61,7 +61,7 @@ public:
     void stopAudio();
 
     float getPositionBarTime();
-    
+
     void actionListenerCallback(const String &message);
     //[/UserMethods]
 

@@ -127,7 +127,7 @@ void TargetContainer::actionListenerCallback(const juce::String &message){
 
 void TargetContainer::setCalculatingMask(bool status){
 //    similarityViewer->clear();
-    
+
     similarityViewer->setCalculating(status);
 }
 

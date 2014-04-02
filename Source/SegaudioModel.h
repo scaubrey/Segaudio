@@ -33,9 +33,10 @@ struct SignalFeaturesToUse{
     bool mfcc = false;
     bool sf = false;
     bool zcr = false;
+    bool sc = false;
     
     bool isNoneSelected(){
-        if(rms || mfcc || sf || zcr){
+        if(rms || mfcc || sf || zcr || sc){
             return false;
         }
         return true;
@@ -47,12 +48,13 @@ struct SignalFeaturesToUse{
         if(mfcc) numSelected += 12; // note 12 features!
         if(sf) numSelected += 1;
         if(zcr) numSelected += 1;
+        if(sc) numSelected += 1;
         
         return numSelected;
     }
     
     bool needFft(){
-        if(mfcc || sf) return true;
+        if(mfcc || sf || sc) return true;
         return false;
     }
 };

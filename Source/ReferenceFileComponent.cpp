@@ -214,15 +214,15 @@ void ReferenceFileComponent::setPlayable(bool isPlayable){
 }
 
 void ReferenceFileComponent::actionListenerCallback(const juce::String &message){
-    
+
     if(message == "audioPositionUpdateWhilePlaying"){
         playAudio();
     }
-    
+
     if(message == "srcRegionSelected"){
         sendActionMessage(message);
     }
-    
+
 //    DBG(message);
 }
 
