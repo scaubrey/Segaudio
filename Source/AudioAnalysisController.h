@@ -42,7 +42,9 @@ public:
     virtual void actionListenerCallback(const String &message);
     
     Array<AudioRegion> getClusterRegions(ClusterParameters* clusterParams, Array<float>* distanceArray);
-        
+    
+    bool isRegionWithinWidth(float regionFracWidth, ClusterParameters* clusterParams);
+    
     int signum(float value);
     
     Array<AudioRegion> invertClusterRegions(Array<AudioRegion> &regions);

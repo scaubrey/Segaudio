@@ -177,6 +177,7 @@ void AudioSourceSelector::clearRegion(){
 
 void AudioSourceSelector::setSelectedRegion(int startX, int endX){
 
+    
     regionOverlay  = AudioRegion(startX, endX, getWidth());
     hasRegionSelected = true;
 

@@ -118,12 +118,14 @@ void MainComponent::actionListenerCallback(const juce::String &message){
 
 //        int delimiterIdx = message.indexOfChar(wchar_t("-"));
 //        String componentId = message.substring(delimiterIdx+1);
+        targetFileComponent->clearSimilarity();
 
         appModel->addFile(referenceFileComponent->getLoadedFile(), "0");
         isRefFileLoaded = true;
         if(isReadyToCompare()) controlPanelComponent->setCalcEnabled(true);
     }
     else if(message.contains("setTargetFile")){
+        targetFileComponent->clearSimilarity();
 
         appModel->addFile(targetFileComponent->getLoadedFile(), "1");
         isTargetFileLoaded = true;

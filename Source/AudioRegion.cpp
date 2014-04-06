@@ -19,13 +19,17 @@ AudioRegion::AudioRegion(float start, float end):
     startValue(start),
     endValue(end)
 {
-
+    if(startValue < 0) startValue = 0;
+    if(endValue > 1) endValue = 1;
 }
 
 AudioRegion::AudioRegion(float start, float end, float referenceWidth){
     
     startValue = start / referenceWidth;
     endValue = end / referenceWidth;
+    
+    if(startValue < 0) startValue = 0;
+    if(endValue > 1) endValue = 1;
     
 }
 
