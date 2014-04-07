@@ -109,8 +109,8 @@ Eigen::MatrixXf AudioAnalysisController::calculateFeatureMatrix(AudioSampleBuffe
     Eigen::MatrixXf featureMatrix = Eigen::MatrixXf::Zero(numBlocksToProcess, numFeaturesSelected);
     
     //=== Process blocks
-    float rmsMean=0, rmsStd=0, rmsVar=0, zcrMean=0, zcrStd=0, zcrVar=0, tmpDelta=0; // for running feature standardization
-    int rmsIdx=0, zcrIdx=0;
+    float rmsMean=0, rmsStd=0, zcrMean=0, zcrStd=0, scMean=0, scStd=0, mfccMean=0, mfccStd=0; // for running feature standardization
+    int rmsIdx=0, zcrIdx=0, scIdx=0, mfccIdx=0;
     int blockSampleIdx = 0, numProcessedBlocks = 0;
     int blockIdx = 0, blockSize = windowSize;
     
@@ -119,7 +119,7 @@ Eigen::MatrixXf AudioAnalysisController::calculateFeatureMatrix(AudioSampleBuffe
     int totalFftTimeMs = 0;
     int totalMfccTimeMs = 0;
     
-    for(int i=startBlock; i<endBlock; i++){ // TODO get last block!
+    for(int i=startBlock; i<endBlock-1; i++){ // TODO get last block!
         
         numProcessedBlocks += 1;
         int featureIdx = 0; // for indexing feature matrix w/variable num features
@@ -145,10 +145,6 @@ Eigen::MatrixXf AudioAnalysisController::calculateFeatureMatrix(AudioSampleBuffe
         Eigen::FFT<float> fft;
         Eigen::RowVectorXcf blockFft;
         
-//        if(blockSize < windowSize){
-            DBG(mBlock.sum());
-//        }
-        
         //---Calculate fft only if we use features that need it
         if(featuresToUse->needFft()){
             
@@ -165,9 +161,6 @@ Eigen::MatrixXf AudioAnalysisController::calculateFeatureMatrix(AudioSampleBuffe
         if(featuresToUse->rms){
             rmsIdx = featureIdx;
             float blockRMS = calculateBlockRMS(asbBlock);
-            tmpDelta = blockRMS - rmsMean;
-            rmsMean = rmsMean + tmpDelta / numProcessedBlocks;
-            rmsVar = rmsVar + tmpDelta*(blockRMS - rmsMean);
             featureMatrix(blockIdx, featureIdx) = blockRMS;
             featureIdx += 1;
         }
@@ -175,9 +168,6 @@ Eigen::MatrixXf AudioAnalysisController::calculateFeatureMatrix(AudioSampleBuffe
         if(featuresToUse->zcr){
             zcrIdx = featureIdx;
             float blockZCR = calculateZeroCrossRate(asbBlock);
-            tmpDelta = blockZCR - zcrMean;
-            zcrMean = zcrMean + tmpDelta / numProcessedBlocks;
-            zcrVar = zcrVar + tmpDelta*(blockZCR - zcrMean);
             featureMatrix(blockIdx, featureIdx) = blockZCR;
             featureIdx += 1;
         }
@@ -189,12 +179,18 @@ Eigen::MatrixXf AudioAnalysisController::calculateFeatureMatrix(AudioSampleBuffe
         }
         
         if(featuresToUse->sc){
+            scIdx = featureIdx;
             float blockSc = calculateSpectralCentroid(blockFft);
+            if(blockSc != blockSc){
+                DBG(blockSc);
+            }
             featureMatrix(blockIdx, featureIdx) = blockSc;
             featureIdx += 1;
         }        
         
         if(featuresToUse->mfcc){
+            mfccIdx = featureIdx;
+            
             int startTime = testTime.getApproximateMillisecondCounter();
 
             Eigen::RowVectorXf blockMFCC = calculateMFCC(blockFft, 44100);
@@ -211,18 +207,52 @@ Eigen::MatrixXf AudioAnalysisController::calculateFeatureMatrix(AudioSampleBuffe
     DBG("Total fft: " + String(totalFftTimeMs));
     DBG("Total mfcc: " + String(totalMfccTimeMs));
 
-
+    Eigen::VectorXf meanArray;
     
     //=== Standardize features
     if(featuresToUse->rms){
-        rmsStd = sqrtf(rmsVar/numProcessedBlocks);
-//        featureMatrix.col(rmsIdx) = (featureMatrix.col(rmsIdx) - Eigen::MatrixXf::Constant(numBlocksToProcess, 1, rmsMean)) / rmsStd;
+        rmsMean = featureMatrix.col(rmsIdx).array().mean();
+        meanArray = Eigen::VectorXf::Constant(numBlocksToProcess, 1, rmsMean);
+        Eigen::VectorXf tmpArray = featureMatrix.col(rmsIdx) - meanArray;
+        
+        float tmp1 = tmpArray.array().pow(2).sum() / float(numBlocksToProcess);
+        rmsStd = sqrt(tmp1);
+        
+        featureMatrix.col(rmsIdx) = (featureMatrix.col(rmsIdx) - Eigen::MatrixXf::Constant(numBlocksToProcess, 1, rmsMean)) / rmsStd;
     }
     
     if(featuresToUse->zcr){
-        zcrStd = sqrtf(zcrVar/numProcessedBlocks);
-//        featureMatrix.col(zcrIdx) = (featureMatrix.col(zcrIdx) - Eigen::MatrixXf::Constant(numBlocksToProcess, 1, zcrMean)) / zcrStd;
+        zcrMean = featureMatrix.col(zcrIdx).array().mean();
+        meanArray = Eigen::VectorXf::Constant(numBlocksToProcess, 1, zcrMean);
+        Eigen::VectorXf tmpArray = featureMatrix.col(zcrIdx) - meanArray;
+        
+        float tmp1 = tmpArray.array().pow(2).sum() / float(numBlocksToProcess);
+        zcrStd = sqrt(tmp1);
+
+        featureMatrix.col(zcrIdx) = (featureMatrix.col(zcrIdx) - Eigen::MatrixXf::Constant(numBlocksToProcess, 1, zcrMean)) / zcrStd;
     }
+    
+    if(featuresToUse->sc){
+        scMean = featureMatrix.col(scIdx).array().mean();
+        meanArray = Eigen::VectorXf::Constant(numBlocksToProcess, 1, scMean);
+        Eigen::VectorXf tmpArray = featureMatrix.col(scIdx) - meanArray;
+        
+        float tmp1 = tmpArray.array().pow(2).sum() / float(numBlocksToProcess);
+        scStd = sqrt(tmp1);
+        
+        featureMatrix.col(scIdx) = (featureMatrix.col(scIdx) - Eigen::MatrixXf::Constant(numBlocksToProcess, 1, scMean)) / scStd;
+    }
+    
+//    if(featuresToUse->mfcc){
+//        mfccMean = featureMatrix.col(scIdx).array().mean();
+//        meanArray = Eigen::VectorXf::Constant(numBlocksToProcess, 1, scMean);
+//        Eigen::VectorXf tmpArray = featureMatrix.col(scIdx) - meanArray;
+//        
+//        float tmp1 = tmpArray.array().pow(2).sum() / float(numBlocksToProcess);
+//        scStd = sqrt(tmp1);
+//        
+//        featureMatrix.col(scIdx) = (featureMatrix.col(scIdx) - Eigen::MatrixXf::Constant(numBlocksToProcess, 1, scMean)) / scStd;
+//    }
     
     return featureMatrix;
 }
@@ -272,12 +302,14 @@ float AudioAnalysisController::calculateSpectralCentroid(Eigen::RowVectorXcf &bl
     
     Eigen::RowVectorXf weights = Eigen::RowVectorXf::LinSpaced(Eigen::Sequential, fftLength, 0, fftLength-1);
     
-    DBG(weights.rows());
-    DBG(weights.cols());
-    DBG(blockFft.rows());
-    DBG(blockFft.cols());
+//    DBG(weights.rows());
+//    DBG(weights.cols());
+//    DBG(blockFft.rows());
+//    DBG(blockFft.cols());
     
     float sc = (blockFft.array().abs().pow(2) * weights.array()).sum() / blockFft.array().abs().pow(2).sum();
+    
+    if(sc != sc) sc = 0;
     
     return sc;
 }
