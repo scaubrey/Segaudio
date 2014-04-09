@@ -107,6 +107,7 @@ private:
     ScopedPointer<ComboBox> searchPercentComboBox;
     ScopedPointer<TextButton> searchButton;
     ScopedPointer<ToggleButton> widthFilterSearchToggle;
+    ScopedPointer<TextButton> exportTxtButton;
 
 
     //==============================================================================

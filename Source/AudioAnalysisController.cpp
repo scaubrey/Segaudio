@@ -26,7 +26,7 @@ AudioAnalysisController::~AudioAnalysisController(){
     
 };
 
-void AudioAnalysisController::calculateDistances(Array<float>* distanceArray, AudioSampleBuffer* refRegionBuffer, AudioSampleBuffer* targetBuffer, AudioRegion refRegion, SignalFeaturesToUse* featuresToUse){
+void AudioAnalysisController::calculateDistances(Array<float>* distanceArray, AudioSampleBuffer* refRegionBuffer, AudioSampleBuffer* targetBuffer, AudioRegion* refRegion, SignalFeaturesToUse* featuresToUse){
     
     Time testTime = Time();
     
@@ -40,7 +40,7 @@ void AudioAnalysisController::calculateDistances(Array<float>* distanceArray, Au
     
     DBG("Finished reg features: " + String(testTime.getApproximateMillisecondCounter() - startTime));
     
-    targetFeatureMat = calculateFeatureMatrix(targetBuffer, featuresToUse);
+    targetFeatureMat = calculateFeatureMatrix(targetBuffer, featuresToUse, nullptr);
     
     DBG("Finished target features: " + String(testTime.getApproximateMillisecondCounter() - startTime));
     
@@ -77,7 +77,7 @@ void AudioAnalysisController::calculateDistances(Array<float>* distanceArray, Au
 
 }
 
-Eigen::MatrixXf AudioAnalysisController::calculateFeatureMatrix(AudioSampleBuffer* buffer, SignalFeaturesToUse* featuresToUse, AudioRegion region){
+Eigen::MatrixXf AudioAnalysisController::calculateFeatureMatrix(AudioSampleBuffer* buffer, SignalFeaturesToUse* featuresToUse, AudioRegion* region){
     
     if(featuresToUse->isNoneSelected()){ // skip all this if no features selected
         Eigen::MatrixXf featureMatrix = Eigen::MatrixXf::Zero(0, 0);
@@ -98,9 +98,9 @@ Eigen::MatrixXf AudioAnalysisController::calculateFeatureMatrix(AudioSampleBuffe
     startBlock = 0;
     endBlock = numTotalBlocks;
     
-    if(region.isInitialized()){ // take subsection if provided
-        startBlock = floor(region.getStart(numTotalBlocks));
-        endBlock = floor(region.getEnd(numTotalBlocks));
+    if(region){ // take subsection if provided
+        startBlock = floor(region->getStart(numTotalBlocks));
+        endBlock = floor(region->getEnd(numTotalBlocks));
     }
 
     // initialize vars for feature matrix
@@ -210,38 +210,38 @@ Eigen::MatrixXf AudioAnalysisController::calculateFeatureMatrix(AudioSampleBuffe
     Eigen::VectorXf meanArray;
     
     //=== Standardize features
-    if(featuresToUse->rms){
-        rmsMean = featureMatrix.col(rmsIdx).array().mean();
-        meanArray = Eigen::VectorXf::Constant(numBlocksToProcess, 1, rmsMean);
-        Eigen::VectorXf tmpArray = featureMatrix.col(rmsIdx) - meanArray;
-        
-        float tmp1 = tmpArray.array().pow(2).sum() / float(numBlocksToProcess);
-        rmsStd = sqrt(tmp1);
-        
-        featureMatrix.col(rmsIdx) = (featureMatrix.col(rmsIdx) - Eigen::MatrixXf::Constant(numBlocksToProcess, 1, rmsMean)) / rmsStd;
-    }
-    
-    if(featuresToUse->zcr){
-        zcrMean = featureMatrix.col(zcrIdx).array().mean();
-        meanArray = Eigen::VectorXf::Constant(numBlocksToProcess, 1, zcrMean);
-        Eigen::VectorXf tmpArray = featureMatrix.col(zcrIdx) - meanArray;
-        
-        float tmp1 = tmpArray.array().pow(2).sum() / float(numBlocksToProcess);
-        zcrStd = sqrt(tmp1);
-
-        featureMatrix.col(zcrIdx) = (featureMatrix.col(zcrIdx) - Eigen::MatrixXf::Constant(numBlocksToProcess, 1, zcrMean)) / zcrStd;
-    }
-    
-    if(featuresToUse->sc){
-        scMean = featureMatrix.col(scIdx).array().mean();
-        meanArray = Eigen::VectorXf::Constant(numBlocksToProcess, 1, scMean);
-        Eigen::VectorXf tmpArray = featureMatrix.col(scIdx) - meanArray;
-        
-        float tmp1 = tmpArray.array().pow(2).sum() / float(numBlocksToProcess);
-        scStd = sqrt(tmp1);
-        
-        featureMatrix.col(scIdx) = (featureMatrix.col(scIdx) - Eigen::MatrixXf::Constant(numBlocksToProcess, 1, scMean)) / scStd;
-    }
+//    if(featuresToUse->rms){
+//        rmsMean = featureMatrix.col(rmsIdx).array().mean();
+//        meanArray = Eigen::VectorXf::Constant(numBlocksToProcess, 1, rmsMean);
+//        Eigen::VectorXf tmpArray = featureMatrix.col(rmsIdx) - meanArray;
+//        
+//        float tmp1 = tmpArray.array().pow(2).sum() / float(numBlocksToProcess);
+//        rmsStd = sqrt(tmp1);
+//        
+//        featureMatrix.col(rmsIdx) = (featureMatrix.col(rmsIdx) - Eigen::MatrixXf::Constant(numBlocksToProcess, 1, rmsMean)) / rmsStd;
+//    }
+//    
+//    if(featuresToUse->zcr){
+//        zcrMean = featureMatrix.col(zcrIdx).array().mean();
+//        meanArray = Eigen::VectorXf::Constant(numBlocksToProcess, 1, zcrMean);
+//        Eigen::VectorXf tmpArray = featureMatrix.col(zcrIdx) - meanArray;
+//        
+//        float tmp1 = tmpArray.array().pow(2).sum() / float(numBlocksToProcess);
+//        zcrStd = sqrt(tmp1);
+//
+//        featureMatrix.col(zcrIdx) = (featureMatrix.col(zcrIdx) - Eigen::MatrixXf::Constant(numBlocksToProcess, 1, zcrMean)) / zcrStd;
+//    }
+//    
+//    if(featuresToUse->sc){
+//        scMean = featureMatrix.col(scIdx).array().mean();
+//        meanArray = Eigen::VectorXf::Constant(numBlocksToProcess, 1, scMean);
+//        Eigen::VectorXf tmpArray = featureMatrix.col(scIdx) - meanArray;
+//        
+//        float tmp1 = tmpArray.array().pow(2).sum() / float(numBlocksToProcess);
+//        scStd = sqrt(tmp1);
+//        
+//        featureMatrix.col(scIdx) = (featureMatrix.col(scIdx) - Eigen::MatrixXf::Constant(numBlocksToProcess, 1, scMean)) / scStd;
+//    }
     
 //    if(featuresToUse->mfcc){
 //        mfccMean = featureMatrix.col(scIdx).array().mean();
@@ -623,7 +623,75 @@ float AudioAnalysisController::getRegionCost(Array<AudioRegion> &regions, Search
     
 }
 
-bool AudioAnalysisController::saveRegionsToFile(Array<AudioRegion> &regions, AudioSampleBuffer* sourceBuffer, File &destinationFile, bool useSeparateFiles){
+bool AudioAnalysisController::saveRegionsToAudioFile(Array<AudioRegion> &regions, SegaudioFile* sourceFile, File &destinationFile, bool useSingleFile){
+    
+    AudioFormat* wavFormat = formatManager->findFormatForFileExtension("wav");
+    int numRegions = regions.size();
+    
+    if(useSingleFile){
+        FileOutputStream* destOutputStream = destinationFile.createOutputStream();
+        AudioFormatWriter* wavWriter = wavFormat->createWriterFor(destOutputStream, sourceFile->getSampleRate(), sourceFile->getNumChannels(), 16, nullptr, 0);
+        
+        for(int i=0; i<numRegions; i++){
+            int regionStartSample = floor(regions[i].getStart() * sourceFile->getNumSamples());
+            int regionEndSample = floor(regions[i].getEnd() * sourceFile->getNumSamples());
+            
+            int numSamplesToWrite = regionEndSample - regionStartSample;
+
+            wavWriter->writeFromAudioSampleBuffer(*sourceFile->getFileBuffer(), regionStartSample, numSamplesToWrite);
+            destOutputStream->flush();
+        }
+        
+        delete wavWriter;
+        
+        return true;
+    }
+    else{
+        
+        for(int i=0; i<numRegions; i++){
+            
+            int regionStartSample = floor(regions[i].getStart() * sourceFile->getNumSamples());
+            int regionEndSample = floor(regions[i].getEnd() * sourceFile->getNumSamples());
+            
+            int sampleRate = sourceFile->getSampleRate();
+        
+            File newDestinationFile = File(destinationFile.getFullPathName() + "_" + String(regionStartSample / sampleRate) + "-" + String(regionEndSample / sampleRate));
+            newDestinationFile = newDestinationFile.withFileExtension(".wav");
+
+            FileOutputStream* destOutputStream = newDestinationFile.createOutputStream();
+            AudioFormatWriter* wavWriter = wavFormat->createWriterFor(destOutputStream, sourceFile->getSampleRate(), sourceFile->getNumChannels(), 16, nullptr, 0);
+            
+            int numSamplesToWrite = regionEndSample - regionStartSample;
+            
+            wavWriter->writeFromAudioSampleBuffer(*sourceFile->getFileBuffer(), regionStartSample, numSamplesToWrite);
+            destOutputStream->flush();
+            delete wavWriter;
+
+        }
+        
+        
+        return true;
+    }
+
+    
     
     return false;
+}
+
+bool AudioAnalysisController::saveRegionsToTxtFile(Array<AudioRegion> &regions, SegaudioFile* sourceFile, File &destinationFile){
+    
+    int totalNumSamples = sourceFile->getNumSamples();
+    int sampleRate = sourceFile->getSampleRate();
+    float totalLengthInSec = float(totalNumSamples) / sampleRate;
+    
+    int numRegions = regions.size();
+    String dataString = "";
+    
+    for(int i=0; i<numRegions; i++){
+        dataString += (String(regions[i].getStart() * totalLengthInSec)) + ", " + (String(regions[i].getEnd() * totalLengthInSec)) + "\n";
+    }
+    
+    destinationFile.replaceWithText(dataString);
+    
+    return true;
 }

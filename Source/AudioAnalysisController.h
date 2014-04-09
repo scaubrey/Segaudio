@@ -32,9 +32,9 @@ public:
     void setTargetAudioReader(AudioFormatReader* incomingReader);
     bool isReady();
     
-    void calculateDistances(Array<float>* distanceArray, AudioSampleBuffer* refRegionBuffer, AudioSampleBuffer* targetBuffer, AudioRegion refRegion, SignalFeaturesToUse* featuresToUse);
+    void calculateDistances(Array<float>* distanceArray, AudioSampleBuffer* refRegionBuffer, AudioSampleBuffer* targetBuffer, AudioRegion* refRegion, SignalFeaturesToUse* featuresToUse);
     
-    Eigen::MatrixXf calculateFeatureMatrix(AudioSampleBuffer* buffer, SignalFeaturesToUse* featuresToUse, AudioRegion region=AudioRegion());
+    Eigen::MatrixXf calculateFeatureMatrix(AudioSampleBuffer* buffer, SignalFeaturesToUse* featuresToUse, AudioRegion* region);
     
     
     float getLastMaxDistance();
@@ -57,8 +57,9 @@ public:
     
     float getRegionCost(Array<AudioRegion> &regions, SearchParameters* searchParams);
         
-    bool saveRegionsToFile(Array<AudioRegion> &regions, AudioSampleBuffer* sourceBuffer, File &destinationFile, bool useSeparateFiles);
+    bool saveRegionsToAudioFile(Array<AudioRegion> &regions, SegaudioFile* sourceFile, File &destinationFile, bool useSingleFile);
     
+    bool saveRegionsToTxtFile(Array<AudioRegion> &regions, SegaudioFile* sourceFile, File &destinationFile);
     
 private:
     
@@ -71,8 +72,6 @@ private:
     
     int windowSize;
     
-//    float calculateMean(Array<float> values);
-
     float calculateBlockRMS(AudioSampleBuffer &block);
     
     float calculateZeroCrossRate(AudioSampleBuffer &block);

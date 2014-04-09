@@ -26,6 +26,10 @@ public:
     
     AudioFormatReaderSource* getSource();
     
+    int getNumSamples();
+    int getSampleRate();
+    int getNumChannels();
+    
     
 private:
     
@@ -37,6 +41,10 @@ private:
     AudioFormatManager formatManager;
     
     AudioFormatReaderSource* fileSource;
+    
+    int totalNumSamples;
+    int sampleRate;
+    int numChannels;
 };
 
 

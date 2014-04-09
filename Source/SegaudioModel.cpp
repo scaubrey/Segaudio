@@ -24,11 +24,18 @@ SegaudioModel::~SegaudioModel(){
 
 bool SegaudioModel::addFile(SegaudioFile* newFile, String componentId){
         
-    if(files.getNumSlots() == 0){
-        return false;
+//    if(files.getNumSlots() == 0){
+//        return false;
+//    }
+    
+    if(componentId == "0"){
+        refFile = newFile;
+    }
+    else if(componentId == "1"){
+        targetFile = newFile;
     }
 
-    files.set(componentId, newFile);
+//    files.set(componentId, newFile);
     return true;
 }
 
@@ -48,8 +55,8 @@ void SegaudioModel::setRefRegion(AudioRegion newRefRegion){
     refRegion = newRefRegion;
 }
 
-AudioRegion SegaudioModel::getRefRegion(){
-    return refRegion;
+AudioRegion* SegaudioModel::getRefRegion(){
+    return &refRegion;
 }
 
 Array<float>* SegaudioModel::getDistanceArray(){
@@ -65,10 +72,20 @@ float SegaudioModel::getMaxDistance(){
     return maxDistance;
 }
 
-AudioSampleBuffer* SegaudioModel::getFileBuffer(String componenetId){
-    return files[componenetId]->getFileBuffer();
+SegaudioFile* SegaudioModel::getSegaudioFile(String componentId){
+//    return files[componentId];
+    return getFileById(componentId);
 }
 
+AudioSampleBuffer* SegaudioModel::getFileBuffer(String componentId){
+//    return files[componenetId]->getFileBuffer();
+    return getFileById(componentId)->getFileBuffer();
+}
+
+AudioFormatReaderSource* SegaudioModel::getFileSource(String componentId){
+//    return files[componenetId]->getSource();
+    return getFileById(componentId)->getSource();
+}
 
 SignalFeaturesToUse* SegaudioModel::getSignalFeaturesToUse(){
     return &featuresToUse;
@@ -80,4 +97,15 @@ ExportParameters* SegaudioModel::getExportParameters(){
 
 SearchParameters* SegaudioModel::getSearchParameters(){
     return &searchParameters;
+}
+
+SegaudioFile* SegaudioModel::getFileById(String componentId){
+    if(componentId == "0"){
+        return refFile;
+    }
+    else if(componentId == "1"){
+        return targetFile;
+    }
+    
+    return NULL;
 }

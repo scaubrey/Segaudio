@@ -29,6 +29,10 @@ void SegaudioFile::setFile(File &newFile){
     
     internalFileBuffer->setSize(tmpReader->numChannels, tmpReader->lengthInSamples);
     
+    totalNumSamples = tmpReader->lengthInSamples;
+    sampleRate = tmpReader->sampleRate;
+    numChannels = tmpReader->numChannels;
+    
     tmpReader->read(internalFileBuffer, 0, tmpReader->lengthInSamples, 0, true, true);
     
     fileSet = true;
@@ -52,4 +56,16 @@ AudioFormatReaderSource* SegaudioFile::getSource(){
         return fileSource;
     }
     return NULL;
+}
+
+int SegaudioFile::getNumSamples(){
+    return totalNumSamples;
+}
+
+int SegaudioFile::getNumChannels(){
+    return numChannels;
+}
+
+int SegaudioFile::getSampleRate(){
+    return sampleRate;
 }

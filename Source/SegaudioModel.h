@@ -91,18 +91,24 @@ public:
 
 
     void setRefRegion(AudioRegion newRefRegion);
-    AudioRegion getRefRegion();
+    AudioRegion* getRefRegion();
     
     void setMaxDistance(float distance);
     float getMaxDistance();
     
+    SegaudioFile* getSegaudioFile(String componentId);
+    
     AudioSampleBuffer* getFileBuffer(String componentId);
+    
+    AudioFormatReaderSource* getFileSource(String componentId);
     
     SignalFeaturesToUse* getSignalFeaturesToUse();
     
     ExportParameters* getExportParameters();
     
     SearchParameters* getSearchParameters();
+    
+    SegaudioFile* getFileById(String componentId);
     
 private:
         
@@ -115,6 +121,9 @@ private:
     AudioRegion refRegion;
     
     HashMap<String, SegaudioFile*> files;
+    
+    SegaudioFile* refFile;
+    SegaudioFile* targetFile;
     
     float maxDistance;
     

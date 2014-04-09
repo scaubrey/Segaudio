@@ -46,7 +46,6 @@ MainComponent::MainComponent (AudioAnalysisController &analysisController)
 
     setSize (1000, 600);
 
-
     //[Constructor] You can add your own custom stuff here..
 
     referenceFileComponent->addActionListener(this);
@@ -102,8 +101,8 @@ void MainComponent::paint (Graphics& g)
 
 void MainComponent::resized()
 {
-    referenceFileComponent->setBounds ((0) + (proportionOfWidth (0.2235f)), 0, proportionOfWidth (0.7730f), proportionOfHeight (0.1998f));
-    targetFileComponent->setBounds ((0) + (proportionOfWidth (0.2235f)), proportionOfHeight (0.1985f), proportionOfWidth (0.7730f), proportionOfHeight (0.5000f));
+    referenceFileComponent->setBounds ((0) + (proportionOfWidth (0.2235f)), 0, proportionOfWidth (0.7806f), proportionOfHeight (0.3673f));
+    targetFileComponent->setBounds ((0) + (proportionOfWidth (0.2235f)), proportionOfHeight (0.3673f), proportionOfWidth (0.7860f), proportionOfHeight (0.6352f));
     controlPanelComponent->setBounds (0, 0, proportionOfWidth (0.2235f), proportionOfHeight (1.0000f));
     //[UserResized] Add your own custom resize handling here..
     //[/UserResized]
@@ -116,8 +115,6 @@ void MainComponent::actionListenerCallback(const juce::String &message){
 
     if(message.contains("setReferenceFile")){
 
-//        int delimiterIdx = message.indexOfChar(wchar_t("-"));
-//        String componentId = message.substring(delimiterIdx+1);
         targetFileComponent->clearSimilarity();
 
         appModel->addFile(referenceFileComponent->getLoadedFile(), "0");
@@ -126,8 +123,9 @@ void MainComponent::actionListenerCallback(const juce::String &message){
     }
     else if(message.contains("setTargetFile")){
         targetFileComponent->clearSimilarity();
-
-        appModel->addFile(targetFileComponent->getLoadedFile(), "1");
+        
+        String compId="1";
+        appModel->addFile(targetFileComponent->getLoadedFile(), compId);
         isTargetFileLoaded = true;
         if(isReadyToCompare()) controlPanelComponent->setCalcEnabled(true);
     }
@@ -146,10 +144,10 @@ void MainComponent::actionListenerCallback(const juce::String &message){
 
         targetFileComponent->clearSimilarity();
         targetFileComponent->setCalculatingMask(true);
-        
+
         analysisController->calculateDistances(appModel->getDistanceArray(), appModel->getFileBuffer("0"), appModel->getFileBuffer("1"), appModel->getRefRegion(), controlPanelComponent->getSignalFeaturesToUse(appModel->getSignalFeaturesToUse()));
         appModel->setMaxDistance(analysisController->getLastMaxDistance());
-        
+
         targetFileComponent->setCalculatingMask(false);
 
         newRegionsUpdate();
@@ -159,21 +157,21 @@ void MainComponent::actionListenerCallback(const juce::String &message){
     }
     else if(message == "search"){
         controlPanelComponent->getSearchParameters(appModel->getSearchParameters());
-                                                   
+
 //        analysisController->findRegionsBinarySearch(appModel->getSearchParameters(), appModel->getDistanceArray(), appModel->getClusterParams());
-        
+
         analysisController->findRegionsGridSearch(appModel->getSearchParameters(), appModel->getDistanceArray(), appModel->getClusterParams());
-        
+
         // set found params on control panel
         controlPanelComponent->setClusterParams(appModel->getClusterParams());
-        
+
         newRegionsUpdate();
     }
-    else if(message == "exportRegions"){
-        
+    else if(message == "exportAudio"){
+
         ClusterParameters* clusterTuningParams = controlPanelComponent->getClusterParams();
         Array<AudioRegion> clusterRegions = analysisController->getClusterRegions(clusterTuningParams, appModel->getDistanceArray());
-        
+
         ExportParameters* exportParams = appModel->getExportParameters();
         controlPanelComponent->getExportParameters(exportParams);
         String prompt = "Saving " + String(clusterRegions.size()) + " regions";
@@ -190,8 +188,25 @@ void MainComponent::actionListenerCallback(const juce::String &message){
             File destinationFile = myChooser.getResult();
 
             DBG(destinationFile.getFullPathName());
+
+            analysisController->saveRegionsToAudioFile(clusterRegions, appModel->getSegaudioFile("1"), destinationFile, exportParams->asOneFile);
+        }
+    }
+    else if(message == "exportCsv"){
+        ClusterParameters* clusterTuningParams = controlPanelComponent->getClusterParams();
+        Array<AudioRegion> clusterRegions = analysisController->getClusterRegions(clusterTuningParams, appModel->getDistanceArray());
+
+        String prompt = "Saving " + String(clusterRegions.size()) + " regions";
+        
+        FileChooser myChooser (prompt);
+        if (myChooser.browseForFileToSave(true))
+        {
+            File destinationFile = myChooser.getResult();
+            destinationFile = destinationFile.withFileExtension(".csv");
             
-            analysisController->saveRegionsToFile(clusterRegions, appModel->getFileBuffer("1"), destinationFile, true);
+            DBG(destinationFile.getFullPathName());
+            
+            analysisController->saveRegionsToTxtFile(clusterRegions, appModel->getSegaudioFile("1"), destinationFile);
         }
     }
 
@@ -205,11 +220,11 @@ void MainComponent::newRegionsUpdate(){
     Array<AudioRegion> clusterRegions = analysisController->getClusterRegions(clusterTuningParams, appModel->getDistanceArray());
 
     targetFileComponent->update(clusterTuningParams, clusterRegions, appModel->getDistanceArray(), appModel->getMaxDistance());
-    
+
     controlPanelComponent->newRegionsUpdate(clusterRegions);
 }
 
- 
+
 
 bool MainComponent::isReadyToCompare(){
     if(isRefFileLoaded and isTargetFileLoaded and isRegionSelected){
@@ -236,15 +251,15 @@ BEGIN_JUCER_METADATA
                  fixedSize="0" initialWidth="1000" initialHeight="600">
   <BACKGROUND backgroundColour="ff6f6f6f"/>
   <GENERICCOMPONENT name="referenceFileComponent" id="6129c3aa019f4bba" memberName="referenceFileComponent"
-                    virtualName="" explicitFocusOrder="0" pos="0R 0 77.299% 19.975%"
+                    virtualName="" explicitFocusOrder="0" pos="0R 0 78.057% 36.725%"
                     posRelativeX="a6f0554ce8852899" class="ReferenceFileComponent"
                     params="deviceManager"/>
   <GENERICCOMPONENT name="targetFileComponent" id="7f10809d3b4712d6" memberName="targetFileComponent"
-                    virtualName="" explicitFocusOrder="0" pos="0R 19.851% 77.299% 50%"
+                    virtualName="" explicitFocusOrder="0" pos="0R 36.725% 78.603% 63.524%"
                     posRelativeX="a6f0554ce8852899" class="TargetFileComponent" params="deviceManager"/>
   <GENERICCOMPONENT name="controlPanelComponent" id="a6f0554ce8852899" memberName="controlPanelComponent"
-                    virtualName="" explicitFocusOrder="0" pos="0 0 22.352% 100%"
-                    class="ControlPanelComponent" params=""/>
+                    virtualName="" explicitFocusOrder="0" pos="0 0 22.38% 100%" class="ControlPanelComponent"
+                    params=""/>
 </JUCER_COMPONENT>
 
 END_JUCER_METADATA
