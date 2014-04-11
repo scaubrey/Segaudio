@@ -64,9 +64,9 @@ public:
     void stopAudio();
 
     void setThresholdValue(float threshold);
-    
+
     void setCalculatingMask(bool status);
-    
+
     void clearSimilarity();
     //[/UserMethods]
 

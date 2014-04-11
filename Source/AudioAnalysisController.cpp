@@ -302,21 +302,17 @@ float AudioAnalysisController::calculateSpectralCentroid(Eigen::RowVectorXcf &bl
     
     Eigen::RowVectorXf weights = Eigen::RowVectorXf::LinSpaced(Eigen::Sequential, fftLength, 0, fftLength-1);
     
-//    DBG(weights.rows());
-//    DBG(weights.cols());
-//    DBG(blockFft.rows());
-//    DBG(blockFft.cols());
-    
     float sc = (blockFft.array().abs().pow(2) * weights.array()).sum() / blockFft.array().abs().pow(2).sum();
     
-    if(sc != sc) sc = 0;
+    if(sc != sc) sc = 0; // check for nan
     
     return sc;
 }
 
 Eigen::RowVectorXf AudioAnalysisController::calculateMFCC(Eigen::RowVectorXcf &blockFft, int sampleRate){
         
-    // for reference: http://practicalcryptography.com/miscellaneous/machine-learning/guide-mel-frequency-cepstral-coefficients-mfccs/
+    // coded by cameron from reference:
+    // http://practicalcryptography.com/miscellaneous/machine-learning/guide-mel-frequency-cepstral-coefficients-mfccs/
     
     //---Initial params
     int numFilterBanks = 12; // num triangular filter banks applied to dft
@@ -362,9 +358,10 @@ Eigen::RowVectorXf AudioAnalysisController::calculateMFCC(Eigen::RowVectorXcf &b
         
         Eigen::RowVectorXf triangleBankValues = Eigen::RowVectorXf::Zero(1, numFftBins);
 
+        // create triangle filter banks
         for(int j=0; j<numFftBins; j++){
             if(j < float(numFftBins)/2){
-                triangleBankValues[j] = float(j) / (numFftBins / 2); // scale 0 to 1
+                triangleBankValues[j] = float(j) / (numFftBins / 2); // scale triangle filter from 0 to 1
             }
             else{
                 triangleBankValues[j] = (numFftBins - float(j)) / (numFftBins / 2); // scale 1 back to 0
@@ -372,6 +369,7 @@ Eigen::RowVectorXf AudioAnalysisController::calculateMFCC(Eigen::RowVectorXcf &b
             //DBG(triangleBankValues[j]);
         }
         
+        // multiply filter banks with spectral power
         float energy = (triangleBankValues.array() * periodogram.block(0, bankBinStart, 1, numFftBins).array()).sum();
         
         logEnergies[i] = log(energy);
@@ -400,11 +398,11 @@ float AudioAnalysisController::getLastMaxDistance(){
 Array<AudioRegion> AudioAnalysisController::getClusterRegions(ClusterParameters* clusterParams, Array<float>* distanceArray){
     
     Array<AudioRegion> regionCandidates;
-    
-    Array<int> acceptedBlocks;
+    Array<int> acceptedBlocks; // holds all blocks under threshold
     
     int numBlocks = distanceArray->size();
     
+    // take all blocks under threshold
     for(int blockIdx=0; blockIdx<numBlocks; blockIdx++){
         if((*distanceArray)[blockIdx] < clusterParams->threshold * maxDistance * 1){
             acceptedBlocks.add(blockIdx);
@@ -416,26 +414,30 @@ Array<AudioRegion> AudioAnalysisController::getClusterRegions(ClusterParameters*
     int regionStart = acceptedBlocks[0];
     int regionEnd = acceptedBlocks[1];
     
-    float connWidth = clusterParams->regionConnectionWidth*float(numBlocks)/5 + 1;
+    float connWidth = clusterParams->regionConnectionWidth*50.0f + 1;
     
+    // for blocks under threshold, create regions satisfying other cluster params (width of region and smoothing)
     for(int blockIdx=1; blockIdx<numAcceptedBlocks; blockIdx++){
         float regionFracWidth = (float(regionEnd) - float(regionStart)) / numBlocks;
 
-        if(acceptedBlocks[blockIdx] - acceptedBlocks[blockIdx-1] > connWidth){
-            if(isRegionWithinWidth(regionFracWidth, clusterParams)){
+        if(acceptedBlocks[blockIdx] - acceptedBlocks[blockIdx-1] > connWidth){ // passes smoothing
+            if(isRegionWithinWidth(regionFracWidth, clusterParams)){ // passes width filter
                 regionCandidates.add(AudioRegion(regionStart, regionEnd, numBlocks));
             }
-            regionStart = acceptedBlocks[blockIdx];
+            regionStart = acceptedBlocks[blockIdx]; // start next region
             regionEnd = acceptedBlocks[blockIdx];
         }
-        else{
-            regionEnd = acceptedBlocks[blockIdx];
+        else{ // doesn't pass smoothing
+            regionEnd = acceptedBlocks[blockIdx]; // so end region
+            
+            // catch ending region
             if(blockIdx == numAcceptedBlocks - 1 and isRegionWithinWidth(regionFracWidth, clusterParams)){
                 regionCandidates.add(AudioRegion(regionStart, regionEnd, numBlocks));
             }
         }
     }
     
+    // invert the regions if asked
     if(clusterParams->shouldInvertRegions){
         regionCandidates = invertClusterRegions(regionCandidates);
     }
@@ -632,6 +634,7 @@ bool AudioAnalysisController::saveRegionsToAudioFile(Array<AudioRegion> &regions
         FileOutputStream* destOutputStream = destinationFile.createOutputStream();
         AudioFormatWriter* wavWriter = wavFormat->createWriterFor(destOutputStream, sourceFile->getSampleRate(), sourceFile->getNumChannels(), 16, nullptr, 0);
         
+        // concatenate regions into one file
         for(int i=0; i<numRegions; i++){
             int regionStartSample = floor(regions[i].getStart() * sourceFile->getNumSamples());
             int regionEndSample = floor(regions[i].getEnd() * sourceFile->getNumSamples());
@@ -646,7 +649,7 @@ bool AudioAnalysisController::saveRegionsToAudioFile(Array<AudioRegion> &regions
         
         return true;
     }
-    else{
+    else{ // save to multiple files
         
         for(int i=0; i<numRegions; i++){
             

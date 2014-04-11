@@ -63,13 +63,19 @@ MainComponent::MainComponent (AudioAnalysisController &analysisController)
 	AudioIODeviceType* const audioDeviceType = deviceManager.getCurrentDeviceTypeObject();
 	StringArray audioInputDevices (audioDeviceType->getDeviceNames(true));
     StringArray audioOutputDevices (audioDeviceType->getDeviceNames(false));
+    
+    int defaultInputDeviceId = audioDeviceType->getDefaultDeviceIndex(true);
+
+    int defaultOutputDeviceId = audioDeviceType->getDefaultDeviceIndex(false);
+    
 	AudioDeviceManager::AudioDeviceSetup deviceConfig;
     deviceManager.getAudioDeviceSetup(deviceConfig);
 
-	deviceConfig.inputDeviceName = audioInputDevices[0];
-	deviceConfig.outputDeviceName= audioOutputDevices[0];
+	deviceConfig.inputDeviceName = audioInputDevices[defaultInputDeviceId];
+	deviceConfig.outputDeviceName= audioOutputDevices[defaultOutputDeviceId];
     String result = deviceManager.setAudioDeviceSetup (deviceConfig, true);
 
+    DBG("audio device setup: " + result);
     //[/Constructor]
 }
 
@@ -120,6 +126,7 @@ void MainComponent::actionListenerCallback(const juce::String &message){
         appModel->addFile(referenceFileComponent->getLoadedFile(), "0");
         isRefFileLoaded = true;
         if(isReadyToCompare()) controlPanelComponent->setCalcEnabled(true);
+        
     }
     else if(message.contains("setTargetFile")){
         targetFileComponent->clearSimilarity();

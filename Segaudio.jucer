@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
 <JUCERPROJECT id="kEHgJu" name="Segaudio" projectType="guiapp" version="1.0.0"
-              bundleIdentifier="com.yourcompany.Segaudio" includeBinaryInAppConfig="1"
+              bundleIdentifier="com.GT.Segaudio" includeBinaryInAppConfig="1"
               jucerVersion="3.1.0">
   <MAINGROUP id="yLeq7g" name="Segaudio">
     <GROUP id="{30BE25F1-652B-2A8D-7603-E6BEA8B13AFF}" name="app">

@@ -63,6 +63,8 @@ public:
     float getPositionBarTime();
 
     void actionListenerCallback(const String &message);
+    
+
     //[/UserMethods]
 
     void paint (Graphics& g);
