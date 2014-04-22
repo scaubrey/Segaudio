@@ -159,9 +159,9 @@ void MainComponent::actionListenerCallback(const juce::String &message){
     else if(message == "search"){
         controlPanelComponent->getSearchParameters(appModel->getSearchParameters());
 
-//        analysisController->findRegionsBinarySearch(appModel->getSearchParameters(), appModel->getDistanceArray(), appModel->getClusterParams());
+//        analysisController->findRegionsBinarySearch(appModel->getSearchParameters(), appModel->getDistanceArray(), appModel->getClusterParams(), appModel->getTargetRegions());
 
-        analysisController->findRegionsGridSearch(appModel->getSearchParameters(), appModel->getDistanceArray(), appModel->getClusterParams());
+        analysisController->findRegionsGridSearch(appModel->getSearchParameters(), appModel->getDistanceArray(), appModel->getClusterParams(), appModel->getTargetRegions());
 
         // set found params on control panel
         controlPanelComponent->setClusterParams(appModel->getClusterParams());

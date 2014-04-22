@@ -546,21 +546,13 @@
       </GROUP>
       <GROUP id="{4705A56B-21D3-08EE-0B31-B6449CEF88B0}" name="controllers">
         <GROUP id="{7D61A57F-F258-5C3A-C7C9-BEBC418F3908}" name="source">
-          <FILE id="wWJGhi" name="AudioController.cpp" compile="1" resource="0"
-                file="Source/AudioController.cpp"/>
           <FILE id="wiburq" name="Main.cpp" compile="1" resource="0" file="Source/Main.cpp"/>
           <FILE id="QlKCJr" name="AudioAnalysisController.cpp" compile="1" resource="0"
                 file="Source/AudioAnalysisController.cpp"/>
-          <FILE id="tMp8Az" name="SegaudioPositionableSource.cpp" compile="1"
-                resource="0" file="Source/SegaudioPositionableSource.cpp"/>
         </GROUP>
         <GROUP id="{9776B95D-A7F6-003C-7C9C-3E0861DB5D8D}" name="headers">
-          <FILE id="XQmlqO" name="AudioController.h" compile="0" resource="0"
-                file="Source/AudioController.h"/>
           <FILE id="Zowakf" name="AudioAnalysisController.h" compile="0" resource="0"
                 file="Source/AudioAnalysisController.h"/>
-          <FILE id="Hfh2Ok" name="SegaudioPositionableSource.h" compile="0" resource="0"
-                file="Source/SegaudioPositionableSource.h"/>
         </GROUP>
       </GROUP>
       <GROUP id="{32AAFCA1-D877-3AA5-88CF-287792B39124}" name="views">

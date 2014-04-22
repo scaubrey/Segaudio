@@ -483,7 +483,7 @@ void AudioAnalysisController::invertClusterRegions(Array<AudioRegion>* regions){
     }
 }
 
-void AudioAnalysisController::findRegionsGridSearch(SearchParameters* searchParams, Array<float>* distanceArray, ClusterParameters* bestParams){
+void AudioAnalysisController::findRegionsGridSearch(SearchParameters* searchParams, Array<float>* distanceArray, ClusterParameters* bestParams, Array<AudioRegion>* regions){
     
     ClusterParameters candidateParams;
     int numTestIncrements = 100;
@@ -494,34 +494,36 @@ void AudioAnalysisController::findRegionsGridSearch(SearchParameters* searchPara
         candidateParams.maxRegionTimeWidth = searchParams->maxWidth;
     }
     
-    for(int i=0; i<numTestIncrements*10; i++){
+    for(int i=0; i<numTestIncrements; i++){
         
-        candidateParams.threshold = float(i) / (numTestIncrements*10);
+        candidateParams.threshold = float(i) / (numTestIncrements);
         
-        for(int j=0; j<numTestIncrements; j++){
-            candidateParams.regionConnectionWidth = float(j) / numTestIncrements;
-//            Array<AudioRegion> regions = getClusterRegions(&candidateParams, distanceArray);
-            
-//            if(regions.size() == searchParams->numRegions){
-//                DBG("match: " + String(candidateParams.threshold) + " " + String(candidateParams.regionConnectionWidth) + " " + String(cost));
-//            }
-//
-//            if(regions.size() < searchParams->numRegions){
+//        for(int j=0; j<numTestIncrements; j++){
+            candidateParams.regionConnectionWidth = 0;// float(j) / numTestIncrements;
+        
+        
+            getClusterRegions(&candidateParams, distanceArray, regions);
+
+            if(regions->size() == searchParams->numRegions){
+                DBG("match: " + String(candidateParams.threshold) + " " + String(candidateParams.regionConnectionWidth) + " " + String(cost));
+            }
+
+//            if(regions->size() < searchParams->numRegions){
 //                continue; // skip if the smoothing parameter past the target num
 //            }
-//
-//            cost = getRegionCost(regions, searchParams);
+
+            cost = getRegionCost(regions, searchParams);
             if(cost < minCost){
                 bestParams->threshold = candidateParams.threshold;
                 bestParams->regionConnectionWidth = candidateParams.regionConnectionWidth;
                 minCost = cost;
             }
-        }
+//        }
     }
 }
 
-void AudioAnalysisController::findRegionsBinarySearch(SearchParameters* searchParams, Array<float>* distanceArray, ClusterParameters* bestParams){
-    
+void AudioAnalysisController::findRegionsBinarySearch(SearchParameters* searchParams, Array<float>* distanceArray, ClusterParameters* bestParams, Array<AudioRegion>* regions){
+
     ClusterParameters candidateParams;
 //    int numTestIncrements = 100;
     float minCost = FLT_MAX, cost;
@@ -534,15 +536,12 @@ void AudioAnalysisController::findRegionsBinarySearch(SearchParameters* searchPa
     candidateParams.regionConnectionWidth = 0;
     int numChanges = 0; int numRegions = 0; int prevNumRegions = 0;
     float leftBoundary = 0; float rightBoundary = 1;
-    Array<AudioRegion> regions = Array<AudioRegion>();
-    
-    while(regions.size() != searchParams->numRegions){
+
+    while(regions->size() != searchParams->numRegions){
         
         candidateParams.threshold = (rightBoundary - leftBoundary)/2;
-        
-//        regions = getClusterRegions(&candidateParams, distanceArray);
-        
-//        cost = getRegionCost(regions, searchParams);
+
+        cost = getRegionCost(regions, searchParams);
         if(cost < minCost){
             bestParams->threshold = candidateParams.threshold;
             bestParams->regionConnectionWidth = candidateParams.regionConnectionWidth;
@@ -554,7 +553,7 @@ void AudioAnalysisController::findRegionsBinarySearch(SearchParameters* searchPa
             numChanges += 1;
         }
         
-        numRegions = regions.size();
+        numRegions = regions->size();
         
         prevNumRegions = numRegions;
         
@@ -616,7 +615,6 @@ float AudioAnalysisController::getRegionCost(Array<AudioRegion>* regions, Search
     cost = weightNumRegion*pow(abs(searchParams->numRegions - numRegions), 2) + weightPercentage*pow(fabs(searchParams->filePercentage - regionFilePercentage) + 1, 2);
     
     return cost;
-    
 }
 
 bool AudioAnalysisController::saveRegionsToAudioFile(Array<AudioRegion>* regions, SegaudioFile* sourceFile, File &destinationFile, bool useSingleFile){
@@ -670,8 +668,6 @@ bool AudioAnalysisController::saveRegionsToAudioFile(Array<AudioRegion>* regions
         return true;
     }
 
-    
-    
     return false;
 }
 
