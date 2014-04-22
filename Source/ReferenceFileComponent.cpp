@@ -199,10 +199,6 @@ bool ReferenceFileComponent::hasFileLoaded(){
     return container->hasFileLoaded();
 }
 
-AudioRegion ReferenceFileComponent::getSelectedRegion(){
-    return container->getSelectedRegion();
-}
-
 SegaudioFile* ReferenceFileComponent::getLoadedFile(){
     return container->getLoadedFile();
 }
@@ -236,6 +232,10 @@ void ReferenceFileComponent::playAudio(){
 void ReferenceFileComponent::stopAudio(){
     container->stopAudio();
     audioTransport.stop();
+}
+
+void ReferenceFileComponent::setRegions(Array<AudioRegion> *regions_) {
+    container->setRegions(regions_);
 }
 //[/MiscUserCode]
 
@@ -289,3 +289,4 @@ END_JUCER_METADATA
 
 //[EndFile] You can add extra defines here...
 //[/EndFile]
+

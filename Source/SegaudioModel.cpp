@@ -109,3 +109,11 @@ SegaudioFile* SegaudioModel::getFileById(String componentId){
     
     return NULL;
 }
+
+Array<AudioRegion> *SegaudioModel::getReferenceRegions() {
+    return &referenceRegions;
+}
+
+Array<AudioRegion> *SegaudioModel::getTargetRegions() {
+    return &targetRegions;
+}

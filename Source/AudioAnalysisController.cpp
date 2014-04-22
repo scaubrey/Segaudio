@@ -26,7 +26,7 @@ AudioAnalysisController::~AudioAnalysisController(){
     
 };
 
-void AudioAnalysisController::calculateDistances(Array<float>* distanceArray, AudioSampleBuffer* refRegionBuffer, AudioSampleBuffer* targetBuffer, AudioRegion* refRegion, SignalFeaturesToUse* featuresToUse){
+void AudioAnalysisController::calculateDistances(Array<float>* distanceArray, AudioSampleBuffer* refRegionBuffer, AudioSampleBuffer* targetBuffer, Array<AudioRegion>* refRegions, SignalFeaturesToUse* featuresToUse){
     
     Time testTime = Time();
     
@@ -34,13 +34,12 @@ void AudioAnalysisController::calculateDistances(Array<float>* distanceArray, Au
     
     distanceArray->clear(); // don't keep adding to it!
     
-    
 
-    refFeatureMat = calculateFeatureMatrix(refRegionBuffer, featuresToUse, refRegion);
+    refFeatureMat = calculateFeatureMatrix(refRegionBuffer, featuresToUse, (*refRegions)[0]);
     
     DBG("Finished reg features: " + String(testTime.getApproximateMillisecondCounter() - startTime));
     
-    targetFeatureMat = calculateFeatureMatrix(targetBuffer, featuresToUse, nullptr);
+    targetFeatureMat = calculateFeatureMatrix(targetBuffer, featuresToUse, AudioRegion(0, 1));
     
     DBG("Finished target features: " + String(testTime.getApproximateMillisecondCounter() - startTime));
     
@@ -77,7 +76,7 @@ void AudioAnalysisController::calculateDistances(Array<float>* distanceArray, Au
 
 }
 
-Eigen::MatrixXf AudioAnalysisController::calculateFeatureMatrix(AudioSampleBuffer* buffer, SignalFeaturesToUse* featuresToUse, AudioRegion* region){
+Eigen::MatrixXf AudioAnalysisController::calculateFeatureMatrix(AudioSampleBuffer* buffer, SignalFeaturesToUse* featuresToUse, AudioRegion region){
     
     if(featuresToUse->isNoneSelected()){ // skip all this if no features selected
         Eigen::MatrixXf featureMatrix = Eigen::MatrixXf::Zero(0, 0);
@@ -94,14 +93,9 @@ Eigen::MatrixXf AudioAnalysisController::calculateFeatureMatrix(AudioSampleBuffe
     else{
         numTotalBlocks = approxNumBlocks + 1;
     }
-    
-    startBlock = 0;
-    endBlock = numTotalBlocks;
-    
-    if(region){ // take subsection if provided
-        startBlock = floor(region->getStart(numTotalBlocks));
-        endBlock = floor(region->getEnd(numTotalBlocks));
-    }
+
+    startBlock = floor(region.getStart(numTotalBlocks));
+    endBlock = floor(region.getEnd(numTotalBlocks));
 
     // initialize vars for feature matrix
     int numBlocksToProcess = endBlock - startBlock;
@@ -119,7 +113,7 @@ Eigen::MatrixXf AudioAnalysisController::calculateFeatureMatrix(AudioSampleBuffe
     int totalFftTimeMs = 0;
     int totalMfccTimeMs = 0;
     
-    for(int i=startBlock; i<endBlock-1; i++){ // TODO get last block!
+    for(int i=startBlock; i<endBlock-1; i++){
         
         numProcessedBlocks += 1;
         int featureIdx = 0; // for indexing feature matrix w/variable num features
@@ -274,7 +268,7 @@ float AudioAnalysisController::calculateBlockRMS(AudioSampleBuffer &block){
     return rms;
 }
 
-float AudioAnalysisController::calculateZeroCrossRate(juce::AudioSampleBuffer &block){
+float AudioAnalysisController::calculateZeroCrossRate(AudioSampleBuffer &block){
     
     int blockLength = block.getNumSamples();
     int numZeroCrosses = 0;
@@ -395,9 +389,9 @@ float AudioAnalysisController::getLastMaxDistance(){
     return maxDistance;
 }
 
-Array<AudioRegion> AudioAnalysisController::getClusterRegions(ClusterParameters* clusterParams, Array<float>* distanceArray){
+void AudioAnalysisController::getClusterRegions(ClusterParameters* clusterParams, Array<float>* distanceArray, Array<AudioRegion>* regions){
     
-    Array<AudioRegion> regionCandidates;
+    regions->clear();
     Array<int> acceptedBlocks; // holds all blocks under threshold
     
     int numBlocks = distanceArray->size();
@@ -408,13 +402,12 @@ Array<AudioRegion> AudioAnalysisController::getClusterRegions(ClusterParameters*
             acceptedBlocks.add(blockIdx);
         }
     }
-    
-    
+
     int numAcceptedBlocks = acceptedBlocks.size();
     int regionStart = acceptedBlocks[0];
     int regionEnd = acceptedBlocks[1];
     
-    float connWidth = clusterParams->regionConnectionWidth*50.0f + 1;
+    float connWidth = clusterParams->regionConnectionWidth*50.0f + 1; // connections up to 51 blocks
     
     // for blocks under threshold, create regions satisfying other cluster params (width of region and smoothing)
     for(int blockIdx=1; blockIdx<numAcceptedBlocks; blockIdx++){
@@ -422,7 +415,7 @@ Array<AudioRegion> AudioAnalysisController::getClusterRegions(ClusterParameters*
 
         if(acceptedBlocks[blockIdx] - acceptedBlocks[blockIdx-1] > connWidth){ // passes smoothing
             if(isRegionWithinWidth(regionFracWidth, clusterParams)){ // passes width filter
-                regionCandidates.add(AudioRegion(regionStart, regionEnd, numBlocks));
+                regions->add(AudioRegion(regionStart, regionEnd, numBlocks));
             }
             regionStart = acceptedBlocks[blockIdx]; // start next region
             regionEnd = acceptedBlocks[blockIdx];
@@ -432,17 +425,16 @@ Array<AudioRegion> AudioAnalysisController::getClusterRegions(ClusterParameters*
             
             // catch ending region
             if(blockIdx == numAcceptedBlocks - 1 and isRegionWithinWidth(regionFracWidth, clusterParams)){
-                regionCandidates.add(AudioRegion(regionStart, regionEnd, numBlocks));
+                regions->add(AudioRegion(regionStart, regionEnd, numBlocks));
             }
         }
     }
     
     // invert the regions if asked
     if(clusterParams->shouldInvertRegions){
-        regionCandidates = invertClusterRegions(regionCandidates);
+        invertClusterRegions(regions);
     }
     
-    return regionCandidates;
 }
 
 bool AudioAnalysisController::isRegionWithinWidth(float regionFracWidth, ClusterParameters *clusterParams){
@@ -467,26 +459,28 @@ int AudioAnalysisController::signum(float value){
     return 0;
 }
 
-Array<AudioRegion> AudioAnalysisController::invertClusterRegions(Array<AudioRegion> &regions){
+void AudioAnalysisController::invertClusterRegions(Array<AudioRegion>* regions){
     
     Array<AudioRegion> invertedRegions;
     
-    int numRegions = regions.size();
+    int numRegions = regions->size();
     
     for(int i=0; i<numRegions-1; i++){
-        invertedRegions.add(AudioRegion(regions[i].getEnd(), regions[i+1].getStart()));
+        invertedRegions.add(AudioRegion((*regions)[i].getEnd(), (*regions)[i+1].getStart()));
     }
     
-    if(regions[0].getStart() != 0.0f){
-        invertedRegions.add(AudioRegion(0.0f, regions[0].getStart()));
+    if((*regions)[0].getStart() != 0.0f){
+        invertedRegions.add(AudioRegion(0.0f, (*regions)[0].getStart()));
     }
     
-    if(regions[numRegions-1].getEnd() != 1.0f){
-        invertedRegions.add(AudioRegion(regions[numRegions-1].getEnd(), 1.0f));
+    if((*regions)[numRegions-1].getEnd() != 1.0f){
+        invertedRegions.add(AudioRegion((*regions)[numRegions-1].getEnd(), 1.0f));
     }
-    
-    return invertedRegions;
-    
+
+    regions->clear();
+    for(int i=0; i<invertedRegions.size(); i++){
+        regions->add(invertedRegions[i]);
+    }
 }
 
 void AudioAnalysisController::findRegionsGridSearch(SearchParameters* searchParams, Array<float>* distanceArray, ClusterParameters* bestParams){
@@ -506,17 +500,17 @@ void AudioAnalysisController::findRegionsGridSearch(SearchParameters* searchPara
         
         for(int j=0; j<numTestIncrements; j++){
             candidateParams.regionConnectionWidth = float(j) / numTestIncrements;
-            Array<AudioRegion> regions = getClusterRegions(&candidateParams, distanceArray);
+//            Array<AudioRegion> regions = getClusterRegions(&candidateParams, distanceArray);
             
-            if(regions.size() == searchParams->numRegions){
-                DBG("match: " + String(candidateParams.threshold) + " " + String(candidateParams.regionConnectionWidth) + " " + String(cost));
-            }
-            
-            if(regions.size() < searchParams->numRegions){
-                continue; // skip if the smoothing parameter past the target num
-            }
-            
-            cost = getRegionCost(regions, searchParams);
+//            if(regions.size() == searchParams->numRegions){
+//                DBG("match: " + String(candidateParams.threshold) + " " + String(candidateParams.regionConnectionWidth) + " " + String(cost));
+//            }
+//
+//            if(regions.size() < searchParams->numRegions){
+//                continue; // skip if the smoothing parameter past the target num
+//            }
+//
+//            cost = getRegionCost(regions, searchParams);
             if(cost < minCost){
                 bestParams->threshold = candidateParams.threshold;
                 bestParams->regionConnectionWidth = candidateParams.regionConnectionWidth;
@@ -546,9 +540,9 @@ void AudioAnalysisController::findRegionsBinarySearch(SearchParameters* searchPa
         
         candidateParams.threshold = (rightBoundary - leftBoundary)/2;
         
-        regions = getClusterRegions(&candidateParams, distanceArray);
+//        regions = getClusterRegions(&candidateParams, distanceArray);
         
-        cost = getRegionCost(regions, searchParams);
+//        cost = getRegionCost(regions, searchParams);
         if(cost < minCost){
             bestParams->threshold = candidateParams.threshold;
             bestParams->regionConnectionWidth = candidateParams.regionConnectionWidth;
@@ -606,15 +600,15 @@ void findRegionsGradientDescent(SearchParameters* searchParams, Array<float>* di
 
 
 
-float AudioAnalysisController::getRegionCost(Array<AudioRegion> &regions, SearchParameters* searchParams){
+float AudioAnalysisController::getRegionCost(Array<AudioRegion>* regions, SearchParameters* searchParams){
  
     float weightNumRegion = 1.0f; float weightPercentage = 2.0f;
     float cost;
-    int numRegions = regions.size();
+    int numRegions = regions->size();
     
     float regionFilePercentage = 0.0f;
     for(int i=0; i<numRegions; i++){
-        regionFilePercentage += (regions[i].getEnd() - regions[i].getStart());
+        regionFilePercentage += ((*regions)[i].getEnd() - (*regions)[i].getStart());
     }
     
 //    DBG("file percentage" + String(regionFilePercentage));
@@ -625,10 +619,10 @@ float AudioAnalysisController::getRegionCost(Array<AudioRegion> &regions, Search
     
 }
 
-bool AudioAnalysisController::saveRegionsToAudioFile(Array<AudioRegion> &regions, SegaudioFile* sourceFile, File &destinationFile, bool useSingleFile){
+bool AudioAnalysisController::saveRegionsToAudioFile(Array<AudioRegion>* regions, SegaudioFile* sourceFile, File &destinationFile, bool useSingleFile){
     
     AudioFormat* wavFormat = formatManager->findFormatForFileExtension("wav");
-    int numRegions = regions.size();
+    int numRegions = regions->size();
     
     if(useSingleFile){
         FileOutputStream* destOutputStream = destinationFile.createOutputStream();
@@ -636,8 +630,8 @@ bool AudioAnalysisController::saveRegionsToAudioFile(Array<AudioRegion> &regions
         
         // concatenate regions into one file
         for(int i=0; i<numRegions; i++){
-            int regionStartSample = floor(regions[i].getStart() * sourceFile->getNumSamples());
-            int regionEndSample = floor(regions[i].getEnd() * sourceFile->getNumSamples());
+            int regionStartSample = floor((*regions)[i].getStart() * sourceFile->getNumSamples());
+            int regionEndSample = floor((*regions)[i].getEnd() * sourceFile->getNumSamples());
             
             int numSamplesToWrite = regionEndSample - regionStartSample;
 
@@ -653,8 +647,8 @@ bool AudioAnalysisController::saveRegionsToAudioFile(Array<AudioRegion> &regions
         
         for(int i=0; i<numRegions; i++){
             
-            int regionStartSample = floor(regions[i].getStart() * sourceFile->getNumSamples());
-            int regionEndSample = floor(regions[i].getEnd() * sourceFile->getNumSamples());
+            int regionStartSample = floor((*regions)[i].getStart() * sourceFile->getNumSamples());
+            int regionEndSample = floor((*regions)[i].getEnd() * sourceFile->getNumSamples());
             
             int sampleRate = sourceFile->getSampleRate();
         
@@ -681,17 +675,17 @@ bool AudioAnalysisController::saveRegionsToAudioFile(Array<AudioRegion> &regions
     return false;
 }
 
-bool AudioAnalysisController::saveRegionsToTxtFile(Array<AudioRegion> &regions, SegaudioFile* sourceFile, File &destinationFile){
+bool AudioAnalysisController::saveRegionsToTxtFile(Array<AudioRegion>* regions, SegaudioFile* sourceFile, File &destinationFile){
     
     int totalNumSamples = sourceFile->getNumSamples();
     int sampleRate = sourceFile->getSampleRate();
     float totalLengthInSec = float(totalNumSamples) / sampleRate;
     
-    int numRegions = regions.size();
+    int numRegions = regions->size();
     String dataString = "";
     
     for(int i=0; i<numRegions; i++){
-        dataString += (String(regions[i].getStart() * totalLengthInSec)) + ", " + (String(regions[i].getEnd() * totalLengthInSec)) + "\n";
+        dataString += (String((*regions)[i].getStart() * totalLengthInSec)) + ", " + (String((*regions)[i].getEnd() * totalLengthInSec)) + "\n";
     }
     
     destinationFile.replaceWithText(dataString);

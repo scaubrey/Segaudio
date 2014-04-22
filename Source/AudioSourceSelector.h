@@ -42,45 +42,45 @@ class AudioSourceSelector  : public Component,
 {
 public:
     //==============================================================================
-    AudioSourceSelector ();
+    AudioSourceSelector (int mode_);
     ~AudioSourceSelector();
 
     //==============================================================================
     //[UserMethods]     -- You can add your own custom methods in this section.
-    void setSelectedRegion(int startX, int endX);
+
+    enum {
+        Reference,
+        Target
+    } Mode;
 
     bool hasFileLoaded();
-    void setDraggable(bool isDraggable);
+    void setMode(int newMode);
 
     SegaudioFile* getLoadedFile();
 
     void setFile(File &newFile);
 
-    void drawRegion(Graphics &g);
     void drawWaveform(Graphics &g);
 
-    AudioRegion getSelectedRegion();
-
-    void setCandidateRegions(Array<AudioRegion> newCandidateRegions);
+    void setRegions(Array<AudioRegion>* regions_);
 
     void drawCandidateRegions(Graphics &g);
-
-    void clearAll();
-    void clearRegion();
-
     void drawAudioPositionBar(Graphics &g);
 
     float getPositionBarTime();
 
     void startPositionBar();
     void stopPositionBar();
+
     //[/UserMethods]
 
     void paint (Graphics& g);
     void resized();
     void visibilityChanged();
+    void mouseMove (const MouseEvent& e);
     void mouseDown (const MouseEvent& e);
     void mouseDrag (const MouseEvent& e);
+    void mouseUp (const MouseEvent& e);
 
 
 
@@ -88,15 +88,22 @@ private:
     //[UserVariables]   -- You can add your own custom variables in this section.
 
     String id;
-
     AudioThumbnail *thumbComponent;
-
     AudioThumbnailCache* thumbCache;
 
-    AudioRegion regionOverlay;
+    int touchPrecision; // num pixels away for touch
+
+    bool isHoveringOverRegionStart;
+    bool isHoveringOverRegionEnd;
+    int idxOfRegionHovered;
+
+
+    bool isRegionBeingEdited;
 
     bool hasRegionSelected;
     bool fileLoaded;
+
+    bool editableRegions;
 
     bool audioPLaying;
 
@@ -104,16 +111,14 @@ private:
     int regionEndFraction;
 
     AudioFormatManager* thumbFormatManager;
-    bool isDraggable;
-
-    AudioAnalysisController* analysisController;
+    int mode;
 
     SegaudioFile selectedFile;
     int numChannels;
     int numSamples;
     int sampleRate;
 
-    Array<AudioRegion> candidateRegions;
+    Array<AudioRegion>* regions;
 
     FileInputSource* fileInputSource;
 

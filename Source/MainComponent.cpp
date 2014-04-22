@@ -58,6 +58,10 @@ MainComponent::MainComponent (AudioAnalysisController &analysisController)
 
     appModel = new SegaudioModel(2);
 
+    targetFileComponent->setRegions(appModel->getTargetRegions());
+    referenceFileComponent->setRegions(appModel->getReferenceRegions());
+    targetFileComponent->setTuningParameters(controlPanelComponent->getClusterParams(), appModel->getDistanceArray(), appModel->getMaxDistance());
+
     deviceManager.initialise(2, 2, 0, true, String::empty, 0);
 
 	AudioIODeviceType* const audioDeviceType = deviceManager.getCurrentDeviceTypeObject();
@@ -65,17 +69,15 @@ MainComponent::MainComponent (AudioAnalysisController &analysisController)
     StringArray audioOutputDevices (audioDeviceType->getDeviceNames(false));
     
     int defaultInputDeviceId = audioDeviceType->getDefaultDeviceIndex(true);
-
     int defaultOutputDeviceId = audioDeviceType->getDefaultDeviceIndex(false);
     
 	AudioDeviceManager::AudioDeviceSetup deviceConfig;
     deviceManager.getAudioDeviceSetup(deviceConfig);
 
 	deviceConfig.inputDeviceName = audioInputDevices[defaultInputDeviceId];
-	deviceConfig.outputDeviceName= audioOutputDevices[defaultOutputDeviceId];
+	deviceConfig.outputDeviceName = audioOutputDevices[defaultOutputDeviceId];
     String result = deviceManager.setAudioDeviceSetup (deviceConfig, true);
 
-    DBG("audio device setup: " + result);
     //[/Constructor]
 }
 
@@ -131,31 +133,23 @@ void MainComponent::actionListenerCallback(const juce::String &message){
     else if(message.contains("setTargetFile")){
         targetFileComponent->clearSimilarity();
         
-        String compId="1";
-        appModel->addFile(targetFileComponent->getLoadedFile(), compId);
+        appModel->addFile(targetFileComponent->getLoadedFile(), "1");
         isTargetFileLoaded = true;
         if(isReadyToCompare()) controlPanelComponent->setCalcEnabled(true);
     }
     else if(message == "srcRegionSelected"){
-
-        AudioRegion selectedRegion = referenceFileComponent->getSelectedRegion();
-        appModel->setRefRegion(selectedRegion);
         isRegionSelected = true;
         if(isReadyToCompare()) controlPanelComponent->setCalcEnabled(true);
-    }
-    else if(message == "srcRegionCleared"){
-//        similarityViewer->setReadyToCompare(false);
-//        similarityViewer->clear();
     }
     else if(message == "calculateSimilarity"){
 
         targetFileComponent->clearSimilarity();
-        targetFileComponent->setCalculatingMask(true);
+//        targetFileComponent->setCalculatingMask(true);
 
-        analysisController->calculateDistances(appModel->getDistanceArray(), appModel->getFileBuffer("0"), appModel->getFileBuffer("1"), appModel->getRefRegion(), controlPanelComponent->getSignalFeaturesToUse(appModel->getSignalFeaturesToUse()));
+        analysisController->calculateDistances(appModel->getDistanceArray(), appModel->getFileBuffer("0"), appModel->getFileBuffer("1"), appModel->getReferenceRegions(), controlPanelComponent->getSignalFeaturesToUse(appModel->getSignalFeaturesToUse()));
         appModel->setMaxDistance(analysisController->getLastMaxDistance());
 
-        targetFileComponent->setCalculatingMask(false);
+//        targetFileComponent->setCalculatingMask(false);
 
         newRegionsUpdate();
     }
@@ -176,12 +170,9 @@ void MainComponent::actionListenerCallback(const juce::String &message){
     }
     else if(message == "exportAudio"){
 
-        ClusterParameters* clusterTuningParams = controlPanelComponent->getClusterParams();
-        Array<AudioRegion> clusterRegions = analysisController->getClusterRegions(clusterTuningParams, appModel->getDistanceArray());
-
         ExportParameters* exportParams = appModel->getExportParameters();
         controlPanelComponent->getExportParameters(exportParams);
-        String prompt = "Saving " + String(clusterRegions.size()) + " regions";
+        String prompt = "Saving " + String(appModel->getTargetRegions()->size()) + " regions";
         if(exportParams->asOneFile){
             prompt += " as one file...";
         }
@@ -193,27 +184,20 @@ void MainComponent::actionListenerCallback(const juce::String &message){
         if (myChooser.browseForFileToSave(true))
         {
             File destinationFile = myChooser.getResult();
-
-            DBG(destinationFile.getFullPathName());
-
-            analysisController->saveRegionsToAudioFile(clusterRegions, appModel->getSegaudioFile("1"), destinationFile, exportParams->asOneFile);
+            analysisController->saveRegionsToAudioFile(appModel->getTargetRegions(), appModel->getSegaudioFile("1"), destinationFile, exportParams->asOneFile);
         }
     }
     else if(message == "exportCsv"){
-        ClusterParameters* clusterTuningParams = controlPanelComponent->getClusterParams();
-        Array<AudioRegion> clusterRegions = analysisController->getClusterRegions(clusterTuningParams, appModel->getDistanceArray());
 
-        String prompt = "Saving " + String(clusterRegions.size()) + " regions";
+        String prompt = "Saving " + String(appModel->getTargetRegions()->size()) + " regions";
         
         FileChooser myChooser (prompt);
         if (myChooser.browseForFileToSave(true))
         {
             File destinationFile = myChooser.getResult();
             destinationFile = destinationFile.withFileExtension(".csv");
-            
-            DBG(destinationFile.getFullPathName());
-            
-            analysisController->saveRegionsToTxtFile(clusterRegions, appModel->getSegaudioFile("1"), destinationFile);
+
+            analysisController->saveRegionsToTxtFile(appModel->getTargetRegions(), appModel->getSegaudioFile("1"), destinationFile);
         }
     }
 
@@ -222,16 +206,10 @@ void MainComponent::actionListenerCallback(const juce::String &message){
 }
 
 void MainComponent::newRegionsUpdate(){
-
-    ClusterParameters* clusterTuningParams = controlPanelComponent->getClusterParams();
-    Array<AudioRegion> clusterRegions = analysisController->getClusterRegions(clusterTuningParams, appModel->getDistanceArray());
-
-    targetFileComponent->update(clusterTuningParams, clusterRegions, appModel->getDistanceArray(), appModel->getMaxDistance());
-
-    controlPanelComponent->newRegionsUpdate(clusterRegions);
+    analysisController->getClusterRegions(controlPanelComponent->getClusterParams(), appModel->getDistanceArray(), appModel->getTargetRegions());
+    targetFileComponent->setTuningParameters(controlPanelComponent->getClusterParams(), appModel->getDistanceArray(), appModel->getMaxDistance());
+    controlPanelComponent->newRegionsUpdate(appModel->getTargetRegions());
 }
-
-
 
 bool MainComponent::isReadyToCompare(){
     if(isRefFileLoaded and isTargetFileLoaded and isRegionSelected){

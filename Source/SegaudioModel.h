@@ -109,6 +109,9 @@ public:
     SearchParameters* getSearchParameters();
     
     SegaudioFile* getFileById(String componentId);
+
+    Array<AudioRegion>* getReferenceRegions();
+    Array<AudioRegion>* getTargetRegions();
     
 private:
         
@@ -132,6 +135,10 @@ private:
     ExportParameters exportParameters;
     
     SearchParameters searchParameters;
+
+
+    Array<AudioRegion> referenceRegions;
+    Array<AudioRegion> targetRegions;
 };
 
 

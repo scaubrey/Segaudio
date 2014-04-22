@@ -51,11 +51,8 @@ public:
     void setCandidateRegions(Array<AudioRegion> newCandidateRegions);
 
     bool hasFileLoaded();
-    AudioRegion getSelectedRegion();
 
     SegaudioFile* getLoadedFile();
-
-    void clearRegion();
 
     void startAudio();
     void stopAudio();
@@ -63,7 +60,8 @@ public:
     float getPositionBarTime();
 
     void actionListenerCallback(const String &message);
-    
+
+    void setRegions(Array<AudioRegion> *regions_);
 
     //[/UserMethods]
 

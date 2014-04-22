@@ -583,8 +583,8 @@ void ControlPanelComponent::setClusterTuningEnabled(bool readyToTune){
     stickynessSlider->setEnabled(readyToTune);
 }
 
-void ControlPanelComponent::newRegionsUpdate(Array<AudioRegion> &newRegions){
-    regionCountLabel->setText(String(newRegions.size()), dontSendNotification);
+void ControlPanelComponent::newRegionsUpdate(Array<AudioRegion>* newRegions){
+    regionCountLabel->setText(String(newRegions->size()), dontSendNotification);
 }
 
 void ControlPanelComponent::getSearchParameters(SearchParameters* searchParams){

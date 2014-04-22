@@ -32,22 +32,22 @@ public:
     void setTargetAudioReader(AudioFormatReader* incomingReader);
     bool isReady();
     
-    void calculateDistances(Array<float>* distanceArray, AudioSampleBuffer* refRegionBuffer, AudioSampleBuffer* targetBuffer, AudioRegion* refRegion, SignalFeaturesToUse* featuresToUse);
+    void calculateDistances(Array<float>* distanceArray, AudioSampleBuffer* refRegionBuffer, AudioSampleBuffer* targetBuffer, Array<AudioRegion>* refRegions, SignalFeaturesToUse* featuresToUse);
     
-    Eigen::MatrixXf calculateFeatureMatrix(AudioSampleBuffer* buffer, SignalFeaturesToUse* featuresToUse, AudioRegion* region);
+    Eigen::MatrixXf calculateFeatureMatrix(AudioSampleBuffer* buffer, SignalFeaturesToUse* featuresToUse, AudioRegion region);
     
     
     float getLastMaxDistance();
     
     virtual void actionListenerCallback(const String &message);
     
-    Array<AudioRegion> getClusterRegions(ClusterParameters* clusterParams, Array<float>* distanceArray);
+    void getClusterRegions(ClusterParameters* clusterParams, Array<float>* distanceArray, Array<AudioRegion>* regions);
     
     bool isRegionWithinWidth(float regionFracWidth, ClusterParameters* clusterParams);
     
     int signum(float value);
     
-    Array<AudioRegion> invertClusterRegions(Array<AudioRegion> &regions);
+    void invertClusterRegions(Array<AudioRegion>* regions);
     
     void findRegionsGridSearch(SearchParameters* searchParams, Array<float>* distanceArray, ClusterParameters* bestParams);
     
@@ -55,11 +55,11 @@ public:
     
     void findRegionsGradientDescent(SearchParameters* searchParams, Array<float>* distanceArray, ClusterParameters* bestParams);
     
-    float getRegionCost(Array<AudioRegion> &regions, SearchParameters* searchParams);
+    float getRegionCost(Array<AudioRegion>* regions, SearchParameters* searchParams);
         
-    bool saveRegionsToAudioFile(Array<AudioRegion> &regions, SegaudioFile* sourceFile, File &destinationFile, bool useSingleFile);
+    bool saveRegionsToAudioFile(Array<AudioRegion>* regions, SegaudioFile* sourceFile, File &destinationFile, bool useSingleFile);
     
-    bool saveRegionsToTxtFile(Array<AudioRegion> &regions, SegaudioFile* sourceFile, File &destinationFile);
+    bool saveRegionsToTxtFile(Array<AudioRegion>* regions, SegaudioFile* sourceFile, File &destinationFile);
     
 private:
     

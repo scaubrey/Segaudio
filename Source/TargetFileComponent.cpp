@@ -69,13 +69,11 @@ TargetFileComponent::TargetFileComponent (AudioDeviceManager& deviceManager)
 
     setSize (600, 400);
 
-
     //[Constructor] You can add your own custom stuff here..
 
     viewport->setViewedComponent(container);
 
     isPlayable = false;
-
     setPlayable(isPlayable);
 
     deviceManager.addAudioCallback(&audioSourcePlayer);
@@ -193,16 +191,12 @@ void TargetFileComponent::sliderValueChanged (Slider* sliderThatWasMoved)
 
 
 //[MiscUserCode] You can add your own definitions of your custom methods or any other code here...
-void TargetFileComponent::update(ClusterParameters* clusterTuningParams, Array<AudioRegion> newCandidateRegions, Array<float>* newDistances, float maxDistance){
-    container->update(clusterTuningParams, newCandidateRegions, newDistances, maxDistance);
+void TargetFileComponent::setTuningParameters(ClusterParameters* clusterTuningParams, Array<float>* newDistances, float maxDistance){
+    container->setTuningParameters(clusterTuningParams, newDistances, maxDistance);
 }
 
 bool TargetFileComponent::hasFileLoaded(){
     return container->hasFileLoaded();
-}
-
-AudioRegion TargetFileComponent::getSelectedRegion(){
-    return container->getSelectedRegion();
 }
 
 SegaudioFile* TargetFileComponent::getLoadedFile(){
@@ -241,6 +235,10 @@ void TargetFileComponent::setCalculatingMask(bool status){
 
 void TargetFileComponent::clearSimilarity(){
     container->clearSimilarity();
+}
+
+void TargetFileComponent::setRegions(Array<AudioRegion> *regions_) {
+    container->setRegions(regions_);
 }
 
 //[/MiscUserCode]
@@ -295,3 +293,4 @@ END_JUCER_METADATA
 
 //[EndFile] You can add extra defines here...
 //[/EndFile]
+

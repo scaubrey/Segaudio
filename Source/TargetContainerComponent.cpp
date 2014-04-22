@@ -30,7 +30,7 @@
 //==============================================================================
 TargetContainer::TargetContainer ()
 {
-    addAndMakeVisible (audioSelector = new AudioSourceSelector());
+    addAndMakeVisible (audioSelector = new AudioSourceSelector (AudioSourceSelector::Target));
     audioSelector->setName ("audioSelector");
 
     addAndMakeVisible (similarityViewer = new SimilarityViewer());
@@ -46,7 +46,7 @@ TargetContainer::TargetContainer ()
     //[Constructor] You can add your own custom stuff here..
     audioSelector->addActionListener(this);
 
-    audioSelector->setDraggable(false);
+    audioSelector->setMode(AudioSourceSelector::Target);
 
     //[/Constructor]
 }
@@ -90,18 +90,14 @@ void TargetContainer::resized()
 void TargetContainer::setFile(juce::File newFile){
     audioSelector->setFile(newFile);
 }
+void TargetContainer::setTuningParameters(ClusterParameters* clusterTuningParams, Array<float>* newDistances, float maxDistance){
 
-void TargetContainer::update(ClusterParameters* clusterTuningParams, Array<AudioRegion> newCandidateRegions, Array<float>* newDistances, float maxDistance){
-    audioSelector->setCandidateRegions(newCandidateRegions);
+    audioSelector->repaint();
     similarityViewer->setTuningParameters(clusterTuningParams, newDistances, maxDistance);
 }
 
 bool TargetContainer::hasFileLoaded(){
     return audioSelector->hasFileLoaded();
-}
-
-AudioRegion TargetContainer::getSelectedRegion(){
-    return audioSelector->getSelectedRegion();
 }
 
 SegaudioFile* TargetContainer::getLoadedFile(){
@@ -134,6 +130,10 @@ void TargetContainer::setCalculatingMask(bool status){
 void TargetContainer::clearSimilarity(){
     similarityViewer->clear();
 }
+
+void TargetContainer::setRegions(Array<AudioRegion> *regions_) {
+    audioSelector->setRegions(regions_);
+}
 //[/MiscUserCode]
 
 
@@ -154,7 +154,7 @@ BEGIN_JUCER_METADATA
   <BACKGROUND backgroundColour="ffb5b2b2"/>
   <GENERICCOMPONENT name="audioSelector" id="7f10809d3b4712d6" memberName="audioSelector"
                     virtualName="" explicitFocusOrder="0" pos="0 0 100% 49.007%"
-                    class="AudioSourceSelector" params=""/>
+                    class="AudioSourceSelector" params="AudioSourceSelector::Target"/>
   <GENERICCOMPONENT name="similarityViewer" id="95cef1a3b684967d" memberName="similarityViewer"
                     virtualName="" explicitFocusOrder="0" pos="0 0Rr 100% 49.007%"
                     class="SimilarityViewer" params=""/>
@@ -167,3 +167,4 @@ END_JUCER_METADATA
 
 //[EndFile] You can add extra defines here...
 //[/EndFile]
+

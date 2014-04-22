@@ -50,10 +50,9 @@ public:
     //==============================================================================
     //[UserMethods]     -- You can add your own custom methods in this section.
 
-    void update(ClusterParameters* clusterTuningParams, Array<AudioRegion> newCandidateRegions, Array<float>* newDistances, float maxDistance);
+    void setTuningParameters(ClusterParameters* clusterTuningParams, Array<float>* newDistances, float maxDistance);
 
     bool hasFileLoaded();
-    AudioRegion getSelectedRegion();
     SegaudioFile* getLoadedFile();
 
     void setPlayable(bool isPlayable);
@@ -68,6 +67,9 @@ public:
     void setCalculatingMask(bool status);
 
     void clearSimilarity();
+
+    void setRegions(Array<AudioRegion>* regions_);
+
     //[/UserMethods]
 
     void paint (Graphics& g);

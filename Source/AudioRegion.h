@@ -33,6 +33,10 @@ public:
     float getStart(float referenceWidth);
     float getEnd(float referenceStart, float referenceEnd);
     float getEnd(float referenceWidth);
+
+    bool isInRegion(float value);
+
+    bool isOverlapping(AudioRegion region);
     
     
     bool isInitialized();

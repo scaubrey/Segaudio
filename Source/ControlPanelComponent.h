@@ -57,7 +57,7 @@ public:
     void setCalcEnabled(bool readyForCalc);
     void setClusterTuningEnabled(bool readyToTune);
 
-    void newRegionsUpdate(Array<AudioRegion> &newRegions);
+    void newRegionsUpdate(Array<AudioRegion>* newRegions);
 
     void getSearchParameters(SearchParameters* searchParams);
     //[/UserMethods]

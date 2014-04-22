@@ -21,6 +21,11 @@ AudioRegion::AudioRegion(float start, float end):
 {
     if(startValue < 0) startValue = 0;
     if(endValue > 1) endValue = 1;
+
+    if(end < start){
+        endValue = startValue + 0.01;
+    }
+
 }
 
 AudioRegion::AudioRegion(float start, float end, float referenceWidth){
@@ -30,7 +35,11 @@ AudioRegion::AudioRegion(float start, float end, float referenceWidth){
     
     if(startValue < 0) startValue = 0;
     if(endValue > 1) endValue = 1;
-    
+
+    if(end < start){
+        endValue = startValue + 0.01;
+    }
+
 }
 
 AudioRegion::~AudioRegion(){
@@ -94,6 +103,20 @@ float AudioRegion::getEnd(float referenceWidth){
 
 bool AudioRegion::isInitialized(){
     if(endValue != 0){
+        return true;
+    }
+    return false;
+}
+
+bool AudioRegion::isInRegion(float value) {
+    if(value > startValue && value < endValue){
+        return true;
+    }
+    return false;
+}
+
+bool AudioRegion::isOverlapping(AudioRegion region) {
+    if(isInRegion(region.getStart()) or isInRegion(region.getEnd())){
         return true;
     }
     return false;

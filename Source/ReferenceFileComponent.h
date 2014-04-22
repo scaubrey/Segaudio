@@ -54,7 +54,6 @@ public:
     //==============================================================================
     //[UserMethods]     -- You can add your own custom methods in this section.
     bool hasFileLoaded();
-    AudioRegion getSelectedRegion();
     SegaudioFile* getLoadedFile();
 
     void setPlayable(bool isPlayable);
@@ -63,6 +62,9 @@ public:
 
     void playAudio();
     void stopAudio();
+
+    void setRegions(Array<AudioRegion> *regions_);
+
 
     //[/UserMethods]
 
