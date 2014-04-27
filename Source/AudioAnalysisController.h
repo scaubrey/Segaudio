@@ -20,7 +20,8 @@
 
 //using namespace Eigen;
 
-class AudioAnalysisController : public ActionListener
+class AudioAnalysisController : public ActionListener,
+                                public ThreadWithProgressWindow
 {
     
 public:
@@ -32,16 +33,16 @@ public:
     void setTargetAudioReader(AudioFormatReader* incomingReader);
     bool isReady();
     
-    void calculateDistances(Array<float>* distanceArray, AudioSampleBuffer* refRegionBuffer, AudioSampleBuffer* targetBuffer, Array<AudioRegion>* refRegions, SignalFeaturesToUse* featuresToUse);
+    void calculateDistances(Array<float>* distanceArray, float* maxDistance, AudioSampleBuffer* refRegionBuffer, AudioSampleBuffer* targetBuffer, Array<AudioRegion>* refRegions, SignalFeaturesToUse* featuresToUse);
     
     Eigen::MatrixXf calculateFeatureMatrix(AudioSampleBuffer* buffer, SignalFeaturesToUse* featuresToUse, AudioRegion region);
-    
-    
-    float getLastMaxDistance();
+
+
+//    float getLastMaxDistance();
     
     virtual void actionListenerCallback(const String &message);
     
-    void getClusterRegions(ClusterParameters* clusterParams, Array<float>* distanceArray, Array<AudioRegion>* regions);
+    void getClusterRegions(ClusterParameters* clusterParams, Array<float>* distanceArray, float* maxDistance,  Array<AudioRegion>* regions);
     
     bool isRegionWithinWidth(float regionFracWidth, ClusterParameters* clusterParams);
     
@@ -49,7 +50,7 @@ public:
     
     void invertClusterRegions(Array<AudioRegion>* regions);
     
-    void findRegionsGridSearch(SearchParameters* searchParams, Array<float>* distanceArray, ClusterParameters* bestParams, Array<AudioRegion>* regions);
+    void findRegionsGridSearch(SearchParameters* searchParams, Array<float>* distanceArray, float* maxDistance, ClusterParameters* bestParams, Array<AudioRegion>* regions);
     
     void findRegionsBinarySearch(SearchParameters* searchParams, Array<float>* distanceArray, ClusterParameters* bestParams, Array<AudioRegion>* regions);
     
@@ -67,9 +68,9 @@ private:
     
     Eigen::MatrixXf refFeatureMat;
     Eigen::MatrixXf targetFeatureMat;
-    
-    float maxDistance;
-    
+
+//    float maxDistance;
+
     int windowSize;
     
     float calculateBlockRMS(AudioSampleBuffer &block);
@@ -81,6 +82,8 @@ private:
     float calculateSpectralCentroid(Eigen::RowVectorXcf &blockFft);
     
     Eigen::RowVectorXf calculateMFCC(Eigen::RowVectorXcf &blockFft, int sampleRate);
+
+    void run();
 
 };
 

@@ -46,7 +46,7 @@ public:
 
     //==============================================================================
     //[UserMethods]     -- You can add your own custom methods in this section.
-    void setTuningParameters(ClusterParameters* clusterTuningParams, Array<float>* newArray, float distance);
+    void setTuningParameters(ClusterParameters* clusterTuningParams, Array<float>* newArray, float* distance);
 
     void drawThreshold(Graphics &g);
     void drawSimilarityFunction(Graphics &g);
@@ -70,13 +70,12 @@ private:
 
 
     Array<float>* distanceArray;
-    Array<float>* filteredDistanceArray;
 
-    float maxDistance;
+    float* maxDistance;
 
-    float threshold;
-    float stickyness;
-    float smoothness;
+    float* threshold;
+    float* stickyness;
+    float* smoothness;
 
     bool isWaiting;
 

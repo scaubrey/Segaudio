@@ -90,7 +90,7 @@ void TargetContainer::resized()
 void TargetContainer::setFile(juce::File newFile){
     audioSelector->setFile(newFile);
 }
-void TargetContainer::setTuningParameters(ClusterParameters* clusterTuningParams, Array<float>* newDistances, float maxDistance){
+void TargetContainer::setTuningParameters(ClusterParameters* clusterTuningParams, Array<float>* newDistances, float* maxDistance){
 
     audioSelector->repaint();
     similarityViewer->setTuningParameters(clusterTuningParams, newDistances, maxDistance);

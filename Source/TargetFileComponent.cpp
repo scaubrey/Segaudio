@@ -191,7 +191,7 @@ void TargetFileComponent::sliderValueChanged (Slider* sliderThatWasMoved)
 
 
 //[MiscUserCode] You can add your own definitions of your custom methods or any other code here...
-void TargetFileComponent::setTuningParameters(ClusterParameters* clusterTuningParams, Array<float>* newDistances, float maxDistance){
+void TargetFileComponent::setTuningParameters(ClusterParameters* clusterTuningParams, Array<float>* newDistances, float* maxDistance){
     container->setTuningParameters(clusterTuningParams, newDistances, maxDistance);
 }
 

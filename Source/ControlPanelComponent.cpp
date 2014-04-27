@@ -64,6 +64,7 @@ ControlPanelComponent::ControlPanelComponent ()
     scFeatureToggle->setColour (ToggleButton::textColourId, Colours::white);
 
     addAndMakeVisible (mfccFeatureToggle = new ToggleButton ("mfccFeatureToggle"));
+    mfccFeatureToggle->setTooltip (TRANS("MFCC"));
     mfccFeatureToggle->setButtonText (TRANS("MFCC"));
     mfccFeatureToggle->addListener (this);
     mfccFeatureToggle->setColour (ToggleButton::textColourId, Colours::white);
@@ -119,7 +120,7 @@ ControlPanelComponent::ControlPanelComponent ()
     widthSlider->addListener (this);
 
     addAndMakeVisible (header2 = new Label ("header2",
-                                            TRANS("Cluster Tuning")));
+                                            TRANS("Find Regions")));
     header2->setFont (Font (18.00f, Font::plain));
     header2->setJustificationType (Justification::centredLeft);
     header2->setEditable (false, false, false);
@@ -362,7 +363,7 @@ void ControlPanelComponent::resized()
     header2->setBounds (16, proportionOfHeight (0.3176f), 150, 24);
     header1->setBounds (16, proportionOfHeight (0.0695f), 150, 24);
     zcrFeatureToggle->setBounds (96, proportionOfHeight (0.2270f), 50, 24);
-    invertRegionsToggle->setBounds (proportionOfWidth (0.0288f), proportionOfHeight (0.6452f), 120, 24);
+    invertRegionsToggle->setBounds (proportionOfWidth (0.0277f), proportionOfHeight (0.6253f), 120, 24);
     exportSeparateButton->setBounds (24, proportionOfHeight (0.9132f), 104, 24);
     regionDescriptionLabel->setBounds (getWidth() - 138, proportionOfHeight (0.6340f), 72, 24);
     regionCountLabel->setBounds ((getWidth() - 138) + 80, proportionOfHeight (0.6340f), 30, 25);
@@ -645,8 +646,8 @@ BEGIN_JUCER_METADATA
                 connectedEdges="0" needsCallback="1" radioGroupId="0" state="0"/>
   <TOGGLEBUTTON name="mfccFeatureToggle" id="f946313658ff3956" memberName="mfccFeatureToggle"
                 virtualName="" explicitFocusOrder="0" pos="24 17.742% 50 24"
-                txtcol="ffffffff" buttonText="MFCC" connectedEdges="0" needsCallback="1"
-                radioGroupId="0" state="0"/>
+                tooltip="MFCC" txtcol="ffffffff" buttonText="MFCC" connectedEdges="0"
+                needsCallback="1" radioGroupId="0" state="0"/>
   <LABEL name="stickynessLabel" id="32983a34059e5df1" memberName="stickynessLabel"
          virtualName="" explicitFocusOrder="0" pos="1.845% 42.804% 72 18"
          textCol="ffffffff" edTextCol="ff000000" edBkgCol="0" labelText="Smoothing"
@@ -678,9 +679,9 @@ BEGIN_JUCER_METADATA
           textBoxHeight="20" skewFactor="1"/>
   <LABEL name="header2" id="4feb41a7e4880c44" memberName="header2" virtualName=""
          explicitFocusOrder="0" pos="16 31.762% 150 24" textCol="ffffffff"
-         edTextCol="ff000000" edBkgCol="0" labelText="Cluster Tuning"
-         editableSingleClick="0" editableDoubleClick="0" focusDiscardsChanges="0"
-         fontname="Default font" fontsize="18" bold="0" italic="0" justification="33"/>
+         edTextCol="ff000000" edBkgCol="0" labelText="Find Regions" editableSingleClick="0"
+         editableDoubleClick="0" focusDiscardsChanges="0" fontname="Default font"
+         fontsize="18" bold="0" italic="0" justification="33"/>
   <LABEL name="header1" id="e7329f5e02bd959" memberName="header1" virtualName=""
          explicitFocusOrder="0" pos="16 6.948% 150 24" textCol="ffffffff"
          edTextCol="ff000000" edBkgCol="0" labelText="Feature Selection"
@@ -691,7 +692,7 @@ BEGIN_JUCER_METADATA
                 tooltip="Zero Cross Rate" txtcol="ffffffff" buttonText="ZCR"
                 connectedEdges="0" needsCallback="1" radioGroupId="0" state="0"/>
   <TOGGLEBUTTON name="invertRegionsToggle" id="b0589c37aecfe236" memberName="invertRegionsToggle"
-                virtualName="" explicitFocusOrder="0" pos="2.884% 64.516% 120 24"
+                virtualName="" explicitFocusOrder="0" pos="2.768% 62.531% 120 24"
                 tooltip="Invert Regions" txtcol="ffffffff" buttonText="Invert Regions"
                 connectedEdges="0" needsCallback="1" radioGroupId="0" state="0"/>
   <TEXTBUTTON name="exportSeparateButton" id="a631088d4d356323" memberName="exportSeparateButton"

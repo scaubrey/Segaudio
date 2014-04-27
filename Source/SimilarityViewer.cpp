@@ -45,7 +45,7 @@ SimilarityViewer::SimilarityViewer ()
     maxDistance = 0;
 
     distanceArray = NULL;
-    filteredDistanceArray = NULL;
+    distanceArray = NULL;
     
     isWaiting = false;
     
@@ -99,14 +99,13 @@ void SimilarityViewer::resized()
 
 
 //[MiscUserCode] You can add your own definitions of your custom methods or any other code here...
-void SimilarityViewer::setTuningParameters(ClusterParameters* clusterTuningParams, Array<float>* newArray, float distance){
+void SimilarityViewer::setTuningParameters(ClusterParameters* clusterTuningParams, Array<float>* newArray, float* distance){
 
-    threshold = clusterTuningParams->threshold;
-    stickyness = clusterTuningParams->regionConnectionWidth;
+    threshold = &(clusterTuningParams->threshold);
+    stickyness = &(clusterTuningParams->regionConnectionWidth);
 //    smoothness = clusterTuningParams->medianFilterWidth;
 
     distanceArray = newArray;
-    filteredDistanceArray = distanceArray;
     maxDistance = distance;
     repaint();
 };
@@ -114,7 +113,9 @@ void SimilarityViewer::setTuningParameters(ClusterParameters* clusterTuningParam
 void SimilarityViewer::drawThreshold(Graphics &g){
 
     g.setColour(Colours::blueviolet);
-    g.drawHorizontalLine(graphContainer->getHeight() - threshold * graphContainer->getHeight() * 1, getX(), getWidth());
+//    float tmp =          (*threshold) * graphContainer->getHeight();
+    g.drawHorizontalLine(graphContainer->getHeight() - (*threshold) * graphContainer->getHeight() * 1, getX(), getWidth());
+
 
 }
 
@@ -127,20 +128,20 @@ void SimilarityViewer::drawSimilarityFunction(Graphics &g){
     int lastXPixel = 0;
     int currentXPixel;
 
-    float yScale = graphContainer->getHeight() / maxDistance;
+    float yScale = graphContainer->getHeight() / (*maxDistance);
 
-    float lastRms = graphContainer->getY() + graphContainer->getHeight() - floor((*filteredDistanceArray)[0] * graphLengthInPixels / filteredDistanceArray->size());
+    float lastRms = graphContainer->getY() + graphContainer->getHeight() - floor((*distanceArray)[0] * graphLengthInPixels / distanceArray->size());
     if(std::isnan(lastRms)){
         lastRms = 0;
     }
 
     float currentRms;
 
-    for(int i=1; i<filteredDistanceArray->size(); i++){
+    for(int i=1; i< distanceArray->size(); i++){
 
         currentXPixel = floor((i) * graphLengthInPixels / distanceArray->size());
 
-        currentRms = graphContainer->getY() + graphContainer->getHeight() - (*filteredDistanceArray)[i] * yScale;
+        currentRms = graphContainer->getY() + graphContainer->getHeight() - (*distanceArray)[i] * yScale;
         
         if(currentRms != currentRms){
             currentRms = 0;
@@ -157,8 +158,6 @@ void SimilarityViewer::drawSimilarityFunction(Graphics &g){
 void SimilarityViewer::clear(){
 
     distanceArray->clear();
-    filteredDistanceArray->clear();
-
     repaint();
 }
 

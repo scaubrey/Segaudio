@@ -11,7 +11,7 @@
 #include "AudioAnalysisController.h"
 
 
-AudioAnalysisController::AudioAnalysisController(){
+AudioAnalysisController::AudioAnalysisController() : ThreadWithProgressWindow("Calculating Similarity...", false, false){
     
     windowSize = 2048*4;
     
@@ -26,30 +26,39 @@ AudioAnalysisController::~AudioAnalysisController(){
     
 };
 
-void AudioAnalysisController::calculateDistances(Array<float>* distanceArray, AudioSampleBuffer* refRegionBuffer, AudioSampleBuffer* targetBuffer, Array<AudioRegion>* refRegions, SignalFeaturesToUse* featuresToUse){
-    
-    Time testTime = Time();
-    
-    int startTime  = testTime.getApproximateMillisecondCounter();
-    
-    distanceArray->clear(); // don't keep adding to it!
-    
+void AudioAnalysisController::run(){
+}
 
-    refFeatureMat = calculateFeatureMatrix(refRegionBuffer, featuresToUse, (*refRegions)[0]);
-    
+void AudioAnalysisController::calculateDistances(Array<float>* distanceArray, float* maxDistance, AudioSampleBuffer* refRegionBuffer, AudioSampleBuffer* targetBuffer, Array<AudioRegion>* refRegions, SignalFeaturesToUse* featuresToUse){
+
+    Time testTime = Time();
+
+    int startTime  = testTime.getApproximateMillisecondCounter();
+
+    distanceArray->clear(); // don't keep adding to it!
+
+    launchThread();
+//    setProgress(0);
+
+    refFeatureMat = calculateFeatureMatrix(refRegionBuffer, featuresToUse, (*refRegions)[0]);   // using only one for now
+
+//    setProgress(20);
+
     DBG("Finished reg features: " + String(testTime.getApproximateMillisecondCounter() - startTime));
-    
+
     targetFeatureMat = calculateFeatureMatrix(targetBuffer, featuresToUse, AudioRegion(0, 1));
-    
+
     DBG("Finished target features: " + String(testTime.getApproximateMillisecondCounter() - startTime));
-    
+
+//    setProgress(80);
+
     Eigen::MatrixXf avgRegionFeatures = refFeatureMat.colwise().mean();
-    
+
     float maxDistanceVal = 0; // keep track of max for drawing
     for(int i=0; i<targetFeatureMat.rows(); i++){
-        
+
         float distanceVal;
-        
+
         if(featuresToUse->getNumSelected() < 2){
             distanceVal = (targetFeatureMat.row(i) - avgRegionFeatures).squaredNorm();
         }
@@ -58,21 +67,23 @@ void AudioAnalysisController::calculateDistances(Array<float>* distanceArray, Au
             float tmp1 = (targetFeatureMat.row(i).array() * avgRegionFeatures.array()).sum();
             float tmp2 = sqrt(targetFeatureMat.row(i).array().pow(2).sum());
             float tmp3 = sqrt(avgRegionFeatures.array().pow(2).sum());
-            
+
             distanceVal = 1 - tmp1 / (tmp2 * tmp3);
         }
-        
+
         if(i == targetFeatureMat.rows()-1){
             DBG(distanceVal);
         }
-        
+
         if(distanceVal > maxDistanceVal){
             maxDistanceVal = distanceVal;
         }
-        
+
         distanceArray->add(distanceVal);
     }
-    maxDistance = maxDistanceVal;
+    *maxDistance = maxDistanceVal;
+
+//    setProgress(99);
 
 }
 
@@ -385,11 +396,11 @@ Eigen::RowVectorXf AudioAnalysisController::calculateMFCC(Eigen::RowVectorXcf &b
 }
 
 
-float AudioAnalysisController::getLastMaxDistance(){
-    return maxDistance;
-}
+//float AudioAnalysisController::getLastMaxDistance(){
+//    return maxDistance;
+//}
 
-void AudioAnalysisController::getClusterRegions(ClusterParameters* clusterParams, Array<float>* distanceArray, Array<AudioRegion>* regions){
+void AudioAnalysisController::getClusterRegions(ClusterParameters* clusterParams, Array<float>* distanceArray, float* maxDistance, Array<AudioRegion>* regions){
     
     regions->clear();
     Array<int> acceptedBlocks; // holds all blocks under threshold
@@ -398,7 +409,7 @@ void AudioAnalysisController::getClusterRegions(ClusterParameters* clusterParams
     
     // take all blocks under threshold
     for(int blockIdx=0; blockIdx<numBlocks; blockIdx++){
-        if((*distanceArray)[blockIdx] < clusterParams->threshold * maxDistance * 1){
+        if((*distanceArray)[blockIdx] < clusterParams->threshold * (*maxDistance) * 1){
             acceptedBlocks.add(blockIdx);
         }
     }
@@ -483,7 +494,7 @@ void AudioAnalysisController::invertClusterRegions(Array<AudioRegion>* regions){
     }
 }
 
-void AudioAnalysisController::findRegionsGridSearch(SearchParameters* searchParams, Array<float>* distanceArray, ClusterParameters* bestParams, Array<AudioRegion>* regions){
+void AudioAnalysisController::findRegionsGridSearch(SearchParameters* searchParams, Array<float>* distanceArray, float* maxDistance, ClusterParameters* bestParams, Array<AudioRegion>* regions){
     
     ClusterParameters candidateParams;
     int numTestIncrements = 100;
@@ -502,7 +513,7 @@ void AudioAnalysisController::findRegionsGridSearch(SearchParameters* searchPara
             candidateParams.regionConnectionWidth = 0;// float(j) / numTestIncrements;
         
         
-            getClusterRegions(&candidateParams, distanceArray, regions);
+            getClusterRegions(&candidateParams, distanceArray, maxDistance, regions);
 
             if(regions->size() == searchParams->numRegions){
                 DBG("match: " + String(candidateParams.threshold) + " " + String(candidateParams.regionConnectionWidth) + " " + String(cost));

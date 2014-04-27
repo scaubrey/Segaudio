@@ -50,7 +50,7 @@ public:
     //==============================================================================
     //[UserMethods]     -- You can add your own custom methods in this section.
 
-    void setTuningParameters(ClusterParameters* clusterTuningParams, Array<float>* newDistances, float maxDistance);
+    void setTuningParameters(ClusterParameters* clusterTuningParams, Array<float>* newDistances, float* maxDistance);
 
     bool hasFileLoaded();
     SegaudioFile* getLoadedFile();

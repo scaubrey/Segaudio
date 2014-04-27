@@ -52,11 +52,11 @@ void SegaudioModel::setDistanceArray(Array<float> distanceArray){
 }
 
 void SegaudioModel::setRefRegion(AudioRegion newRefRegion){
-    refRegion = newRefRegion;
+//    refRegion = newRefRegion;
 }
 
 AudioRegion* SegaudioModel::getRefRegion(){
-    return &refRegion;
+//    return &refRegion;
 }
 
 Array<float>* SegaudioModel::getDistanceArray(){
@@ -68,8 +68,8 @@ void SegaudioModel::setMaxDistance(float distance){
     maxDistance = distance;
 }
 
-float SegaudioModel::getMaxDistance(){
-    return maxDistance;
+float* SegaudioModel::getMaxDistance(){
+    return &maxDistance;
 }
 
 SegaudioFile* SegaudioModel::getSegaudioFile(String componentId){
@@ -116,4 +116,9 @@ Array<AudioRegion> *SegaudioModel::getReferenceRegions() {
 
 Array<AudioRegion> *SegaudioModel::getTargetRegions() {
     return &targetRegions;
+}
+
+void SegaudioModel::clearTargetRegions() {
+    targetRegions.clear();
+    distanceArray.clear();
 }

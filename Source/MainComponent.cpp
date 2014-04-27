@@ -123,19 +123,24 @@ void MainComponent::actionListenerCallback(const juce::String &message){
 
     if(message.contains("setReferenceFile")){
 
-        targetFileComponent->clearSimilarity();
+        appModel->clearTargetRegions();
 
         appModel->addFile(referenceFileComponent->getLoadedFile(), "0");
         isRefFileLoaded = true;
         if(isReadyToCompare()) controlPanelComponent->setCalcEnabled(true);
-        
+
+        newRegionsUpdate();
+
     }
     else if(message.contains("setTargetFile")){
-        targetFileComponent->clearSimilarity();
-        
+        appModel->clearTargetRegions();
+
         appModel->addFile(targetFileComponent->getLoadedFile(), "1");
         isTargetFileLoaded = true;
         if(isReadyToCompare()) controlPanelComponent->setCalcEnabled(true);
+
+        newRegionsUpdate();
+
     }
     else if(message == "srcRegionSelected"){
         isRegionSelected = true;
@@ -146,8 +151,8 @@ void MainComponent::actionListenerCallback(const juce::String &message){
         targetFileComponent->clearSimilarity();
 //        targetFileComponent->setCalculatingMask(true);
 
-        analysisController->calculateDistances(appModel->getDistanceArray(), appModel->getFileBuffer("0"), appModel->getFileBuffer("1"), appModel->getReferenceRegions(), controlPanelComponent->getSignalFeaturesToUse(appModel->getSignalFeaturesToUse()));
-        appModel->setMaxDistance(analysisController->getLastMaxDistance());
+        analysisController->calculateDistances(appModel->getDistanceArray(), appModel->getMaxDistance(), appModel->getFileBuffer("0"), appModel->getFileBuffer("1"), appModel->getReferenceRegions(), controlPanelComponent->getSignalFeaturesToUse(appModel->getSignalFeaturesToUse()));
+//        appModel->setMaxDistance(analysisController->getLastMaxDistance());
 
 //        targetFileComponent->setCalculatingMask(false);
 
@@ -160,8 +165,7 @@ void MainComponent::actionListenerCallback(const juce::String &message){
         controlPanelComponent->getSearchParameters(appModel->getSearchParameters());
 
 //        analysisController->findRegionsBinarySearch(appModel->getSearchParameters(), appModel->getDistanceArray(), appModel->getClusterParams(), appModel->getTargetRegions());
-
-        analysisController->findRegionsGridSearch(appModel->getSearchParameters(), appModel->getDistanceArray(), appModel->getClusterParams(), appModel->getTargetRegions());
+        analysisController->findRegionsGridSearch(appModel->getSearchParameters(), appModel->getDistanceArray(), appModel->getMaxDistance(), appModel->getClusterParams(), appModel->getTargetRegions());
 
         // set found params on control panel
         controlPanelComponent->setClusterParams(appModel->getClusterParams());
@@ -206,8 +210,8 @@ void MainComponent::actionListenerCallback(const juce::String &message){
 }
 
 void MainComponent::newRegionsUpdate(){
-    analysisController->getClusterRegions(controlPanelComponent->getClusterParams(), appModel->getDistanceArray(), appModel->getTargetRegions());
-    targetFileComponent->setTuningParameters(controlPanelComponent->getClusterParams(), appModel->getDistanceArray(), appModel->getMaxDistance());
+    analysisController->getClusterRegions(controlPanelComponent->getClusterParams(), appModel->getDistanceArray(), appModel->getMaxDistance(), appModel->getTargetRegions());
+    targetFileComponent->repaint();
     controlPanelComponent->newRegionsUpdate(appModel->getTargetRegions());
 }
 

@@ -260,10 +260,10 @@ SegaudioFile* AudioSourceSelector::getLoadedFile(){
 
 void AudioSourceSelector::setFile(File &newFile){
 
-    if(positionBarTimer){
-        delete positionBarTimer;
-        positionBarTimer = nullptr;
-    }
+//    if(positionBarTimer){
+//        delete positionBarTimer;
+//        positionBarTimer = nullptr;
+//    }
 
     fileInputSource = new FileInputSource(newFile);
     thumbComponent->setSource(fileInputSource);
