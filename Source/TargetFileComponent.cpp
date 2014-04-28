@@ -37,20 +37,20 @@ TargetFileComponent::TargetFileComponent (AudioDeviceManager& deviceManager)
     container->setName ("container");
 
     addAndMakeVisible (playButton = new TextButton ("playButton"));
-    playButton->setButtonText (TRANS("Play"));
+    playButton->setButtonText ("Play");
     playButton->addListener (this);
 
     addAndMakeVisible (stopButton = new TextButton ("stopButton"));
-    stopButton->setButtonText (TRANS("Stop"));
+    stopButton->setButtonText ("Stop");
     stopButton->addListener (this);
 
     addAndMakeVisible (loadFileButton = new TextButton ("loadFileButton"));
-    loadFileButton->setButtonText (TRANS("Load File"));
+    loadFileButton->setButtonText ("Load File");
     loadFileButton->addListener (this);
     loadFileButton->setColour (TextButton::buttonColourId, Colour (0xfffbfbfd));
 
     addAndMakeVisible (zoomLabel = new Label ("zoomLabel",
-                                              TRANS("ZoomX")));
+                                              "ZoomX"));
     zoomLabel->setFont (Font (15.00f, Font::plain));
     zoomLabel->setJustificationType (Justification::centredLeft);
     zoomLabel->setEditable (false, false, false);
@@ -69,9 +69,10 @@ TargetFileComponent::TargetFileComponent (AudioDeviceManager& deviceManager)
 
     setSize (600, 400);
 
+
     //[Constructor] You can add your own custom stuff here..
 
-    viewport->setViewedComponent(container);
+    viewport->setViewedComponent(container, false);
 
     isPlayable = false;
     setPlayable(isPlayable);
@@ -120,7 +121,7 @@ void TargetFileComponent::resized()
     container->setBounds (5, 5, 849, getHeight() - 10);
     playButton->setBounds (153, 16, 75, 24);
     stopButton->setBounds (235, 16, 75, 24);
-    loadFileButton->setBounds (proportionOfWidth (0.0151f), 16, 100, 24);
+    loadFileButton->setBounds (proportionOfWidth (0.0150f), 16, 100, 24);
     zoomLabel->setBounds (getWidth() - 235, 16, 48, 24);
     zoomSlider->setBounds (getWidth() - 187, 16, 160, 24);
     //[UserResized] Add your own custom resize handling here..
@@ -271,7 +272,7 @@ BEGIN_JUCER_METADATA
               virtualName="" explicitFocusOrder="0" pos="235 16 75 24" buttonText="Stop"
               connectedEdges="0" needsCallback="1" radioGroupId="0"/>
   <TEXTBUTTON name="loadFileButton" id="3d0772bc202e3d3" memberName="loadFileButton"
-              virtualName="" explicitFocusOrder="0" pos="1.528% 16 100 24"
+              virtualName="" explicitFocusOrder="0" pos="1.499% 16 100 24"
               bgColOff="fffbfbfd" buttonText="Load File" connectedEdges="0"
               needsCallback="1" radioGroupId="0"/>
   <LABEL name="zoomLabel" id="292ada877f7dc70f" memberName="zoomLabel"
@@ -293,4 +294,3 @@ END_JUCER_METADATA
 
 //[EndFile] You can add extra defines here...
 //[/EndFile]
-

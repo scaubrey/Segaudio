@@ -19,8 +19,8 @@ AudioRegion::AudioRegion(float start, float end):
     startValue(start),
     endValue(end)
 {
-    if(startValue < 0) startValue = 0;
-    if(endValue > 1) endValue = 1;
+    if(startValue < 0 || startValue > 1) startValue = 0;
+    if(endValue > 1 || endValue < 0) endValue = 1;
 
     if(end < start){
         endValue = startValue + 0.01;
@@ -34,7 +34,7 @@ AudioRegion::AudioRegion(float start, float end, float referenceWidth){
     endValue = end / referenceWidth;
     
     if(startValue < 0) startValue = 0;
-    if(endValue > 1) endValue = 1;
+    if(endValue > 1) endValue = referenceWidth;
 
     if(end < start){
         endValue = startValue + 0.01;
@@ -67,7 +67,7 @@ float AudioRegion::getEnd(){
 
 float AudioRegion::getStart(float referenceStart, float referenceEnd){
     if(isInitialized()){
-        return startValue * (referenceStart - referenceEnd);
+        return startValue * (referenceEnd - referenceStart) + referenceStart;
     }
     else{
         return 0;
@@ -85,7 +85,7 @@ float AudioRegion::getStart(float referenceWidth){
 
 float AudioRegion::getEnd(float referenceStart, float referenceEnd){
     if(isInitialized()){
-        return endValue * (referenceStart - referenceEnd);
+        return endValue * (referenceEnd - referenceStart) + referenceStart;
     }
     else{
         return referenceEnd;

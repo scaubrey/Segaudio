@@ -11,6 +11,7 @@
 #include "../JuceLibraryCode/JuceHeader.h"
 #include "MainComponent.h"
 #include "AudioAnalysisController.h"
+#include "unit_tests.h"
 
 
 //==============================================================================
@@ -28,7 +29,13 @@ public:
     void initialise (const String& commandLine)
     {
         // Add your application's initialisation code here..
+
         mainWindow = new MainWindow();
+
+        UnitTestRunner runner;
+        Array<UnitTest*>& allTests = UnitTest::getAllTests();
+        runner.setPassesAreLogged(true);
+        runner.runTests(allTests);
     }
 
     void shutdown()
@@ -75,8 +82,6 @@ public:
             setVisible (true);
             setResizable(true, true);
 
-//            menu.addItem(0, "Add File");
-//            MenuBarModel::setMacMainMenu();
         }
 
         void closeButtonPressed()
@@ -106,9 +111,8 @@ public:
         
         AudioAnalysisController* analysisController;
         ScopedPointer<MainComponent> mainComponent;
-        
-        PopupMenu menu;
-        
+
+
     };
     
 private:

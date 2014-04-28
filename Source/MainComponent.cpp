@@ -86,12 +86,13 @@ MainComponent::~MainComponent()
     //[Destructor_pre]. You can add your own custom destruction code here..
     //[/Destructor_pre]
 
-    referenceFileComponent = nullptr;
-    targetFileComponent = nullptr;
     controlPanelComponent = nullptr;
-
+    targetFileComponent = nullptr;
+    referenceFileComponent = nullptr;
 
     //[Destructor]. You can add your own custom destruction code here..
+    delete appModel;
+    appModel = nullptr;
     //[/Destructor]
 }
 

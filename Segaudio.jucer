@@ -5,6 +5,9 @@
               jucerVersion="3.1.0">
   <MAINGROUP id="yLeq7g" name="Segaudio">
     <GROUP id="{30BE25F1-652B-2A8D-7603-E6BEA8B13AFF}" name="app">
+      <GROUP id="{04371457-9369-778C-5E6F-34042544A085}" name="tests">
+        <FILE id="ftZkGJ" name="unit_tests.h" compile="0" resource="0" file="Source/unit_tests.h"/>
+      </GROUP>
       <GROUP id="{832BCAC4-E340-9949-B9EA-631E6B01869A}" name="vendor">
         <GROUP id="{BC9CADDD-415A-D50F-1BDF-875128AA0B78}" name="Eigen">
           <FILE id="b3WZHm" name="Array.h" compile="0" resource="0" file="Source/Eigen/Array.h"/>
@@ -605,6 +608,8 @@
                        isDebug="1" optimisation="1" targetName="Segaudio"/>
         <CONFIGURATION name="Release" osxSDK="default" osxCompatibility="default" osxArchitecture="default"
                        isDebug="0" optimisation="2" targetName="Segaudio"/>
+        <CONFIGURATION name="Debug32" osxSDK="default" osxCompatibility="default" osxArchitecture="32BitUniversal"
+                       isDebug="1" optimisation="1" targetName="Segaudio"/>
       </CONFIGURATIONS>
       <MODULEPATHS>
         <MODULEPATH id="juce_core" path="../ProjectTemplate/3rdPartyLibs/JUCE/modules"/>

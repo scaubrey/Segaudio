@@ -18,8 +18,6 @@
 #include "Eigen/FFT.h"
 #include <math.h>
 
-//using namespace Eigen;
-
 class AudioAnalysisController : public ActionListener,
                                 public ThreadWithProgressWindow
 {
@@ -38,8 +36,6 @@ public:
     Eigen::MatrixXf calculateFeatureMatrix(AudioSampleBuffer* buffer, SignalFeaturesToUse* featuresToUse, AudioRegion region);
 
 
-//    float getLastMaxDistance();
-    
     virtual void actionListenerCallback(const String &message);
     
     void getClusterRegions(ClusterParameters* clusterParams, Array<float>* distanceArray, float* maxDistance,  Array<AudioRegion>* regions);
@@ -68,8 +64,6 @@ private:
     
     Eigen::MatrixXf refFeatureMat;
     Eigen::MatrixXf targetFeatureMat;
-
-//    float maxDistance;
 
     int windowSize;
     

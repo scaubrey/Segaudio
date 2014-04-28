@@ -71,7 +71,7 @@ ReferenceFileComponent::ReferenceFileComponent (AudioDeviceManager& deviceManage
 
 
     //[Constructor] You can add your own custom stuff here..
-    viewport->setViewedComponent(container);
+    viewport->setViewedComponent(container, false);
     isPlayable = false;
 
     setPlayable(isPlayable);

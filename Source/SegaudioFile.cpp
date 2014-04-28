@@ -20,6 +20,12 @@ SegaudioFile::SegaudioFile(){
 
 SegaudioFile::~SegaudioFile(){
     delete internalFileBuffer;
+    internalFileBuffer = nullptr;
+
+//    if(fileSource != nullptr){
+//        delete fileSource;
+//        fileSource = nullptr;
+//    }
 }
 
 void SegaudioFile::setFile(File &newFile){

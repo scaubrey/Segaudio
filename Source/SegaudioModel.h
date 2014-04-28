@@ -122,9 +122,7 @@ private:
     ClusterParameters clusterParams;
     
     Array<float> distanceArray;
-    
-//    AudioRegion refRegion;
-    
+
     HashMap<String, SegaudioFile*> files;
     
     SegaudioFile* refFile;
@@ -137,7 +135,6 @@ private:
     ExportParameters exportParameters;
     
     SearchParameters searchParameters;
-
 
     Array<AudioRegion> referenceRegions;
     Array<AudioRegion> targetRegions;
