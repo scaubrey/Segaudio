@@ -26,10 +26,7 @@ public:
     
     AudioAnalysisController();
     ~AudioAnalysisController();
-    
-    void setReferenceAudioReader(AudioFormatReader* incomingReader);
-    void setTargetAudioReader(AudioFormatReader* incomingReader);
-    bool isReady();
+
     
     void calculateDistances(Array<float>* distanceArray, float* maxDistance, AudioSampleBuffer* refRegionBuffer, AudioSampleBuffer* targetBuffer, Array<AudioRegion>* refRegions, SignalFeaturesToUse* featuresToUse);
     

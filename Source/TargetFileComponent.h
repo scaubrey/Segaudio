@@ -83,10 +83,10 @@ private:
     //[UserVariables]   -- You can add your own custom variables in this section.
     bool isPlayable;
 
+    ScopedPointer<SegaudioFile> currentFile;
+
     AudioTransportSource audioTransport;
     AudioSourcePlayer audioSourcePlayer;
-
-    SegaudioFile currentFile;
 
     AudioDeviceManager &deviceManager;
     //[/UserVariables]

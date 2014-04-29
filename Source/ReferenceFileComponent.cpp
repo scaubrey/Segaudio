@@ -81,6 +81,8 @@ ReferenceFileComponent::ReferenceFileComponent (AudioDeviceManager& deviceManage
 
     container->addActionListener(this);
 
+    currentFile = new SegaudioFile();
+
     //[/Constructor]
 }
 
@@ -152,12 +154,14 @@ void ReferenceFileComponent::buttonClicked (Button* buttonThatWasClicked)
         FileChooser myChooser ("Please select the file you want to load...");
         if (myChooser.browseForFileToOpen())
         {
+            audioTransport.setSource(nullptr); // this fixes memory issue with loading new file
+
             File selectedFile = myChooser.getResult();
-            currentFile.setFile(selectedFile);
+            currentFile->setFile(selectedFile);
 
             container->setFile(selectedFile);
 
-            audioTransport.setSource(currentFile.getSource());
+            audioTransport.setSource(currentFile->getSource());
 
             isPlayable = true;
             setPlayable(true);
@@ -200,7 +204,7 @@ bool ReferenceFileComponent::hasFileLoaded(){
 }
 
 SegaudioFile* ReferenceFileComponent::getLoadedFile(){
-    return container->getLoadedFile();
+    return currentFile;
 }
 
 void ReferenceFileComponent::setPlayable(bool isPlayable){

@@ -275,7 +275,7 @@ void AudioSourceSelector::setFile(File &newFile){
 
     positionBarTimer = new PositionBarTimer(audioPostionFrac, numSamples, sampleRate);
 
-    selectedFile.setFile(newFile);
+//    selectedFile.setFile(newFile);
 
     fileLoaded = true;
     audioPostionFrac = 0;

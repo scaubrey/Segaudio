@@ -39,8 +39,11 @@ private:
     AudioSampleBuffer* internalFileBuffer;
     
     AudioFormatManager formatManager;
-    
-    AudioFormatReaderSource* fileSource;
+
+    ScopedPointer<AudioFormatReader> formatReader;
+
+//    ScopedPointer<AudioFormatReaderSource> oldFileSource;
+    ScopedPointer<AudioFormatReaderSource> newFileSource;
     
     int totalNumSamples;
     int sampleRate;

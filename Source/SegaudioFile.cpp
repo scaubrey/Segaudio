@@ -22,24 +22,34 @@ SegaudioFile::~SegaudioFile(){
     delete internalFileBuffer;
     internalFileBuffer = nullptr;
 
-//    if(fileSource != nullptr){
-//        delete fileSource;
-//        fileSource = nullptr;
-//    }
+    if(newFileSource != nullptr){
+//        delete newFileSource;
+//        newFileSource = nullptr;
+    }
 }
 
 void SegaudioFile::setFile(File &newFile){
+
+//    formatReader = nullptr;
+//    newFileSource = nullptr;
+    
     internalFile = &newFile;
+
+    formatReader = formatManager.createReaderFor(*internalFile);
+//    ScopedPointer<AudioFormatReader> tmpReader = formatManager.createReaderFor(*internalFile);
+
+//    oldFileSource = newFileSource;
+//    oldFileSource = nullptr;
+
+    newFileSource = new AudioFormatReaderSource(formatReader, false);
+
+    internalFileBuffer->setSize(formatReader->numChannels, formatReader->lengthInSamples);
     
-    ScopedPointer<AudioFormatReader> tmpReader = formatManager.createReaderFor(*internalFile);
+    totalNumSamples = formatReader->lengthInSamples;
+    sampleRate = formatReader->sampleRate;
+    numChannels = formatReader->numChannels;
     
-    internalFileBuffer->setSize(tmpReader->numChannels, tmpReader->lengthInSamples);
-    
-    totalNumSamples = tmpReader->lengthInSamples;
-    sampleRate = tmpReader->sampleRate;
-    numChannels = tmpReader->numChannels;
-    
-    tmpReader->read(internalFileBuffer, 0, tmpReader->lengthInSamples, 0, true, true);
+    formatReader->read(internalFileBuffer, 0, formatReader->lengthInSamples, 0, true, true);
     
     fileSet = true;
 }
@@ -54,13 +64,16 @@ AudioSampleBuffer* SegaudioFile::getFileBuffer(){
 
 AudioFormatReaderSource* SegaudioFile::getSource(){
     
-    if(fileSet){
-        AudioFormatReader* semiTmpReader = formatManager.createReaderFor(*internalFile);
+//    if(fileSet){
+
+//        AudioFormatReader* semiTmpReader = formatManager.createReaderFor(*internalFile);
         
-        fileSource = new AudioFormatReaderSource(semiTmpReader, true);
-        
-        return fileSource;
-    }
+//        newFileSource = new AudioFormatReaderSource(semiTmpReader, true);
+//        newFileSource = new AudioFormatReaderSource(formatReader, true);
+
+
+        return newFileSource;
+//    }
     return NULL;
 }
 
