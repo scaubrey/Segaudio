@@ -46,6 +46,7 @@ MainComponent::MainComponent (AudioAnalysisController &analysisController)
 
     setSize (1000, 600);
 
+
     //[Constructor] You can add your own custom stuff here..
 
     referenceFileComponent->addActionListener(this);
@@ -67,10 +68,10 @@ MainComponent::MainComponent (AudioAnalysisController &analysisController)
 	AudioIODeviceType* const audioDeviceType = deviceManager.getCurrentDeviceTypeObject();
 	StringArray audioInputDevices (audioDeviceType->getDeviceNames(true));
     StringArray audioOutputDevices (audioDeviceType->getDeviceNames(false));
-    
+
     int defaultInputDeviceId = audioDeviceType->getDefaultDeviceIndex(true);
     int defaultOutputDeviceId = audioDeviceType->getDefaultDeviceIndex(false);
-    
+
 	AudioDeviceManager::AudioDeviceSetup deviceConfig;
     deviceManager.getAudioDeviceSetup(deviceConfig);
 
@@ -86,9 +87,10 @@ MainComponent::~MainComponent()
     //[Destructor_pre]. You can add your own custom destruction code here..
     //[/Destructor_pre]
 
-    controlPanelComponent = nullptr;
-    targetFileComponent = nullptr;
     referenceFileComponent = nullptr;
+    targetFileComponent = nullptr;
+    controlPanelComponent = nullptr;
+
 
     //[Destructor]. You can add your own custom destruction code here..
     delete appModel;
@@ -110,9 +112,9 @@ void MainComponent::paint (Graphics& g)
 
 void MainComponent::resized()
 {
-    referenceFileComponent->setBounds ((0) + (proportionOfWidth (0.2235f)), 0, proportionOfWidth (0.7806f), proportionOfHeight (0.3673f));
-    targetFileComponent->setBounds ((0) + (proportionOfWidth (0.2235f)), proportionOfHeight (0.3673f), proportionOfWidth (0.7860f), proportionOfHeight (0.6352f));
-    controlPanelComponent->setBounds (0, 0, proportionOfWidth (0.2235f), proportionOfHeight (1.0000f));
+    referenceFileComponent->setBounds ((0) + (proportionOfWidth (0.2238f)), 0, proportionOfWidth (0.7808f), proportionOfHeight (0.3673f));
+    targetFileComponent->setBounds ((0) + (proportionOfWidth (0.2238f)), proportionOfHeight (0.3673f), proportionOfWidth (0.7855f), proportionOfHeight (0.6352f));
+    controlPanelComponent->setBounds (0, 0, proportionOfWidth (0.2238f), proportionOfHeight (1.0000f));
     //[UserResized] Add your own custom resize handling here..
     //[/UserResized]
 }
@@ -190,7 +192,7 @@ void MainComponent::actionListenerCallback(const juce::String &message){
     else if(message == "exportCsv"){
 
         String prompt = "Saving " + String(appModel->getTargetRegions()->size()) + " regions";
-        
+
         FileChooser myChooser (prompt);
         if (myChooser.browseForFileToSave(true))
         {
@@ -236,15 +238,15 @@ BEGIN_JUCER_METADATA
                  fixedSize="0" initialWidth="1000" initialHeight="600">
   <BACKGROUND backgroundColour="ff6f6f6f"/>
   <GENERICCOMPONENT name="referenceFileComponent" id="6129c3aa019f4bba" memberName="referenceFileComponent"
-                    virtualName="" explicitFocusOrder="0" pos="0R 0 78.057% 36.725%"
+                    virtualName="" explicitFocusOrder="0" pos="0R 0 78.085% 36.725%"
                     posRelativeX="a6f0554ce8852899" class="ReferenceFileComponent"
                     params="deviceManager"/>
   <GENERICCOMPONENT name="targetFileComponent" id="7f10809d3b4712d6" memberName="targetFileComponent"
-                    virtualName="" explicitFocusOrder="0" pos="0R 36.725% 78.603% 63.524%"
+                    virtualName="" explicitFocusOrder="0" pos="0R 36.725% 78.547% 63.524%"
                     posRelativeX="a6f0554ce8852899" class="TargetFileComponent" params="deviceManager"/>
   <GENERICCOMPONENT name="controlPanelComponent" id="a6f0554ce8852899" memberName="controlPanelComponent"
-                    virtualName="" explicitFocusOrder="0" pos="0 0 22.38% 100%" class="ControlPanelComponent"
-                    params=""/>
+                    virtualName="" explicitFocusOrder="0" pos="0 0 22.376% 100%"
+                    class="ControlPanelComponent" params=""/>
 </JUCER_COMPONENT>
 
 END_JUCER_METADATA

@@ -37,15 +37,15 @@ ReferenceFileComponent::ReferenceFileComponent (AudioDeviceManager& deviceManage
     container->setName ("container");
 
     addAndMakeVisible (playButton = new TextButton ("playButton"));
-    playButton->setButtonText (TRANS("Play"));
+    playButton->setButtonText ("Play");
     playButton->addListener (this);
 
     addAndMakeVisible (stopButton = new TextButton ("stopButton"));
-    stopButton->setButtonText (TRANS("Stop"));
+    stopButton->setButtonText ("Stop");
     stopButton->addListener (this);
 
     addAndMakeVisible (loadFileButton = new TextButton ("loadFileButton"));
-    loadFileButton->setButtonText (TRANS("Load File"));
+    loadFileButton->setButtonText ("Load File");
     loadFileButton->addListener (this);
     loadFileButton->setColour (TextButton::buttonColourId, Colour (0xfffbfbfd));
 
@@ -56,7 +56,7 @@ ReferenceFileComponent::ReferenceFileComponent (AudioDeviceManager& deviceManage
     zoomSlider->addListener (this);
 
     addAndMakeVisible (zoomLabel2 = new Label ("zoomLabel",
-                                               TRANS("ZoomX")));
+                                               "ZoomX"));
     zoomLabel2->setFont (Font (15.00f, Font::plain));
     zoomLabel2->setJustificationType (Justification::centredLeft);
     zoomLabel2->setEditable (false, false, false);
@@ -118,11 +118,11 @@ void ReferenceFileComponent::paint (Graphics& g)
 
 void ReferenceFileComponent::resized()
 {
-    viewport->setBounds (5, 5, proportionOfWidth (0.9884f), getHeight() - 10);
+    viewport->setBounds (5, 5, getWidth() - 10, getHeight() - 10);
     container->setBounds (5, 5, 849, getHeight() - 10);
     playButton->setBounds (153, 8, 75, 24);
     stopButton->setBounds (235, 8, 75, 24);
-    loadFileButton->setBounds (proportionOfWidth (0.0256f), 8, 100, 24);
+    loadFileButton->setBounds (proportionOfWidth (0.0254f), 8, 100, 24);
     zoomSlider->setBounds (getWidth() - 203, 8, 160, 24);
     zoomLabel2->setBounds (getWidth() - 251, 8, 48, 24);
     //[UserResized] Add your own custom resize handling here..
@@ -250,8 +250,7 @@ BEGIN_JUCER_METADATA
                  fixedSize="0" initialWidth="600" initialHeight="400">
   <BACKGROUND backgroundColour="ff0000db"/>
   <GENERICCOMPONENT name="viewport" id="4458293aef3eb327" memberName="viewport" virtualName=""
-                    explicitFocusOrder="0" pos="5 5 98.836% 10M" class="Viewport"
-                    params=""/>
+                    explicitFocusOrder="0" pos="5 5 10M 10M" class="Viewport" params=""/>
   <GENERICCOMPONENT name="container" id="37992296fdbdbb3c" memberName="container"
                     virtualName="" explicitFocusOrder="0" pos="5 5 849 10M" class="ReferenceContainer"
                     params=""/>
@@ -262,7 +261,7 @@ BEGIN_JUCER_METADATA
               virtualName="" explicitFocusOrder="0" pos="235 8 75 24" buttonText="Stop"
               connectedEdges="0" needsCallback="1" radioGroupId="0"/>
   <TEXTBUTTON name="loadFileButton" id="3d0772bc202e3d3" memberName="loadFileButton"
-              virtualName="" explicitFocusOrder="0" pos="2.561% 8 100 24" bgColOff="fffbfbfd"
+              virtualName="" explicitFocusOrder="0" pos="2.537% 8 100 24" bgColOff="fffbfbfd"
               buttonText="Load File" connectedEdges="0" needsCallback="1" radioGroupId="0"/>
   <SLIDER name="zoomSlider" id="c9fdacb0eb021f55" memberName="zoomSlider"
           virtualName="" explicitFocusOrder="0" pos="203R 8 160 24" min="1"
@@ -283,4 +282,3 @@ END_JUCER_METADATA
 
 //[EndFile] You can add extra defines here...
 //[/EndFile]
-

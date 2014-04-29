@@ -80,7 +80,12 @@ public:
 
             LookAndFeel::setDefaultLookAndFeel(lookAndFeel);
 
-            maximiseButtonPressed();
+//            maximiseButtonPressed();
+            int screenWidth = Desktop::getInstance().getDisplays().getMainDisplay().userArea.getWidth();
+            
+            int screenHeight = Desktop::getInstance().getDisplays().getMainDisplay().userArea.getHeight();
+            
+            setSize(floor(screenWidth * 0.95), floor(screenHeight * 0.95));
             setVisible (true);
             setResizable(true, true);
 

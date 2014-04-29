@@ -124,9 +124,9 @@ void TargetFileComponent::resized()
     container->setBounds (5, 5, 849, getHeight() - 10);
     playButton->setBounds (153, 16, 75, 24);
     stopButton->setBounds (235, 16, 75, 24);
-    loadFileButton->setBounds (proportionOfWidth (0.0150f), 16, 100, 24);
-    zoomLabel->setBounds (getWidth() - 235, 16, 48, 24);
-    zoomSlider->setBounds (getWidth() - 187, 16, 160, 24);
+    loadFileButton->setBounds (proportionOfWidth (0.0254f), 16, 100, 24);
+    zoomLabel->setBounds (getWidth() - 251, 16, 48, 24);
+    zoomSlider->setBounds (getWidth() - 203, 16, 160, 24);
     //[UserResized] Add your own custom resize handling here..
 
     container->setSize(getWidth(), getHeight());
@@ -269,16 +269,16 @@ BEGIN_JUCER_METADATA
               virtualName="" explicitFocusOrder="0" pos="235 16 75 24" buttonText="Stop"
               connectedEdges="0" needsCallback="1" radioGroupId="0"/>
   <TEXTBUTTON name="loadFileButton" id="3d0772bc202e3d3" memberName="loadFileButton"
-              virtualName="" explicitFocusOrder="0" pos="1.499% 16 100 24"
+              virtualName="" explicitFocusOrder="0" pos="2.537% 16 100 24"
               bgColOff="fffbfbfd" buttonText="Load File" connectedEdges="0"
               needsCallback="1" radioGroupId="0"/>
   <LABEL name="zoomLabel" id="292ada877f7dc70f" memberName="zoomLabel"
-         virtualName="" explicitFocusOrder="0" pos="235R 16 48 24" edTextCol="ff000000"
+         virtualName="" explicitFocusOrder="0" pos="251R 16 48 24" edTextCol="ff000000"
          edBkgCol="0" labelText="ZoomX" editableSingleClick="0" editableDoubleClick="0"
          focusDiscardsChanges="0" fontname="Default font" fontsize="15"
          bold="0" italic="0" justification="33"/>
   <SLIDER name="zoomSlider" id="c9fdacb0eb021f55" memberName="zoomSlider"
-          virtualName="" explicitFocusOrder="0" pos="187R 16 160 24" min="1"
+          virtualName="" explicitFocusOrder="0" pos="203R 16 160 24" min="1"
           max="5" int="0.10000000000000000555" style="LinearHorizontal"
           textBoxPos="TextBoxLeft" textBoxEditable="0" textBoxWidth="35"
           textBoxHeight="20" skewFactor="1"/>

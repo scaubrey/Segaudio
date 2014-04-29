@@ -37,7 +37,7 @@ ControlPanelComponent::ControlPanelComponent ()
     thresholdSlider->addListener (this);
 
     addAndMakeVisible (thresholdLabel = new Label ("new label",
-                                                   TRANS("Threshold")));
+                                                   "Threshold"));
     thresholdLabel->setFont (Font (15.00f, Font::plain));
     thresholdLabel->setJustificationType (Justification::centredLeft);
     thresholdLabel->setEditable (false, false, false);
@@ -46,31 +46,31 @@ ControlPanelComponent::ControlPanelComponent ()
     thresholdLabel->setColour (TextEditor::backgroundColourId, Colour (0x00000000));
 
     addAndMakeVisible (calcSimButton = new TextButton ("calcSimButton"));
-    calcSimButton->setButtonText (TRANS("Calculate"));
+    calcSimButton->setButtonText ("Calculate");
     calcSimButton->addListener (this);
     calcSimButton->setColour (TextButton::buttonColourId, Colour (0xff97fc74));
 
     addAndMakeVisible (rmsFeatureToggle = new ToggleButton ("rmsFeatureToggle"));
-    rmsFeatureToggle->setTooltip (TRANS("Root Mean Square"));
-    rmsFeatureToggle->setButtonText (TRANS("RMS"));
+    rmsFeatureToggle->setTooltip ("Root Mean Square");
+    rmsFeatureToggle->setButtonText ("RMS");
     rmsFeatureToggle->addListener (this);
     rmsFeatureToggle->setToggleState (true, dontSendNotification);
     rmsFeatureToggle->setColour (ToggleButton::textColourId, Colours::white);
 
     addAndMakeVisible (scFeatureToggle = new ToggleButton ("scFeatureToggle"));
-    scFeatureToggle->setTooltip (TRANS("Spectral Centroid"));
-    scFeatureToggle->setButtonText (TRANS("SC"));
+    scFeatureToggle->setTooltip ("Spectral Centroid");
+    scFeatureToggle->setButtonText ("SC");
     scFeatureToggle->addListener (this);
     scFeatureToggle->setColour (ToggleButton::textColourId, Colours::white);
 
     addAndMakeVisible (mfccFeatureToggle = new ToggleButton ("mfccFeatureToggle"));
-    mfccFeatureToggle->setTooltip (TRANS("MFCC"));
-    mfccFeatureToggle->setButtonText (TRANS("MFCC"));
+    mfccFeatureToggle->setTooltip ("MFCC");
+    mfccFeatureToggle->setButtonText ("MFCC");
     mfccFeatureToggle->addListener (this);
     mfccFeatureToggle->setColour (ToggleButton::textColourId, Colours::white);
 
     addAndMakeVisible (stickynessLabel = new Label ("stickynessLabel",
-                                                    TRANS("Smoothing")));
+                                                    "Smoothing"));
     stickynessLabel->setFont (Font (15.00f, Font::plain));
     stickynessLabel->setJustificationType (Justification::centredLeft);
     stickynessLabel->setEditable (false, false, false);
@@ -81,16 +81,16 @@ ControlPanelComponent::ControlPanelComponent ()
     addAndMakeVisible (presetComboBox = new ComboBox ("presetComboBox"));
     presetComboBox->setEditableText (false);
     presetComboBox->setJustificationType (Justification::centredLeft);
-    presetComboBox->setTextWhenNothingSelected (TRANS("Custom"));
+    presetComboBox->setTextWhenNothingSelected ("Custom");
     presetComboBox->setTextWhenNoChoicesAvailable (String::empty);
-    presetComboBox->addItem (TRANS("Speech"), 1);
-    presetComboBox->addItem (TRANS("Music"), 2);
-    presetComboBox->addItem (TRANS("Noise"), 3);
-    presetComboBox->addItem (TRANS("Silence"), 4);
+    presetComboBox->addItem ("Speech", 1);
+    presetComboBox->addItem ("Music", 2);
+    presetComboBox->addItem ("Noise", 3);
+    presetComboBox->addItem ("Silence", 4);
     presetComboBox->addListener (this);
 
     addAndMakeVisible (presetsLabel = new Label ("presetsLabel",
-                                                 TRANS("Presets")));
+                                                 "Presets"));
     presetsLabel->setFont (Font (15.00f, Font::plain));
     presetsLabel->setJustificationType (Justification::centredLeft);
     presetsLabel->setEditable (false, false, false);
@@ -105,7 +105,7 @@ ControlPanelComponent::ControlPanelComponent ()
     stickynessSlider->addListener (this);
 
     addAndMakeVisible (widthLabel = new Label ("widthLabel",
-                                               TRANS("Width Filter")));
+                                               "Width Filter"));
     widthLabel->setFont (Font (15.00f, Font::plain));
     widthLabel->setJustificationType (Justification::centredLeft);
     widthLabel->setEditable (false, false, false);
@@ -120,7 +120,7 @@ ControlPanelComponent::ControlPanelComponent ()
     widthSlider->addListener (this);
 
     addAndMakeVisible (header2 = new Label ("header2",
-                                            TRANS("Find Regions")));
+                                            "Find Regions"));
     header2->setFont (Font (18.00f, Font::plain));
     header2->setJustificationType (Justification::centredLeft);
     header2->setEditable (false, false, false);
@@ -129,7 +129,7 @@ ControlPanelComponent::ControlPanelComponent ()
     header2->setColour (TextEditor::backgroundColourId, Colour (0x00000000));
 
     addAndMakeVisible (header1 = new Label ("header1",
-                                            TRANS("Feature Selection")));
+                                            "Feature Selection"));
     header1->setFont (Font (18.00f, Font::plain));
     header1->setJustificationType (Justification::centredLeft);
     header1->setEditable (false, false, false);
@@ -138,24 +138,24 @@ ControlPanelComponent::ControlPanelComponent ()
     header1->setColour (TextEditor::backgroundColourId, Colour (0x00000000));
 
     addAndMakeVisible (zcrFeatureToggle = new ToggleButton ("zcrFeatureToggle"));
-    zcrFeatureToggle->setTooltip (TRANS("Zero Cross Rate"));
-    zcrFeatureToggle->setButtonText (TRANS("ZCR"));
+    zcrFeatureToggle->setTooltip ("Zero Cross Rate");
+    zcrFeatureToggle->setButtonText ("ZCR");
     zcrFeatureToggle->addListener (this);
     zcrFeatureToggle->setColour (ToggleButton::textColourId, Colours::white);
 
     addAndMakeVisible (invertRegionsToggle = new ToggleButton ("invertRegionsToggle"));
-    invertRegionsToggle->setTooltip (TRANS("Invert Regions"));
-    invertRegionsToggle->setButtonText (TRANS("Invert Regions"));
+    invertRegionsToggle->setTooltip ("Invert Regions");
+    invertRegionsToggle->setButtonText ("Invert Regions");
     invertRegionsToggle->addListener (this);
     invertRegionsToggle->setColour (ToggleButton::textColourId, Colours::white);
 
     addAndMakeVisible (exportSeparateButton = new TextButton ("exportSeparateButton"));
-    exportSeparateButton->setButtonText (TRANS("Export Audio"));
+    exportSeparateButton->setButtonText ("Export Audio");
     exportSeparateButton->addListener (this);
     exportSeparateButton->setColour (TextButton::buttonColourId, Colours::coral);
 
     addAndMakeVisible (regionDescriptionLabel = new Label ("regionDescriptionLabel",
-                                                           TRANS("# Regions:")));
+                                                           "# Regions:"));
     regionDescriptionLabel->setFont (Font (15.00f, Font::plain));
     regionDescriptionLabel->setJustificationType (Justification::centredLeft);
     regionDescriptionLabel->setEditable (false, false, false);
@@ -164,7 +164,7 @@ ControlPanelComponent::ControlPanelComponent ()
     regionDescriptionLabel->setColour (TextEditor::backgroundColourId, Colour (0x00000000));
 
     addAndMakeVisible (regionCountLabel = new Label ("new label",
-                                                     TRANS("0")));
+                                                     "0"));
     regionCountLabel->setFont (Font (15.00f, Font::plain));
     regionCountLabel->setJustificationType (Justification::centredLeft);
     regionCountLabel->setEditable (false, false, false);
@@ -173,13 +173,13 @@ ControlPanelComponent::ControlPanelComponent ()
     regionCountLabel->setColour (TextEditor::backgroundColourId, Colour (0x00000000));
 
     addAndMakeVisible (saveSingleFileToggleButton = new ToggleButton ("saveSingleFileToggleButton"));
-    saveSingleFileToggleButton->setButtonText (TRANS("As One File"));
+    saveSingleFileToggleButton->setButtonText ("As One File");
     saveSingleFileToggleButton->addListener (this);
     saveSingleFileToggleButton->setToggleState (true, dontSendNotification);
     saveSingleFileToggleButton->setColour (ToggleButton::textColourId, Colours::white);
 
     addAndMakeVisible (widthMinLabel = new Label ("widthMinLabel",
-                                                  TRANS("0")));
+                                                  "0"));
     widthMinLabel->setFont (Font (15.00f, Font::plain));
     widthMinLabel->setJustificationType (Justification::centredLeft);
     widthMinLabel->setEditable (false, false, false);
@@ -188,7 +188,7 @@ ControlPanelComponent::ControlPanelComponent ()
     widthMinLabel->setColour (TextEditor::backgroundColourId, Colour (0x00000000));
 
     addAndMakeVisible (widthMaxLabel = new Label ("widthMinLabel",
-                                                  TRANS("0")));
+                                                  "0"));
     widthMaxLabel->setFont (Font (15.00f, Font::plain));
     widthMaxLabel->setJustificationType (Justification::centredLeft);
     widthMaxLabel->setEditable (false, false, false);
@@ -199,21 +199,21 @@ ControlPanelComponent::ControlPanelComponent ()
     addAndMakeVisible (numRegionsComboBox = new ComboBox ("numRegionsComboBox"));
     numRegionsComboBox->setEditableText (false);
     numRegionsComboBox->setJustificationType (Justification::centredLeft);
-    numRegionsComboBox->setTextWhenNothingSelected (TRANS("# of Regions"));
-    numRegionsComboBox->setTextWhenNoChoicesAvailable (TRANS("(no choices)"));
-    numRegionsComboBox->addItem (TRANS("1"), 1);
-    numRegionsComboBox->addItem (TRANS("2"), 2);
-    numRegionsComboBox->addItem (TRANS("3"), 3);
-    numRegionsComboBox->addItem (TRANS("4"), 4);
-    numRegionsComboBox->addItem (TRANS("5"), 5);
-    numRegionsComboBox->addItem (TRANS("6"), 6);
-    numRegionsComboBox->addItem (TRANS("7"), 7);
-    numRegionsComboBox->addItem (TRANS("8"), 8);
-    numRegionsComboBox->addItem (TRANS("9"), 9);
+    numRegionsComboBox->setTextWhenNothingSelected ("# of Regions");
+    numRegionsComboBox->setTextWhenNoChoicesAvailable ("(no choices)");
+    numRegionsComboBox->addItem ("1", 1);
+    numRegionsComboBox->addItem ("2", 2);
+    numRegionsComboBox->addItem ("3", 3);
+    numRegionsComboBox->addItem ("4", 4);
+    numRegionsComboBox->addItem ("5", 5);
+    numRegionsComboBox->addItem ("6", 6);
+    numRegionsComboBox->addItem ("7", 7);
+    numRegionsComboBox->addItem ("8", 8);
+    numRegionsComboBox->addItem ("9", 9);
     numRegionsComboBox->addListener (this);
 
     addAndMakeVisible (header3 = new Label ("header3",
-                                            TRANS("Smart Search")));
+                                            "Smart Search"));
     header3->setFont (Font (18.00f, Font::plain));
     header3->setJustificationType (Justification::centredLeft);
     header3->setEditable (false, false, false);
@@ -224,40 +224,40 @@ ControlPanelComponent::ControlPanelComponent ()
     addAndMakeVisible (searchPercentComboBox = new ComboBox ("searchPercentComboBox"));
     searchPercentComboBox->setEditableText (false);
     searchPercentComboBox->setJustificationType (Justification::centredLeft);
-    searchPercentComboBox->setTextWhenNothingSelected (TRANS("% of File"));
-    searchPercentComboBox->setTextWhenNoChoicesAvailable (TRANS("(no choices)"));
-    searchPercentComboBox->addItem (TRANS("1"), 1);
-    searchPercentComboBox->addItem (TRANS("2"), 2);
-    searchPercentComboBox->addItem (TRANS("3"), 3);
-    searchPercentComboBox->addItem (TRANS("4"), 4);
-    searchPercentComboBox->addItem (TRANS("5"), 5);
-    searchPercentComboBox->addItem (TRANS("6"), 6);
-    searchPercentComboBox->addItem (TRANS("7"), 7);
-    searchPercentComboBox->addItem (TRANS("8"), 8);
-    searchPercentComboBox->addItem (TRANS("9"), 9);
-    searchPercentComboBox->addItem (TRANS("10"), 10);
-    searchPercentComboBox->addItem (TRANS("15"), 11);
-    searchPercentComboBox->addItem (TRANS("20"), 12);
-    searchPercentComboBox->addItem (TRANS("25"), 13);
-    searchPercentComboBox->addItem (TRANS("30"), 14);
-    searchPercentComboBox->addItem (TRANS("35"), 15);
-    searchPercentComboBox->addItem (TRANS("40"), 16);
-    searchPercentComboBox->addItem (TRANS("45"), 17);
-    searchPercentComboBox->addItem (TRANS("50"), 18);
+    searchPercentComboBox->setTextWhenNothingSelected ("% of File");
+    searchPercentComboBox->setTextWhenNoChoicesAvailable ("(no choices)");
+    searchPercentComboBox->addItem ("1", 1);
+    searchPercentComboBox->addItem ("2", 2);
+    searchPercentComboBox->addItem ("3", 3);
+    searchPercentComboBox->addItem ("4", 4);
+    searchPercentComboBox->addItem ("5", 5);
+    searchPercentComboBox->addItem ("6", 6);
+    searchPercentComboBox->addItem ("7", 7);
+    searchPercentComboBox->addItem ("8", 8);
+    searchPercentComboBox->addItem ("9", 9);
+    searchPercentComboBox->addItem ("10", 10);
+    searchPercentComboBox->addItem ("15", 11);
+    searchPercentComboBox->addItem ("20", 12);
+    searchPercentComboBox->addItem ("25", 13);
+    searchPercentComboBox->addItem ("30", 14);
+    searchPercentComboBox->addItem ("35", 15);
+    searchPercentComboBox->addItem ("40", 16);
+    searchPercentComboBox->addItem ("45", 17);
+    searchPercentComboBox->addItem ("50", 18);
     searchPercentComboBox->addListener (this);
 
     addAndMakeVisible (searchButton = new TextButton ("searchButton"));
-    searchButton->setButtonText (TRANS("Search"));
+    searchButton->setButtonText ("Search");
     searchButton->addListener (this);
 
     addAndMakeVisible (widthFilterSearchToggle = new ToggleButton ("widthFilterSearchToggle"));
-    widthFilterSearchToggle->setTooltip (TRANS("Invert Regions"));
-    widthFilterSearchToggle->setButtonText (TRANS("Use Width Filter"));
+    widthFilterSearchToggle->setTooltip ("Invert Regions");
+    widthFilterSearchToggle->setButtonText ("Use Width Filter");
     widthFilterSearchToggle->addListener (this);
     widthFilterSearchToggle->setColour (ToggleButton::textColourId, Colours::white);
 
     addAndMakeVisible (exportTxtButton = new TextButton ("exportTxtButton"));
-    exportTxtButton->setButtonText (TRANS("Export CSV"));
+    exportTxtButton->setButtonText ("Export CSV");
     exportTxtButton->addListener (this);
     exportTxtButton->setColour (TextButton::buttonColourId, Colours::coral);
 
@@ -329,7 +329,7 @@ void ControlPanelComponent::paint (Graphics& g)
 
     g.setColour (Colours::white);
     g.setFont (Font ("Arial", 22.00f, Font::plain));
-    g.drawText (TRANS("Control Panel"),
+    g.drawText ("Control Panel",
                 (getWidth() / 2) + -70, 4, 140, 36,
                 Justification::centred, true);
 
@@ -348,28 +348,28 @@ void ControlPanelComponent::paint (Graphics& g)
 
 void ControlPanelComponent::resized()
 {
-    thresholdSlider->setBounds (proportionOfWidth (0.0288f), proportionOfHeight (0.3983f), proportionOfWidth (0.8489f), 16);
-    thresholdLabel->setBounds (proportionOfWidth (0.0185f), proportionOfHeight (0.3673f), 80, 17);
-    calcSimButton->setBounds (getWidth() - 61 - 86, 184, 86, 20);
+    thresholdSlider->setBounds (25, proportionOfHeight (0.3983f), proportionOfWidth (0.8489f), 16);
+    thresholdLabel->setBounds (16, proportionOfHeight (0.3673f), 80, 17);
+    calcSimButton->setBounds (262 - 86, proportionOfHeight (0.2084f), 86, 20);
     rmsFeatureToggle->setBounds (96, proportionOfHeight (0.1774f), 50, 24);
     scFeatureToggle->setBounds (24, proportionOfHeight (0.2270f), 50, 24);
     mfccFeatureToggle->setBounds (24, proportionOfHeight (0.1774f), 50, 24);
-    stickynessLabel->setBounds (proportionOfWidth (0.0185f), proportionOfHeight (0.4280f), 72, 18);
+    stickynessLabel->setBounds (16, proportionOfHeight (0.4280f), 72, 18);
     presetComboBox->setBounds (96, proportionOfHeight (0.1191f), 100, 24);
     presetsLabel->setBounds (21, proportionOfHeight (0.1166f), 60, 24);
-    stickynessSlider->setBounds (proportionOfWidth (0.0288f), proportionOfHeight (0.4578f), proportionOfWidth (0.8489f), 16);
-    widthLabel->setBounds (proportionOfWidth (0.0185f), proportionOfHeight (0.5248f), 80, 24);
-    widthSlider->setBounds (proportionOfWidth (0.0288f), proportionOfHeight (0.5546f), proportionOfWidth (0.8489f), 16);
+    stickynessSlider->setBounds (25, proportionOfHeight (0.4578f), proportionOfWidth (0.8489f), 16);
+    widthLabel->setBounds (16, proportionOfHeight (0.5248f), 80, 24);
+    widthSlider->setBounds (25, proportionOfHeight (0.5546f), proportionOfWidth (0.8489f), 16);
     header2->setBounds (16, proportionOfHeight (0.3176f), 150, 24);
     header1->setBounds (16, proportionOfHeight (0.0695f), 150, 24);
     zcrFeatureToggle->setBounds (96, proportionOfHeight (0.2270f), 50, 24);
-    invertRegionsToggle->setBounds (proportionOfWidth (0.0277f), proportionOfHeight (0.6253f), 120, 24);
+    invertRegionsToggle->setBounds (24, proportionOfHeight (0.6253f), 120, 24);
     exportSeparateButton->setBounds (24, proportionOfHeight (0.9132f), 104, 24);
-    regionDescriptionLabel->setBounds (getWidth() - 138, proportionOfHeight (0.6340f), 72, 24);
-    regionCountLabel->setBounds ((getWidth() - 138) + 80, proportionOfHeight (0.6340f), 30, 25);
+    regionDescriptionLabel->setBounds (176, proportionOfHeight (0.6253f), 72, 24);
+    regionCountLabel->setBounds ((176) + 72, proportionOfHeight (0.6253f), 30, 25);
     saveSingleFileToggleButton->setBounds ((24) + 0, proportionOfHeight (0.9529f), 112, 24);
-    widthMinLabel->setBounds ((proportionOfWidth (0.0288f)) + 0, (proportionOfHeight (0.5546f)) + 17, 56, 24);
-    widthMaxLabel->setBounds ((proportionOfWidth (0.0288f)) + roundFloatToInt ((proportionOfWidth (0.8489f)) * 0.9647f), (proportionOfHeight (0.5546f)) + 17, 48, 24);
+    widthMinLabel->setBounds ((25) + 0, (proportionOfHeight (0.5546f)) + 17, 56, 24);
+    widthMaxLabel->setBounds ((25) + roundFloatToInt ((proportionOfWidth (0.8489f)) * 0.9008f), (proportionOfHeight (0.5546f)) + 17, 48, 24);
     numRegionsComboBox->setBounds ((16) + 8, proportionOfHeight (0.7841f), 120, 24);
     header3->setBounds (16, proportionOfHeight (0.7246f), 120, 24);
     searchPercentComboBox->setBounds ((16) + 144, proportionOfHeight (0.7841f), 104, 24);
@@ -623,18 +623,19 @@ BEGIN_JUCER_METADATA
     <RECT pos="12 88.834% 788 4" fill="solid: ff2a75a5" hasStroke="0"/>
   </BACKGROUND>
   <SLIDER name="thresholdSlider" id="2ddea841d6d652ab" memberName="thresholdSlider"
-          virtualName="" explicitFocusOrder="0" pos="2.884% 39.826% 84.89% 16"
+          virtualName="" explicitFocusOrder="0" pos="25 39.826% 84.89% 16"
           min="0" max="1" int="9.9999999999999995475e-07" style="LinearHorizontal"
           textBoxPos="TextBoxLeft" textBoxEditable="0" textBoxWidth="60"
           textBoxHeight="20" skewFactor="1"/>
   <LABEL name="new label" id="4f564f498f058971" memberName="thresholdLabel"
-         virtualName="" explicitFocusOrder="0" pos="1.845% 36.725% 80 17"
+         virtualName="" explicitFocusOrder="0" pos="16 36.725% 80 17"
          textCol="ffffffff" edTextCol="ff000000" edBkgCol="0" labelText="Threshold"
          editableSingleClick="0" editableDoubleClick="0" focusDiscardsChanges="0"
          fontname="Default font" fontsize="15" bold="0" italic="0" justification="33"/>
   <TEXTBUTTON name="calcSimButton" id="9ce3f6b1681a8658" memberName="calcSimButton"
-              virtualName="" explicitFocusOrder="0" pos="61Rr 184 86 20" bgColOff="ff97fc74"
-              buttonText="Calculate" connectedEdges="0" needsCallback="1" radioGroupId="0"/>
+              virtualName="" explicitFocusOrder="0" pos="262r 20.844% 86 20"
+              bgColOff="ff97fc74" buttonText="Calculate" connectedEdges="0"
+              needsCallback="1" radioGroupId="0"/>
   <TOGGLEBUTTON name="rmsFeatureToggle" id="92a1f05376de0623" memberName="rmsFeatureToggle"
                 virtualName="" explicitFocusOrder="0" pos="96 17.742% 50 24"
                 tooltip="Root Mean Square" txtcol="ffffffff" buttonText="RMS"
@@ -648,7 +649,7 @@ BEGIN_JUCER_METADATA
                 tooltip="MFCC" txtcol="ffffffff" buttonText="MFCC" connectedEdges="0"
                 needsCallback="1" radioGroupId="0" state="0"/>
   <LABEL name="stickynessLabel" id="32983a34059e5df1" memberName="stickynessLabel"
-         virtualName="" explicitFocusOrder="0" pos="1.845% 42.804% 72 18"
+         virtualName="" explicitFocusOrder="0" pos="16 42.804% 72 18"
          textCol="ffffffff" edTextCol="ff000000" edBkgCol="0" labelText="Smoothing"
          editableSingleClick="0" editableDoubleClick="0" focusDiscardsChanges="0"
          fontname="Default font" fontsize="15" bold="0" italic="0" justification="33"/>
@@ -662,17 +663,17 @@ BEGIN_JUCER_METADATA
          editableSingleClick="0" editableDoubleClick="0" focusDiscardsChanges="0"
          fontname="Default font" fontsize="15" bold="0" italic="0" justification="33"/>
   <SLIDER name="stickynessSlider" id="64d7b64d40a66223" memberName="stickynessSlider"
-          virtualName="" explicitFocusOrder="0" pos="2.884% 45.782% 84.89% 16"
+          virtualName="" explicitFocusOrder="0" pos="25 45.782% 84.89% 16"
           min="0" max="1" int="0.010000000000000000208" style="LinearHorizontal"
           textBoxPos="TextBoxLeft" textBoxEditable="0" textBoxWidth="40"
           textBoxHeight="20" skewFactor="1"/>
   <LABEL name="widthLabel" id="fb630a6f3e08259a" memberName="widthLabel"
-         virtualName="" explicitFocusOrder="0" pos="1.845% 52.481% 80 24"
+         virtualName="" explicitFocusOrder="0" pos="16 52.481% 80 24"
          textCol="ffffffff" edTextCol="ff000000" edBkgCol="0" labelText="Width Filter"
          editableSingleClick="0" editableDoubleClick="0" focusDiscardsChanges="0"
          fontname="Default font" fontsize="15" bold="0" italic="0" justification="33"/>
   <SLIDER name="widthSlider" id="51e7ac04e76a9203" memberName="widthSlider"
-          virtualName="" explicitFocusOrder="0" pos="2.884% 55.459% 84.89% 16"
+          virtualName="" explicitFocusOrder="0" pos="25 55.459% 84.89% 16"
           min="0" max="1" int="0.010000000000000000208" style="TwoValueHorizontal"
           textBoxPos="NoTextBox" textBoxEditable="0" textBoxWidth="40"
           textBoxHeight="20" skewFactor="1"/>
@@ -691,7 +692,7 @@ BEGIN_JUCER_METADATA
                 tooltip="Zero Cross Rate" txtcol="ffffffff" buttonText="ZCR"
                 connectedEdges="0" needsCallback="1" radioGroupId="0" state="0"/>
   <TOGGLEBUTTON name="invertRegionsToggle" id="b0589c37aecfe236" memberName="invertRegionsToggle"
-                virtualName="" explicitFocusOrder="0" pos="2.768% 62.531% 120 24"
+                virtualName="" explicitFocusOrder="0" pos="24 62.531% 120 24"
                 tooltip="Invert Regions" txtcol="ffffffff" buttonText="Invert Regions"
                 connectedEdges="0" needsCallback="1" radioGroupId="0" state="0"/>
   <TEXTBUTTON name="exportSeparateButton" id="a631088d4d356323" memberName="exportSeparateButton"
@@ -699,15 +700,16 @@ BEGIN_JUCER_METADATA
               bgColOff="ffff7f50" buttonText="Export Audio" connectedEdges="0"
               needsCallback="1" radioGroupId="0"/>
   <LABEL name="regionDescriptionLabel" id="a04caca43e46440c" memberName="regionDescriptionLabel"
-         virtualName="" explicitFocusOrder="0" pos="138R 63.4% 72 24"
+         virtualName="" explicitFocusOrder="0" pos="176 62.531% 72 24"
          textCol="ffffffff" edTextCol="ff000000" edBkgCol="0" labelText="# Regions:"
          editableSingleClick="0" editableDoubleClick="0" focusDiscardsChanges="0"
          fontname="Default font" fontsize="15" bold="0" italic="0" justification="33"/>
   <LABEL name="new label" id="a0c4f9bc684a7ae" memberName="regionCountLabel"
-         virtualName="" explicitFocusOrder="0" pos="80 63.4% 30 25" posRelativeX="a04caca43e46440c"
-         textCol="ffffffff" edTextCol="ff000000" edBkgCol="0" labelText="0"
-         editableSingleClick="0" editableDoubleClick="0" focusDiscardsChanges="0"
-         fontname="Default font" fontsize="15" bold="0" italic="0" justification="33"/>
+         virtualName="" explicitFocusOrder="0" pos="72 62.531% 30 25"
+         posRelativeX="a04caca43e46440c" textCol="ffffffff" edTextCol="ff000000"
+         edBkgCol="0" labelText="0" editableSingleClick="0" editableDoubleClick="0"
+         focusDiscardsChanges="0" fontname="Default font" fontsize="15"
+         bold="0" italic="0" justification="33"/>
   <TOGGLEBUTTON name="saveSingleFileToggleButton" id="f85d7a508934cb85" memberName="saveSingleFileToggleButton"
                 virtualName="" explicitFocusOrder="0" pos="0 95.285% 112 24"
                 posRelativeX="a631088d4d356323" txtcol="ffffffff" buttonText="As One File"
@@ -719,7 +721,7 @@ BEGIN_JUCER_METADATA
          focusDiscardsChanges="0" fontname="Default font" fontsize="15"
          bold="0" italic="0" justification="33"/>
   <LABEL name="widthMinLabel" id="1321e6b8d7b57a1d" memberName="widthMaxLabel"
-         virtualName="" explicitFocusOrder="0" pos="96.467% 17 48 24"
+         virtualName="" explicitFocusOrder="0" pos="90.082% 17 48 24"
          posRelativeX="51e7ac04e76a9203" posRelativeY="51e7ac04e76a9203"
          textCol="ffffffff" edTextCol="ff000000" edBkgCol="0" labelText="0"
          editableSingleClick="0" editableDoubleClick="0" focusDiscardsChanges="0"
