@@ -539,7 +539,6 @@ ClusterParameters* ControlPanelComponent::getClusterParams(){
     clusterParams->regionConnectionWidth = stickynessSlider->getValue();
     clusterParams->minRegionTimeWidth = widthSlider->getMinValue();
     clusterParams->maxRegionTimeWidth = widthSlider->getMaxValue();
-//    clusterParams->medianFilterWidth = smoothingSlider->getValue();
 
     clusterParams->shouldInvertRegions = invertRegionsToggle->getToggleState();
 
@@ -578,8 +577,9 @@ void ControlPanelComponent::setCalcEnabled(bool readyForCalc){
 }
 
 void ControlPanelComponent::setClusterTuningEnabled(bool readyToTune){
+
+    // TODO: finish this
     thresholdSlider->setEnabled(readyToTune);
-//    smoothingSlider->setEnabled(readyToTune);
     widthSlider->setEnabled(readyToTune);
     stickynessSlider->setEnabled(readyToTune);
 }
@@ -596,7 +596,6 @@ void ControlPanelComponent::getSearchParameters(SearchParameters* searchParams){
     searchParams->minWidth = widthSlider->getMinValue();
     searchParams->maxWidth = widthSlider->getMaxValue();
 
-//    return searchParams;
 }
 
 //[/MiscUserCode]

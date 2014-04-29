@@ -36,8 +36,7 @@
                                                                     //[/Comments]
 */
 class SimilarityViewer  : public Component,
-                          public ActionBroadcaster,
-                          public Timer
+                          public ActionBroadcaster
 {
 public:
     //==============================================================================
@@ -46,18 +45,32 @@ public:
 
     //==============================================================================
     //[UserMethods]     -- You can add your own custom methods in this section.
+
+    /*! sets info to draw similarity function and threshold
+        @param ClusterParameters* clusterTuningParams: primarily want threshold
+        @param Array<float>* newArray: similarity distances
+        @param float* distance: max distance for scaling threshold
+        @return void
+    */
     void setTuningParameters(ClusterParameters* clusterTuningParams, Array<float>* newArray, float* distance);
 
+    /*! draws threhold line relative to similarity function
+        @param Graphics &g
+        return void
+    */
     void drawThreshold(Graphics &g);
+
+    /*! draws similarity function
+        @param Graphics &g
+        @return void
+    */
     void drawSimilarityFunction(Graphics &g);
 
+    /*! clears similarity function
+        @return void
+    */
     void clear();
 
-    void setCalculating(bool isWaiting);
-
-    void drawWaitGraphic(Graphics &g);
-
-    void timerCallback() override;
     //[/UserMethods]
 
     void paint (Graphics& g);
@@ -69,18 +82,11 @@ private:
     //[UserVariables]   -- You can add your own custom variables in this section.
 
 
-    Array<float>* distanceArray;
+    Array<float>* distanceArray; // holds similarity function data points
 
-    float* maxDistance;
+    float* maxDistance; // max distance for scaling threshold
 
     float* threshold;
-    float* stickyness;
-    float* smoothness;
-
-    bool isWaiting;
-
-    Rectangle<int> waitGraphic;
-
 
     //[/UserVariables]
 

@@ -201,10 +201,6 @@ void TargetFileComponent::setTuningParameters(ClusterParameters* clusterTuningPa
     container->setTuningParameters(clusterTuningParams, newDistances, maxDistance);
 }
 
-bool TargetFileComponent::hasFileLoaded(){
-    return container->hasFileLoaded();
-}
-
 SegaudioFile* TargetFileComponent::getLoadedFile(){
     return currentFile;
 }
@@ -233,10 +229,6 @@ void TargetFileComponent::playAudio(){
 void TargetFileComponent::stopAudio(){
     container->stopAudio();
     audioTransport.stop();
-}
-
-void TargetFileComponent::setCalculatingMask(bool status){
-    container->setCalculatingMask(status);
 }
 
 void TargetFileComponent::clearSimilarity(){

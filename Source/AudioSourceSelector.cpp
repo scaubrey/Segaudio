@@ -49,9 +49,8 @@ AudioSourceSelector::AudioSourceSelector (int mode_)
 
     mode = mode_ ;
 
-    audioPLaying = false;
-
-    audioPostionFrac = 0.0f;
+    isAudioPlaying = false;
+    audioPositionFrac = 0.0f;
 
     idxOfRegionHovered = 0;
     isRegionBeingEdited = false;
@@ -94,14 +93,13 @@ void AudioSourceSelector::paint (Graphics& g)
     //[UserPaint] Add your own custom painting code here..
 
     drawWaveform(g);
-
     drawCandidateRegions(g);
 
     if(fileLoaded){
         drawAudioPositionBar(g);
     }
 
-    if(audioPLaying){
+    if(isAudioPlaying){
         repaint();
     }
 
@@ -126,11 +124,12 @@ void AudioSourceSelector::mouseMove (const MouseEvent& e)
     int numRegions = regions->size();
     int mouseX = e.getPosition().getX();
 
+    // find region we might be hovering over, maybe better way to search?
     for(int i=0; i<numRegions; i++){
         float regionEnd = (*regions)[i].getEnd(getWidth());
         float regionStart = (*regions)[i].getStart(getWidth());
 
-        if(fabs(mouseX - regionStart) < touchPrecision){
+        if(fabs(mouseX - regionStart) < touchPrecision){  // near region start
 
             MouseCursor cursor;
             cursor = MouseCursor(MouseCursor::DraggingHandCursor);
@@ -140,7 +139,7 @@ void AudioSourceSelector::mouseMove (const MouseEvent& e)
             idxOfRegionHovered = i;
             break;
         }
-        else if(fabs(mouseX - regionEnd) < touchPrecision){
+        else if(fabs(mouseX - regionEnd) < touchPrecision){ // near region end
 
             MouseCursor cursor;
             cursor = MouseCursor(MouseCursor::DraggingHandCursor);
@@ -150,7 +149,7 @@ void AudioSourceSelector::mouseMove (const MouseEvent& e)
             idxOfRegionHovered = i;
             break;
         }
-        else{
+        else{  // not near region start or end
             MouseCursor cursor;
             cursor = MouseCursor(MouseCursor::NormalCursor);
             setMouseCursor(cursor);
@@ -171,13 +170,13 @@ void AudioSourceSelector::mouseDown (const MouseEvent& e)
         isRegionBeingEdited = true;
     }
 
-    if(!isRegionBeingEdited){
+    if(!isRegionBeingEdited){ // set audio position if not editing region
         // set audio position
 
         int mouseX = e.getMouseDownX();
-        audioPostionFrac = float(mouseX) / getWidth();
+        audioPositionFrac = float(mouseX) / getWidth();
 
-        if(audioPLaying){
+        if(isAudioPlaying){
             sendActionMessage("audioPositionUpdateWhilePlaying"); // update audio and keep playing
         }
     }
@@ -195,7 +194,7 @@ void AudioSourceSelector::mouseDrag (const MouseEvent& e)
     int dragX = e.getPosition().getX();
 
 
-    if(fileLoaded and mode == Reference){
+    if(fileLoaded and mode == Reference){  // draw reference region if in reference mode
         int endX = mouseDownX + e.getDistanceFromDragStartX();
 
         if(endX < mouseDownX){  // enable dragging both ways
@@ -207,7 +206,7 @@ void AudioSourceSelector::mouseDrag (const MouseEvent& e)
 
         sendActionMessage("srcRegionSelected");
     }
-    else if(fileLoaded and mode == Target and isRegionBeingEdited){
+    else if(fileLoaded and mode == Target and isRegionBeingEdited){ // edit region if in target mode
         float regionStart;
         float regionEnd;
 
@@ -237,7 +236,6 @@ void AudioSourceSelector::mouseUp (const MouseEvent& e)
     isRegionBeingEdited = false;
     idxOfRegionHovered = 0;
 
-
     //[/UserCode_mouseUp]
 }
 
@@ -250,20 +248,7 @@ void AudioSourceSelector::setMode(int newMode) {
     mode = newMode;
 }
 
-bool AudioSourceSelector::hasFileLoaded(){
-    return fileLoaded;
-}
-
-SegaudioFile* AudioSourceSelector::getLoadedFile(){
-    return &selectedFile;
-}
-
 void AudioSourceSelector::setFile(File &newFile){
-
-//    if(positionBarTimer){
-//        delete positionBarTimer;
-//        positionBarTimer = nullptr;
-//    }
 
     fileInputSource = new FileInputSource(newFile);
     thumbComponent->setSource(fileInputSource);
@@ -273,12 +258,10 @@ void AudioSourceSelector::setFile(File &newFile){
     numSamples = tmpReader->lengthInSamples;
     sampleRate = tmpReader->sampleRate;
 
-    positionBarTimer = new PositionBarTimer(audioPostionFrac, numSamples, sampleRate);
-
-//    selectedFile.setFile(newFile);
+    positionBarTimer = new PositionBarTimer(audioPositionFrac, numSamples, sampleRate);
 
     fileLoaded = true;
-    audioPostionFrac = 0;
+    audioPositionFrac = 0;
     repaint();
 }
 
@@ -293,7 +276,7 @@ void AudioSourceSelector::drawWaveform(juce::Graphics &g){
 
     thumbComponent->drawChannel(g, bounds, 0, thumbComponent->getTotalLength(), 0, 1);
 
-    if(!thumbComponent->isFullyLoaded()){
+    if(!thumbComponent->isFullyLoaded()){ // have to force this
         repaint();
     }
 }
@@ -316,7 +299,6 @@ void AudioSourceSelector::drawCandidateRegions(juce::Graphics &g){
 
     for(int i=0; i<regions->size(); i++){
 
-
         int startX = (*regions)[i].getStart(getWidth());
         int width = (*regions)[i].getEnd(getWidth()) - startX;
 
@@ -329,14 +311,14 @@ void AudioSourceSelector::drawAudioPositionBar(Graphics &g){
     g.setColour(Colours::red);
     g.setOpacity(0.8);
 
-    int positionBarInPixels = round(audioPostionFrac * getWidth());
+    int positionBarInPixels = round(audioPositionFrac * getWidth());
 
     g.drawLine(positionBarInPixels, 0, positionBarInPixels, getHeight());
 
 }
 
 float AudioSourceSelector::getPositionBarTime(){
-    float currentPositionBarTime = audioPostionFrac * float(numSamples) / float(sampleRate);
+    float currentPositionBarTime = audioPositionFrac * float(numSamples) / float(sampleRate);
     return currentPositionBarTime;
 }
 
@@ -344,15 +326,14 @@ void AudioSourceSelector::startPositionBar(){
     if(fileLoaded){
         positionBarTimer->startTimer(50);
     }
-    audioPLaying = true;
+    isAudioPlaying = true;
 };
 
 void AudioSourceSelector::stopPositionBar(){
     if(positionBarTimer->isTimerRunning()){
         positionBarTimer->stopTimer();
     }
-
-    audioPLaying = false;
+    isAudioPlaying = false;
 }
 
 

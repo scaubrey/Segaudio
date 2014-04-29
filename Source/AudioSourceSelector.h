@@ -48,28 +48,65 @@ public:
     //==============================================================================
     //[UserMethods]     -- You can add your own custom methods in this section.
 
-    enum {
+    enum { // This class can function as reference or target
         Reference,
         Target
     } Mode;
 
+    /*! checks if file is loaded
+        @return bool
+    */
     bool hasFileLoaded();
+
+    /*! sets reference or target mode
+        @param int newMode
+        @return void
+    */
     void setMode(int newMode);
 
-    SegaudioFile* getLoadedFile();
-
+    /*! sets the file info for drawing
+        @param File &newFile
+        @return void
+    */
     void setFile(File &newFile);
 
+    /*! draws the audio samples from the file
+        @param Graphics &g
+        @return void
+    */
     void drawWaveform(Graphics &g);
 
+    /*! sets candidate regions, for target mode
+        @param Array<AudioRegion>* regions_
+        @return void
+    */
     void setRegions(Array<AudioRegion>* regions_);
 
+    /*! draws the regions for target mode
+        @param Graphics &g
+        @return void
+    */
     void drawCandidateRegions(Graphics &g);
+
+    /*! draws the bar for audio position
+        @param Graphics &g
+        @return void
+    */
     void drawAudioPositionBar(Graphics &g);
 
+    /*! gets the time of the position bar
+        @return @float: time of position bar in seconds
+    */
     float getPositionBarTime();
 
+    /*! starts the position bar moving
+        @return void
+    */
     void startPositionBar();
+
+    /*! stops the position bar moving
+        @return void
+    */
     void stopPositionBar();
 
     //[/UserMethods]
@@ -87,43 +124,35 @@ public:
 private:
     //[UserVariables]   -- You can add your own custom variables in this section.
 
-    String id;
-    AudioThumbnail *thumbComponent;
-    AudioThumbnailCache* thumbCache;
+    AudioThumbnail *thumbComponent; // for displaying waveform
+    AudioThumbnailCache* thumbCache; // cache for thubmnail waveform display
 
     int touchPrecision; // num pixels away for touch
 
-    bool isHoveringOverRegionStart;
-    bool isHoveringOverRegionEnd;
-    int idxOfRegionHovered;
+    bool isHoveringOverRegionStart; // mouse over for drag editing regions
+    bool isHoveringOverRegionEnd;  // mouse over for drag editing regions
+    int idxOfRegionHovered;  // holds idx of region hovered
 
+    bool isRegionBeingEdited; // set when mouse down on region boundary
 
-    bool isRegionBeingEdited;
-
-    bool hasRegionSelected;
+    bool isAudioPlaying;
     bool fileLoaded;
 
-    bool editableRegions;
+    AudioFormatManager* thumbFormatManager; // manages formats for thumb component
+    int mode; // reference or target
 
-    bool audioPLaying;
+    float audioPositionFrac; // keeps fractional position of position bar
 
-    int regionStartFraction;
-    int regionEndFraction;
-
-    AudioFormatManager* thumbFormatManager;
-    int mode;
-
-    SegaudioFile selectedFile;
     int numChannels;
     int numSamples;
     int sampleRate;
 
-    Array<AudioRegion>* regions;
+    Array<AudioRegion>* regions; // holds reference region in reference mode or candidate regions in target mode
 
-    FileInputSource* fileInputSource;
+    FileInputSource* fileInputSource; // input source for file
 
-    float audioPostionFrac;
 
+    // TODO: inherit Timer for AudioSourceSelector instead
     class PositionBarTimer : public Timer
     {
     public:

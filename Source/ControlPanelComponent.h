@@ -47,18 +47,50 @@ public:
 
     //==============================================================================
     //[UserMethods]     -- You can add your own custom methods in this section.
+
+    /*! gets the current cluster parameters shown on the UI
+        @return ClusterParameters*
+    */
     ClusterParameters* getClusterParams();
+
+    /*! sets cluster parameters on the UI, primarily from the search function
+        @param ClusterParameters* clusterParams
+        @return void
+    */
     void setClusterParams(ClusterParameters* clusterParams);
 
+    /*! gets current signal features for use shown on the UI
+        @return SignalFeaturesToUse*
+    */
     SignalFeaturesToUse* getSignalFeaturesToUse(SignalFeaturesToUse* featuresToUse);
 
+    /*! gets current export parameters on the UI
+        @return ExportParameters*
+    */
     ExportParameters* getExportParameters(ExportParameters* exportParams);
 
+    /*! enables the UI for calculations
+        @param bool readyForCalc
+        @return void
+    */
     void setCalcEnabled(bool readyForCalc);
+
+    /*! partially enable UI for post-calculation tuning - not implemented yet
+        @param bool readyToTune
+        @return void
+    */
     void setClusterTuningEnabled(bool readyToTune);
 
+    /*! update UI count when there are new regions available
+        @param Array<AudioRegion>* newRegions
+        @return void
+    */
     void newRegionsUpdate(Array<AudioRegion>* newRegions);
 
+    /*! gets current search aparmaters on the UI
+        @param SearchParameters* searchParams
+        @return void
+    */
     void getSearchParameters(SearchParameters* searchParams);
     //[/UserMethods]
 
@@ -74,8 +106,6 @@ private:
     //[UserVariables]   -- You can add your own custom variables in this section.
     ScopedPointer<ClusterParameters> clusterParams;
     ScopedPointer<SignalFeaturesToUse> featuresToUse;
-
-
 
     //[/UserVariables]
 

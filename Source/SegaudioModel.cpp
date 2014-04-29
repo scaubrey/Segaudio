@@ -51,18 +51,9 @@ void SegaudioModel::setDistanceArray(Array<float> distanceArray){
     distanceArray = distanceArray;
 }
 
-void SegaudioModel::setRefRegion(AudioRegion newRefRegion){
-//    refRegion = newRefRegion;
-}
-
-AudioRegion* SegaudioModel::getRefRegion(){
-//    return &refRegion;
-}
-
 Array<float>* SegaudioModel::getDistanceArray(){
     return &distanceArray;
 }
-
 
 void SegaudioModel::setMaxDistance(float distance){
     maxDistance = distance;

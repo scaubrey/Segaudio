@@ -52,16 +52,44 @@ public:
 
     //==============================================================================
     //[UserMethods]     -- You can add your own custom methods in this section.
+
+    /*! checks if a file is loaded
+        @return bool
+    */
     bool hasFileLoaded();
+
+    /*! gets the loaded file
+        @return SegaudioFile*
+    */
     SegaudioFile* getLoadedFile();
 
+    /*! sets the state of UI so file can be played
+        @param bool isPlayable
+        @return void
+    */
     void setPlayable(bool isPlayable);
 
+    /*! handle actions
+        @param const juce::String &message
+        @return void
+    */
     void actionListenerCallback(const juce::String &message);
 
+    /*! play audio from loaded file
+        @return void
+    */
     void playAudio();
+
+    /*! stop playing audio and keep the position
+        @return void
+    */
     void stopAudio();
 
+
+    /*! sets regions on audioSourceSelector for target mode
+        @param Array<AudioRegion>* regions_
+        @return void
+    */
     void setRegions(Array<AudioRegion> *regions_);
 
 
@@ -77,13 +105,12 @@ public:
 private:
     //[UserVariables]   -- You can add your own custom variables in this section.
     bool isPlayable;
-    ScopedPointer<SegaudioFile> currentFile;
+    ScopedPointer<SegaudioFile> currentFile;     // loaded file, keeping this here bc load button is here
 
-    AudioTransportSource audioTransport;
-    AudioSourcePlayer audioSourcePlayer;
+    AudioTransportSource audioTransport; // handle audio transport
+    AudioSourcePlayer audioSourcePlayer; // handle audio playback
 
-
-    AudioDeviceManager &deviceManager;
+    AudioDeviceManager &deviceManager; // handle playback settings
 
     //[/UserVariables]
 

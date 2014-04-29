@@ -83,16 +83,8 @@ void ReferenceContainer::setFile(juce::File &newFile){
     audioSelector->setFile(newFile);
 }
 
-bool ReferenceContainer::hasFileLoaded(){
-    return audioSelector->hasFileLoaded();
-}
-
 void ReferenceContainer::setCandidateRegions(Array<AudioRegion> newCandidateRegions){
 //    audioSelector->setCandidateRegions(newCandidateRegions);
-}
-
-SegaudioFile* ReferenceContainer::getLoadedFile(){
-    return audioSelector->getLoadedFile();
 }
 
 void ReferenceContainer::startAudio(){

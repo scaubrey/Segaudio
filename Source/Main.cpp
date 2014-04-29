@@ -32,16 +32,16 @@ public:
 
         mainWindow = new MainWindow();
 
+        // Putting tests here for now
         UnitTestRunner runner;
         Array<UnitTest*>& allTests = UnitTest::getAllTests();
         runner.setPassesAreLogged(true);
-        runner.runTests(allTests);
+        runner.runTests(allTests); // comment this out for no tests
     }
 
     void shutdown()
     {
         // Add your application's shutdown code here..
-//        delete mainWindow;
         mainWindow = nullptr;
     }
 
@@ -73,10 +73,12 @@ public:
                                         DocumentWindow::allButtons)
         {
             
-            analysisController = new AudioAnalysisController;
+            analysisController = new AudioAnalysisController;  // TODO: this should be in main component
             
             mainComponent = new MainComponent(*analysisController);
             setContentOwned (mainComponent, true);
+
+            LookAndFeel::setDefaultLookAndFeel(lookAndFeel);
 
             maximiseButtonPressed();
             setVisible (true);
@@ -91,7 +93,6 @@ public:
             // whatever you need.
 
             delete analysisController;
-            
             analysisController = nullptr;
             
             mainComponent = nullptr;
@@ -109,14 +110,16 @@ public:
     private:
         JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (MainWindow)
         
-        AudioAnalysisController* analysisController;
-        ScopedPointer<MainComponent> mainComponent;
+        AudioAnalysisController* analysisController; // audio analysis logic
+        ScopedPointer<MainComponent> mainComponent;  // presenter component
 
+        ScopedPointer<LookAndFeel_V3> lookAndFeel = new LookAndFeel_V3();
 
     };
     
 private:
     ScopedPointer<MainWindow> mainWindow;
+
 };
 
 //==============================================================================

@@ -155,6 +155,7 @@ void ReferenceFileComponent::buttonClicked (Button* buttonThatWasClicked)
         if (myChooser.browseForFileToOpen())
         {
             audioTransport.setSource(nullptr); // this fixes memory issue with loading new file
+            // expl: transport tries to release resources, but still points to currentFile->getSource()
 
             File selectedFile = myChooser.getResult();
             currentFile->setFile(selectedFile);
@@ -166,9 +167,6 @@ void ReferenceFileComponent::buttonClicked (Button* buttonThatWasClicked)
             isPlayable = true;
             setPlayable(true);
             sendActionMessage("setReferenceFile");
-
-//            fileLoaded = true;
-//            repaint();
         }
         //[/UserButtonCode_loadFileButton]
     }
@@ -185,10 +183,7 @@ void ReferenceFileComponent::sliderValueChanged (Slider* sliderThatWasMoved)
     if (sliderThatWasMoved == zoomSlider)
     {
         //[UserSliderCode_zoomSlider] -- add your slider handling code here..
-
-
         container->setSize(zoomSlider->getValue()*getWidth(), container->getHeight());
-
         //[/UserSliderCode_zoomSlider]
     }
 
@@ -199,9 +194,6 @@ void ReferenceFileComponent::sliderValueChanged (Slider* sliderThatWasMoved)
 
 
 //[MiscUserCode] You can add your own definitions of your custom methods or any other code here...
-bool ReferenceFileComponent::hasFileLoaded(){
-    return container->hasFileLoaded();
-}
 
 SegaudioFile* ReferenceFileComponent::getLoadedFile(){
     return currentFile;
@@ -222,8 +214,6 @@ void ReferenceFileComponent::actionListenerCallback(const juce::String &message)
     if(message == "srcRegionSelected"){
         sendActionMessage(message);
     }
-
-//    DBG(message);
 }
 
 void ReferenceFileComponent::playAudio(){

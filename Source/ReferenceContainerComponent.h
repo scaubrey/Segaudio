@@ -46,13 +46,14 @@ public:
 
     //==============================================================================
     //[UserMethods]     -- You can add your own custom methods in this section.
+
+
+    // NOTE: These are all passthrough functions
+    // I know there's probably a better way, but didn't have the time...
+
     void setFile(File &newFile);
 
     void setCandidateRegions(Array<AudioRegion> newCandidateRegions);
-
-    bool hasFileLoaded();
-
-    SegaudioFile* getLoadedFile();
 
     void startAudio();
     void stopAudio();

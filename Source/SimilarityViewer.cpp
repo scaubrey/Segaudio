@@ -40,17 +40,11 @@ SimilarityViewer::SimilarityViewer ()
 
 
     //[Constructor] You can add your own custom stuff here..
-    stickyness = 0;
     threshold = 0;
     maxDistance = 0;
 
     distanceArray = NULL;
-    distanceArray = NULL;
-    
-    isWaiting = false;
-    
-    waitGraphic = Rectangle<int>(0, 0, getWidth()/50, getHeight());
-  
+
     //[/Constructor]
 }
 
@@ -60,7 +54,6 @@ SimilarityViewer::~SimilarityViewer()
     //[/Destructor_pre]
 
     graphContainer = nullptr;
-
 
     //[Destructor]. You can add your own custom destruction code here..
 //    thumbComponent = nullptr;
@@ -77,13 +70,9 @@ void SimilarityViewer::paint (Graphics& g)
 
     //[UserPaint] Add your own custom painting code here..
 
-    if(maxDistance != 0 and !isWaiting){
+    if(maxDistance != 0){
         drawSimilarityFunction(g);
         drawThreshold(g);
-    }
-    
-    if(isWaiting){
-        drawWaitGraphic(g);
     }
 
     //[/UserPaint]
@@ -102,9 +91,6 @@ void SimilarityViewer::resized()
 void SimilarityViewer::setTuningParameters(ClusterParameters* clusterTuningParams, Array<float>* newArray, float* distance){
 
     threshold = &(clusterTuningParams->threshold);
-    stickyness = &(clusterTuningParams->regionConnectionWidth);
-//    smoothness = clusterTuningParams->medianFilterWidth;
-
     distanceArray = newArray;
     maxDistance = distance;
     repaint();
@@ -113,9 +99,7 @@ void SimilarityViewer::setTuningParameters(ClusterParameters* clusterTuningParam
 void SimilarityViewer::drawThreshold(Graphics &g){
 
     g.setColour(Colours::blueviolet);
-//    float tmp =          (*threshold) * graphContainer->getHeight();
     g.drawHorizontalLine(graphContainer->getHeight() - (*threshold) * graphContainer->getHeight() * 1, getX(), getWidth());
-
 
 }
 
@@ -125,64 +109,40 @@ void SimilarityViewer::drawSimilarityFunction(Graphics &g){
 
     int graphLengthInPixels = getWidth();
 
-    int lastXPixel = 0;
-    int currentXPixel;
+    int lastXPixel = 0; // x1
+    int currentXPixel;  // x2
 
-    float yScale = graphContainer->getHeight() / (*maxDistance);
+    float yScale = graphContainer->getHeight() / (*maxDistance); // scale to height of graph container
 
-    float lastRms = graphContainer->getY() + graphContainer->getHeight() - floor((*distanceArray)[0] * graphLengthInPixels / distanceArray->size());
-    if(std::isnan(lastRms)){
-        lastRms = 0;
+    // y1
+    float lastY = graphContainer->getY() + graphContainer->getHeight() - floor((*distanceArray)[0] * graphLengthInPixels / distanceArray->size());
+    if(std::isnan(lastY)){
+        lastY = 0;
     }
 
-    float currentRms;
+    float currentY; // y2
 
     for(int i=1; i< distanceArray->size(); i++){
 
         currentXPixel = floor((i) * graphLengthInPixels / distanceArray->size());
 
-        currentRms = graphContainer->getY() + graphContainer->getHeight() - (*distanceArray)[i] * yScale;
+        currentY = graphContainer->getY() + graphContainer->getHeight() - (*distanceArray)[i] * yScale;
         
-        if(currentRms != currentRms){
-            currentRms = 0;
+        if(currentY != currentY){  // set NaN to 0
+            currentY = 0;
         }
 
-        g.drawLine(lastXPixel, lastRms, currentXPixel, currentRms, 1.0f);
+        g.drawLine(lastXPixel, lastY, currentXPixel, currentY, 1.0f);
 
         lastXPixel = currentXPixel;
-        lastRms = currentRms;
+        lastY = currentY;
 
     }
 }
 
 void SimilarityViewer::clear(){
-
     distanceArray->clear();
     repaint();
-}
-
-void SimilarityViewer::setCalculating(bool status){
-    isWaiting = status;
-    if(isWaiting){
-        startTimer(10);
-    }
-    else{
-        stopTimer();
-    }
-}
-
-void SimilarityViewer::timerCallback(){
-    int oldX = waitGraphic.getX();
-    float speed = 100.0f; // pixels/sec
-    
-    int newX = oldX + speed * 0.05;
-    if(newX > getWidth()) newX = 0;
-    
-    waitGraphic.setX(newX);
-}
-
-void SimilarityViewer::drawWaitGraphic(Graphics &g){
-    g.fillRect(waitGraphic);
 }
 
 //[/MiscUserCode]

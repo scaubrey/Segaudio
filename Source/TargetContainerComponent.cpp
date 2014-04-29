@@ -96,15 +96,6 @@ void TargetContainer::setTuningParameters(ClusterParameters* clusterTuningParams
     similarityViewer->setTuningParameters(clusterTuningParams, newDistances, maxDistance);
 }
 
-bool TargetContainer::hasFileLoaded(){
-    return audioSelector->hasFileLoaded();
-}
-
-SegaudioFile* TargetContainer::getLoadedFile(){
-    return audioSelector->getLoadedFile();
-}
-
-
 void TargetContainer::startAudio(){
     audioSelector->startPositionBar();
 }
@@ -119,12 +110,6 @@ float TargetContainer::getPositionBarTime(){
 
 void TargetContainer::actionListenerCallback(const juce::String &message){
     sendActionMessage(message);
-}
-
-void TargetContainer::setCalculatingMask(bool status){
-//    similarityViewer->clear();
-
-    similarityViewer->setCalculating(status);
 }
 
 void TargetContainer::clearSimilarity(){

@@ -51,8 +51,14 @@ public:
     //[UserMethods]     -- You can add your own custom methods in this section.
     virtual void actionListenerCallback(const String &message);
 
+    /*! perform some updates when there are new regions to show
+        @return void
+    */
     void newRegionsUpdate();
 
+    /*! when there is a reference and target file loaded and a reference region selected
+      @return bool
+    */
     bool isReadyToCompare();
     //[/UserMethods]
 

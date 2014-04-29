@@ -13,7 +13,7 @@
 
 AudioAnalysisController::AudioAnalysisController() : ThreadWithProgressWindow("Calculating Similarity...", false, false){
     
-    windowSize = 2048*4;
+    windowSize = 2048*4; // maybe make this smaller or variable on sample rate or file size? or let user change?
     
     formatManager = new AudioFormatManager();
     formatManager->registerBasicFormats();
@@ -31,35 +31,39 @@ void AudioAnalysisController::run(){
 
 void AudioAnalysisController::calculateDistances(Array<float>* distanceArray, float* maxDistance, AudioSampleBuffer* refRegionBuffer, AudioSampleBuffer* targetBuffer, Array<AudioRegion>* refRegions, SignalFeaturesToUse* featuresToUse){
 
-    Time testTime = Time();
+    Time testTime = Time(); // for debugging
 
     int startTime  = testTime.getApproximateMillisecondCounter();
 
+    // Step 1: clear current array in model
     distanceArray->clear(); // don't keep adding to it!
 
-    launchThread();
-//    setProgress(0);
+    launchThread(); // using JUCE progress bar for UI feedback on calculation
+//    setProgress(0); // this didn't work for some reason
 
-    refFeatureMat = calculateFeatureMatrix(refRegionBuffer, featuresToUse, (*refRegions)[0]);   // using only one for now
+    // Step 2: calculate feature matrices for reference region and target file
+    refFeatureMat = calculateFeatureMatrix(refRegionBuffer, featuresToUse, (*refRegions)[0]); // using only one region for now
 
 //    setProgress(20);
-
     DBG("Finished reg features: " + String(testTime.getApproximateMillisecondCounter() - startTime));
 
     targetFeatureMat = calculateFeatureMatrix(targetBuffer, featuresToUse, AudioRegion(0, 1));
-
     DBG("Finished target features: " + String(testTime.getApproximateMillisecondCounter() - startTime));
 
 //    setProgress(80);
 
-    Eigen::MatrixXf avgRegionFeatures = refFeatureMat.colwise().mean();
+    //  Step 3: average values for all blocks in reference region
+    // TODO: handle if region is smaller than blocksize
+    // TODO: maybe use median instead of mean for this?
+    Eigen::MatrixXf avgRegionFeatures = refFeatureMat.colwise().mean(); // use the average of the reference region
 
-    float maxDistanceVal = 0; // keep track of max for drawing
+    // Step 4: calculate cosine distance between averaged reference region and each block of target file
+    float maxDistanceVal = 0; // keep track of max for drawing, and void calculating it later
     for(int i=0; i<targetFeatureMat.rows(); i++){
 
         float distanceVal;
 
-        if(featuresToUse->getNumSelected() < 2){
+        if(featuresToUse->getNumSelected() < 2){ // use euclidean if only one value in feature vector, cosine not defined
             distanceVal = (targetFeatureMat.row(i) - avgRegionFeatures).squaredNorm();
         }
         else{
@@ -71,17 +75,13 @@ void AudioAnalysisController::calculateDistances(Array<float>* distanceArray, fl
             distanceVal = 1 - tmp1 / (tmp2 * tmp3);
         }
 
-        if(i == targetFeatureMat.rows()-1){
-            DBG(distanceVal);
-        }
-
-        if(distanceVal > maxDistanceVal){
+        if(distanceVal > maxDistanceVal){ // update max
             maxDistanceVal = distanceVal;
         }
 
-        distanceArray->add(distanceVal);
+        distanceArray->add(distanceVal); // add to array
     }
-    *maxDistance = maxDistanceVal;
+    *maxDistance = maxDistanceVal; // set final max value in model
 
 //    setProgress(99);
 
@@ -89,7 +89,7 @@ void AudioAnalysisController::calculateDistances(Array<float>* distanceArray, fl
 
 Eigen::MatrixXf AudioAnalysisController::calculateFeatureMatrix(AudioSampleBuffer* buffer, SignalFeaturesToUse* featuresToUse, AudioRegion region){
     
-    if(featuresToUse->isNoneSelected()){ // skip all this if no features selected
+    if(featuresToUse->isNoneSelected()){ // skip all this if no features selected and return empty matrix
         Eigen::MatrixXf featureMatrix = Eigen::MatrixXf::Zero(0, 0);
         return featureMatrix;
     }
@@ -98,13 +98,14 @@ Eigen::MatrixXf AudioAnalysisController::calculateFeatureMatrix(AudioSampleBuffe
     int totalNumSamples = buffer->getNumSamples();
     int approxNumBlocks = floor(totalNumSamples / windowSize);
     int numTotalBlocks, startBlock, endBlock;
-    if(approxNumBlocks * windowSize == totalNumSamples){
+    if(approxNumBlocks * windowSize == totalNumSamples){  // handle likely partial block at end
         numTotalBlocks = approxNumBlocks;
     }
     else{
         numTotalBlocks = approxNumBlocks + 1;
     }
 
+    // for reference, start and end are likely in middle of file
     startBlock = floor(region.getStart(numTotalBlocks));
     endBlock = floor(region.getEnd(numTotalBlocks));
 
@@ -117,12 +118,7 @@ Eigen::MatrixXf AudioAnalysisController::calculateFeatureMatrix(AudioSampleBuffe
     float rmsMean=0, rmsStd=0, zcrMean=0, zcrStd=0, scMean=0, scStd=0, mfccMean=0, mfccStd=0; // for running feature standardization
     int rmsIdx=0, zcrIdx=0, scIdx=0, mfccIdx=0;
     int blockSampleIdx = 0, numProcessedBlocks = 0;
-    int blockIdx = 0, blockSize = windowSize;
-    
-    Time testTime = Time();
-    
-    int totalFftTimeMs = 0;
-    int totalMfccTimeMs = 0;
+    int blockIdx = 0, blockSize = windowSize; // using windowSize as blockSize and fft size
     
     for(int i=startBlock; i<endBlock-1; i++){
         
@@ -135,30 +131,26 @@ Eigen::MatrixXf AudioAnalysisController::calculateFeatureMatrix(AudioSampleBuffe
             blockSize = totalNumSamples - blockSampleIdx;
         }
         
-        AudioSampleBuffer asbBlock = AudioSampleBuffer(buffer->getNumChannels(), windowSize);
+        AudioSampleBuffer asbBlock = AudioSampleBuffer(buffer->getNumChannels(), windowSize); // for time domain features
         if(blockSize < windowSize){
             asbBlock.clear(); // for last block, set all values to 0
         }
         
-        for(int j=0; j<buffer->getNumChannels(); j++){
+        for(int j=0; j<buffer->getNumChannels(); j++){ // copy from source buffer in block buffer
             asbBlock.copyFrom(j, 0, *buffer, j, blockSampleIdx, blockSize);
         }
-        
-        // TODO average data from all channels
-        
+
+        // TODO: handle multiple channels here?
+
         Eigen::Map<Eigen::RowVectorXf> mBlock(asbBlock.getSampleData(0), windowSize);
         Eigen::FFT<float> fft;
         Eigen::RowVectorXcf blockFft;
         
         //---Calculate fft only if we use features that need it
         if(featuresToUse->needFft()){
-            
-            int startTime = testTime.getApproximateMillisecondCounter();
-            
+
             fft.SetFlag(fft.HalfSpectrum);
             fft.fwd(blockFft, mBlock);
-            
-            totalFftTimeMs += testTime.getApproximateMillisecondCounter() - startTime;
 
         }
         
@@ -195,25 +187,23 @@ Eigen::MatrixXf AudioAnalysisController::calculateFeatureMatrix(AudioSampleBuffe
         
         if(featuresToUse->mfcc){
             mfccIdx = featureIdx;
-            
-            int startTime = testTime.getApproximateMillisecondCounter();
 
-            Eigen::RowVectorXf blockMFCC = calculateMFCC(blockFft, 44100);
-            featureMatrix.block(blockIdx, featureIdx, 1, 12) = blockMFCC;
+            Eigen::RowVectorXf blockMFCC = calculateMFCC(blockFft, 44100); // FIXME: get file sample rate
+            featureMatrix.block(blockIdx, featureIdx, 1, 12) = blockMFCC; // insert vector in appropriate place in matrix
             featureIdx += 12; // note 12 spots taken!
-            
-            totalMfccTimeMs += testTime.getApproximateMillisecondCounter() - startTime;
 
         }
         
         blockIdx += 1; // keep track of where to put features in matrix
     }
-    
-    DBG("Total fft: " + String(totalFftTimeMs));
-    DBG("Total mfcc: " + String(totalMfccTimeMs));
 
-    Eigen::VectorXf meanArray;
-    
+    // So ignore this scaling stuff below for now. Tried feature scaling with standardization, but that made results
+    // a little worse. Maybe don't allow multiple features? Or scale 0-1 for now?
+    // Probably will need to remove some high outliers as these skew the similarity function making finding a
+    // proper threshold with a slider difficult
+
+//    Eigen::VectorXf meanArray;
+//
     //=== Standardize features
 //    if(featuresToUse->rms){
 //        rmsMean = featureMatrix.col(rmsIdx).array().mean();
@@ -309,7 +299,7 @@ float AudioAnalysisController::calculateSpectralCentroid(Eigen::RowVectorXcf &bl
     
     float sc = (blockFft.array().abs().pow(2) * weights.array()).sum() / blockFft.array().abs().pow(2).sum();
     
-    if(sc != sc) sc = 0; // check for nan
+    if(sc != sc) sc = 0; // set nan to 0
     
     return sc;
 }
@@ -323,7 +313,8 @@ Eigen::RowVectorXf AudioAnalysisController::calculateMFCC(Eigen::RowVectorXcf &b
     int numFilterBanks = 12; // num triangular filter banks applied to dft
     int numBankPts = numFilterBanks+2; 
     
-    // Set min and max frequencies for our filter bank
+    // Set min and max frequencies for our filter bank. These can be anything
+    // but this was the suggestion for speech applications
     float minFreq = 200.0f; // Hz, start filter banks here
     float maxFreq = 8000.0f; // Hz, end here
     // TODO maxFreq has to be less that sample rate
@@ -395,11 +386,6 @@ Eigen::RowVectorXf AudioAnalysisController::calculateMFCC(Eigen::RowVectorXcf &b
     return mfccs.transpose(); // return as column
 }
 
-
-//float AudioAnalysisController::getLastMaxDistance(){
-//    return maxDistance;
-//}
-
 void AudioAnalysisController::getClusterRegions(ClusterParameters* clusterParams, Array<float>* distanceArray, float* maxDistance, Array<AudioRegion>* regions){
     
     regions->clear();
@@ -460,7 +446,6 @@ bool AudioAnalysisController::isRegionWithinWidth(float regionFracWidth, Cluster
 
 
 void AudioAnalysisController::actionListenerCallback(const String &message){
-    
 //    std::cout << message;
 }
 
@@ -476,20 +461,20 @@ void AudioAnalysisController::invertClusterRegions(Array<AudioRegion>* regions){
     
     int numRegions = regions->size();
     
-    for(int i=0; i<numRegions-1; i++){
+    for(int i=0; i<numRegions-1; i++){ // link ends and starts of regions to invert them
         invertedRegions.add(AudioRegion((*regions)[i].getEnd(), (*regions)[i+1].getStart()));
     }
     
-    if((*regions)[0].getStart() != 0.0f){
+    if((*regions)[0].getStart() != 0.0f){ // handle case where first region does not start at 0
         invertedRegions.add(AudioRegion(0.0f, (*regions)[0].getStart()));
     }
     
-    if((*regions)[numRegions-1].getEnd() != 1.0f){
+    if((*regions)[numRegions-1].getEnd() != 1.0f){ // handle case where last region does not end at 1
         invertedRegions.add(AudioRegion((*regions)[numRegions-1].getEnd(), 1.0f));
     }
 
     regions->clear();
-    for(int i=0; i<invertedRegions.size(); i++){
+    for(int i=0; i<invertedRegions.size(); i++){ // replace our old regions with the new inverted ones
         regions->add(invertedRegions[i]);
     }
 }
@@ -497,7 +482,7 @@ void AudioAnalysisController::invertClusterRegions(Array<AudioRegion>* regions){
 void AudioAnalysisController::findRegionsGridSearch(SearchParameters* searchParams, Array<float>* distanceArray, float* maxDistance, ClusterParameters* bestParams, Array<AudioRegion>* regions){
     
     ClusterParameters candidateParams;
-    int numTestIncrements = 100;
+    int numTestIncrements = 100; // grid size
     float minCost = FLT_MAX, cost;
     
     if(searchParams->useWidthFilter){
@@ -509,7 +494,7 @@ void AudioAnalysisController::findRegionsGridSearch(SearchParameters* searchPara
         
         candidateParams.threshold = float(i) / (numTestIncrements);
         
-//        for(int j=0; j<numTestIncrements; j++){
+//        for(int j=0; j<numTestIncrements; j++){ // was iterating over smoothing, but just threshold for now
             candidateParams.regionConnectionWidth = 0;// float(j) / numTestIncrements;
         
         
@@ -536,7 +521,6 @@ void AudioAnalysisController::findRegionsGridSearch(SearchParameters* searchPara
 void AudioAnalysisController::findRegionsBinarySearch(SearchParameters* searchParams, Array<float>* distanceArray, ClusterParameters* bestParams, Array<AudioRegion>* regions){
 
     ClusterParameters candidateParams;
-//    int numTestIncrements = 100;
     float minCost = FLT_MAX, cost;
     
     if(searchParams->useWidthFilter){
@@ -612,7 +596,7 @@ void findRegionsGradientDescent(SearchParameters* searchParams, Array<float>* di
 
 float AudioAnalysisController::getRegionCost(Array<AudioRegion>* regions, SearchParameters* searchParams){
  
-    float weightNumRegion = 1.0f; float weightPercentage = 2.0f;
+    float weightNumRegion = 1.0f; float weightPercentage = 2.0f; // TODO: play with these values
     float cost;
     int numRegions = regions->size();
     

@@ -21,25 +21,13 @@ SegaudioFile::SegaudioFile(){
 SegaudioFile::~SegaudioFile(){
     delete internalFileBuffer;
     internalFileBuffer = nullptr;
-
-    if(newFileSource != nullptr){
-//        delete newFileSource;
-//        newFileSource = nullptr;
-    }
 }
 
 void SegaudioFile::setFile(File &newFile){
-
-//    formatReader = nullptr;
-//    newFileSource = nullptr;
     
     internalFile = &newFile;
 
     formatReader = formatManager.createReaderFor(*internalFile);
-//    ScopedPointer<AudioFormatReader> tmpReader = formatManager.createReaderFor(*internalFile);
-
-//    oldFileSource = newFileSource;
-//    oldFileSource = nullptr;
 
     newFileSource = new AudioFormatReaderSource(formatReader, false);
 
@@ -63,18 +51,7 @@ AudioSampleBuffer* SegaudioFile::getFileBuffer(){
 }
 
 AudioFormatReaderSource* SegaudioFile::getSource(){
-    
-//    if(fileSet){
-
-//        AudioFormatReader* semiTmpReader = formatManager.createReaderFor(*internalFile);
-        
-//        newFileSource = new AudioFormatReaderSource(semiTmpReader, true);
-//        newFileSource = new AudioFormatReaderSource(formatReader, true);
-
-
-        return newFileSource;
-//    }
-    return NULL;
+    return newFileSource;
 }
 
 int SegaudioFile::getNumSamples(){

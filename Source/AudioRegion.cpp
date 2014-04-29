@@ -19,6 +19,7 @@ AudioRegion::AudioRegion(float start, float end):
     startValue(start),
     endValue(end)
 {
+    // check for out of bounds values
     if(startValue < 0 || startValue > 1) startValue = 0;
     if(endValue > 1 || endValue < 0) endValue = 1;
 
@@ -32,7 +33,8 @@ AudioRegion::AudioRegion(float start, float end, float referenceWidth){
     
     startValue = start / referenceWidth;
     endValue = end / referenceWidth;
-    
+
+    // check for out of bounds values
     if(startValue < 0) startValue = 0;
     if(endValue > 1) endValue = referenceWidth;
 

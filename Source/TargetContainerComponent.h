@@ -48,12 +48,13 @@ public:
 
     //==============================================================================
     //[UserMethods]     -- You can add your own custom methods in this section.
+
+    // NOTE: These are all passthrough functions
+    // I know there's probably a better way, but didn't have the time...
+
     void setFile(File newFile);
 
     void setTuningParameters(ClusterParameters* clusterTuningParams, Array<float>* newDistances, float* maxDistance);
-
-    bool hasFileLoaded();
-    SegaudioFile* getLoadedFile();
 
     void startAudio();
     void stopAudio();
@@ -62,11 +63,10 @@ public:
 
     void actionListenerCallback(const String &message);
 
-    void setCalculatingMask(bool status);
-
     void clearSimilarity();
 
     void setRegions(Array<AudioRegion>* regions_);
+
     //[/UserMethods]
 
     void paint (Graphics& g);

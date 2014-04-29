@@ -14,16 +14,30 @@
 #include "JuceHeader.h"
 #include "AudioRegion.h"
 
+/*! wrapper for Juce file to hide away some of the logic for getting file info
+
+*/
 class SegaudioFile : public File
 {
   
 public:
     SegaudioFile();
     ~SegaudioFile();
-    
+
+    /*! sets the internal file
+        @param File &newFile
+        @return void
+    */
     void setFile(File &newFile);
+
+    /*! gets the samples in a buffer
+        @return AudioSampleBuffer*
+    */
     AudioSampleBuffer* getFileBuffer();
-    
+
+    /*! gets a format source for the file, used by various other components in the application
+        @return AudioFormatReaderSource*
+    */
     AudioFormatReaderSource* getSource();
     
     int getNumSamples();
@@ -33,17 +47,16 @@ public:
     
 private:
     
-    bool fileSet;
+    bool fileSet; // whether a file is set
     
     File* internalFile;
     AudioSampleBuffer* internalFileBuffer;
     
-    AudioFormatManager formatManager;
+    AudioFormatManager formatManager;  // used for getting a reader
 
-    ScopedPointer<AudioFormatReader> formatReader;
+    ScopedPointer<AudioFormatReader> formatReader; // for reading the file
 
-//    ScopedPointer<AudioFormatReaderSource> oldFileSource;
-    ScopedPointer<AudioFormatReaderSource> newFileSource;
+    ScopedPointer<AudioFormatReaderSource> newFileSource; // used by audio transport
     
     int totalNumSamples;
     int sampleRate;

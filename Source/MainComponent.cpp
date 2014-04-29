@@ -150,12 +150,7 @@ void MainComponent::actionListenerCallback(const juce::String &message){
     else if(message == "calculateSimilarity"){
 
         targetFileComponent->clearSimilarity();
-//        targetFileComponent->setCalculatingMask(true);
-
         analysisController->calculateDistances(appModel->getDistanceArray(), appModel->getMaxDistance(), appModel->getFileBuffer("0"), appModel->getFileBuffer("1"), appModel->getReferenceRegions(), controlPanelComponent->getSignalFeaturesToUse(appModel->getSignalFeaturesToUse()));
-//        appModel->setMaxDistance(analysisController->getLastMaxDistance());
-
-//        targetFileComponent->setCalculatingMask(false);
 
         newRegionsUpdate();
     }
