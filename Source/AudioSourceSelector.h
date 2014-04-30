@@ -134,6 +134,9 @@ private:
     int idxOfRegionHovered;  // holds idx of region hovered
 
     bool isRegionBeingEdited; // set when mouse down on region boundary
+    bool isAddingRegion;
+
+    int numRegions;
 
     bool isAudioPlaying;
     bool fileLoaded;
@@ -148,6 +151,8 @@ private:
     int sampleRate;
 
     Array<AudioRegion>* regions; // holds reference region in reference mode or candidate regions in target mode
+
+//    AudioRegion regionToAdd;
 
     FileInputSource* fileInputSource; // input source for file
 

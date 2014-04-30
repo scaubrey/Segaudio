@@ -169,6 +169,10 @@ void AudioSourceSelector::mouseDown (const MouseEvent& e)
     if(isHoveringOverRegionEnd or isHoveringOverRegionStart){
         isRegionBeingEdited = true;
     }
+    else{
+        isAddingRegion = true;
+        numRegions = regions->size();
+    }
 
     if(!isRegionBeingEdited){ // set audio position if not editing region
         // set audio position
@@ -180,6 +184,20 @@ void AudioSourceSelector::mouseDown (const MouseEvent& e)
             sendActionMessage("audioPositionUpdateWhilePlaying"); // update audio and keep playing
         }
     }
+
+    if(e.mods.isRightButtonDown()){  // delete regions with right click
+        int numRegions = regions->size();
+        int mouseX = e.getPosition().getX();
+
+        for(int i=0; i<numRegions; i++){
+            if((*regions)[i].isInRegion(float(mouseX) / getWidth())){
+                regions->remove(i);
+                sendActionMessage("numRegionsChanged");
+                break;
+            }
+        }
+    }
+
 
     repaint();
 
@@ -221,6 +239,18 @@ void AudioSourceSelector::mouseDrag (const MouseEvent& e)
 
         regions->set(idxOfRegionHovered, AudioRegion(regionStart, regionEnd));
     }
+    else if(fileLoaded and mode==Target and isAddingRegion){
+        int endX = mouseDownX + e.getDistanceFromDragStartX();
+
+        if(endX < mouseDownX){  // enable dragging both ways
+            int tmp = endX;
+            endX = mouseDownX;
+            mouseDownX = tmp;
+        }
+        regions->set(numRegions, AudioRegion(mouseDownX, endX, getWidth()));
+        sendActionMessage("numRegionsChanged");
+        DBG("test: numRegionsChanged");
+    }
 
     repaint();
 
@@ -235,6 +265,8 @@ void AudioSourceSelector::mouseUp (const MouseEvent& e)
     isHoveringOverRegionEnd = false;
     isRegionBeingEdited = false;
     idxOfRegionHovered = 0;
+
+    isAddingRegion = false;
 
     //[/UserCode_mouseUp]
 }

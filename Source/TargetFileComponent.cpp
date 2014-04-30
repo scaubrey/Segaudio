@@ -216,6 +216,9 @@ void TargetFileComponent::actionListenerCallback(const juce::String &message){
     if(message == "audioPositionUpdateWhilePlaying"){
         playAudio();
     }
+    else{
+        sendActionMessage(message);
+    }
 //    DBG(message);
 }
 

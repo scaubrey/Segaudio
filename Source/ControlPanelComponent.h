@@ -92,6 +92,11 @@ public:
         @return void
     */
     void getSearchParameters(SearchParameters* searchParams);
+
+    void setExportEnabled(bool readyForExport);
+
+    void setFindRegionsEnabled(bool readyForFinding);
+    void setSearchingEnabled(bool readyForSearching);
     //[/UserMethods]
 
     void paint (Graphics& g);

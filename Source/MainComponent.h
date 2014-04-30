@@ -60,6 +60,9 @@ public:
       @return bool
     */
     bool isReadyToCompare();
+
+    bool isReadyForExport();
+
     //[/UserMethods]
 
     void paint (Graphics& g);

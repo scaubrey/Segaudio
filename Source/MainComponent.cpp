@@ -127,37 +127,46 @@ void MainComponent::actionListenerCallback(const juce::String &message){
     if(message.contains("setReferenceFile")){
 
         appModel->clearTargetRegions();
+        targetFileComponent->clearSimilarity();
 
         appModel->addFile(referenceFileComponent->getLoadedFile(), "0");
         isRefFileLoaded = true;
-        if(isReadyToCompare()) controlPanelComponent->setCalcEnabled(true);
+        controlPanelComponent->setCalcEnabled(isReadyToCompare());
 
         newRegionsUpdate();
 
     }
     else if(message.contains("setTargetFile")){
         appModel->clearTargetRegions();
+        targetFileComponent->clearSimilarity();
 
         appModel->addFile(targetFileComponent->getLoadedFile(), "1");
         isTargetFileLoaded = true;
-        if(isReadyToCompare()) controlPanelComponent->setCalcEnabled(true);
+        controlPanelComponent->setCalcEnabled(isReadyToCompare());
 
         newRegionsUpdate();
 
     }
     else if(message == "srcRegionSelected"){
         isRegionSelected = true;
-        if(isReadyToCompare()) controlPanelComponent->setCalcEnabled(true);
+        targetFileComponent->clearSimilarity();
+
+        controlPanelComponent->setCalcEnabled(isReadyToCompare());
     }
     else if(message == "calculateSimilarity"){
 
         targetFileComponent->clearSimilarity();
         analysisController->calculateDistances(appModel->getDistanceArray(), appModel->getMaxDistance(), appModel->getFileBuffer("0"), appModel->getFileBuffer("1"), appModel->getReferenceRegions(), controlPanelComponent->getSignalFeaturesToUse(appModel->getSignalFeaturesToUse()));
+        controlPanelComponent->setFindRegionsEnabled(true);
+        controlPanelComponent->setSearchingEnabled(true);
 
         newRegionsUpdate();
     }
     else if(message == "clusterParamsChanged"){
         newRegionsUpdate();
+    }
+    else if(message == "numRegionsChanged"){
+        controlPanelComponent->newRegionsUpdate(appModel->getTargetRegions());
     }
     else if(message == "search"){
         controlPanelComponent->getSearchParameters(appModel->getSearchParameters());
@@ -203,6 +212,8 @@ void MainComponent::actionListenerCallback(const juce::String &message){
         }
     }
 
+    controlPanelComponent->setExportEnabled(isReadyForExport());
+
     std::cout << "Message fired: " << message << std::endl;
 
 }
@@ -219,6 +230,14 @@ bool MainComponent::isReadyToCompare(){
     }
     return false;
 }
+
+bool MainComponent::isReadyForExport() {
+    if(appModel->getTargetRegions()->size() > 0){
+        return true;
+    }
+    return false;
+}
+
 //[/MiscUserCode]
 
 

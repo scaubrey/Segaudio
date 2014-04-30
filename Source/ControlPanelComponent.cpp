@@ -570,18 +570,35 @@ ExportParameters* ControlPanelComponent::getExportParameters(ExportParameters* e
 
 void ControlPanelComponent::setCalcEnabled(bool readyForCalc){
     setEnabled(readyForCalc);
-    rmsFeatureToggle->setEnabled(readyForCalc);
-    mfccFeatureToggle->setEnabled(readyForCalc);
-    scFeatureToggle->setEnabled(readyForCalc);
+
     calcSimButton->setEnabled(readyForCalc);
+    rmsFeatureToggle->setEnabled(readyForCalc);
+    scFeatureToggle->setEnabled(readyForCalc);
+    mfccFeatureToggle->setEnabled(readyForCalc);
+    presetComboBox->setEnabled(readyForCalc);
+    presetsLabel->setEnabled(readyForCalc);
+    header1->setEnabled(readyForCalc);
+    zcrFeatureToggle->setEnabled(readyForCalc);
+
+    setFindRegionsEnabled(false);
+    setSearchingEnabled(false);
+
 }
 
-void ControlPanelComponent::setClusterTuningEnabled(bool readyToTune){
+void ControlPanelComponent::setFindRegionsEnabled(bool readyToFindRegions){
 
-    // TODO: finish this
-    thresholdSlider->setEnabled(readyToTune);
-    widthSlider->setEnabled(readyToTune);
-    stickynessSlider->setEnabled(readyToTune);
+    thresholdSlider->setEnabled(readyToFindRegions);
+    thresholdLabel->setEnabled(readyToFindRegions);
+    stickynessLabel->setEnabled(readyToFindRegions);
+    stickynessSlider->setEnabled(readyToFindRegions);
+    widthLabel->setEnabled(readyToFindRegions);
+    widthSlider->setEnabled(readyToFindRegions);
+    header2->setEnabled(readyToFindRegions);
+    invertRegionsToggle->setEnabled(readyToFindRegions);
+    regionDescriptionLabel->setEnabled(readyToFindRegions);
+    regionCountLabel->setEnabled(readyToFindRegions);
+    widthMinLabel->setEnabled(readyToFindRegions);
+    widthMaxLabel->setEnabled(readyToFindRegions);
 }
 
 void ControlPanelComponent::newRegionsUpdate(Array<AudioRegion>* newRegions){
@@ -596,6 +613,20 @@ void ControlPanelComponent::getSearchParameters(SearchParameters* searchParams){
     searchParams->minWidth = widthSlider->getMinValue();
     searchParams->maxWidth = widthSlider->getMaxValue();
 
+}
+
+void ControlPanelComponent::setExportEnabled(bool readyForExport) {
+    exportSeparateButton->setEnabled(readyForExport);
+    exportTxtButton->setEnabled(readyForExport);
+    saveSingleFileToggleButton->setEnabled(readyForExport);
+}
+
+void ControlPanelComponent::setSearchingEnabled(bool readyForSearching) {
+    numRegionsComboBox->setEnabled(readyForSearching);
+    header3->setEnabled(readyForSearching);
+    searchPercentComboBox->setEnabled(readyForSearching);
+    widthFilterSearchToggle->setEnabled(readyForSearching);
+    searchButton->setEnabled(readyForSearching);
 }
 
 //[/MiscUserCode]
