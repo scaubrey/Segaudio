@@ -37,15 +37,15 @@ ReferenceFileComponent::ReferenceFileComponent (AudioDeviceManager& deviceManage
     container->setName ("container");
 
     addAndMakeVisible (playButton = new TextButton ("playButton"));
-    playButton->setButtonText ("Play");
+    playButton->setButtonText (TRANS("Play"));
     playButton->addListener (this);
 
     addAndMakeVisible (stopButton = new TextButton ("stopButton"));
-    stopButton->setButtonText ("Stop");
+    stopButton->setButtonText (TRANS("Stop"));
     stopButton->addListener (this);
 
     addAndMakeVisible (loadFileButton = new TextButton ("loadFileButton"));
-    loadFileButton->setButtonText ("Load Reference File");
+    loadFileButton->setButtonText (TRANS("Load Reference File"));
     loadFileButton->addListener (this);
     loadFileButton->setColour (TextButton::buttonColourId, Colour (0xfffbfbfd));
 
@@ -56,7 +56,7 @@ ReferenceFileComponent::ReferenceFileComponent (AudioDeviceManager& deviceManage
     zoomSlider->addListener (this);
 
     addAndMakeVisible (zoomLabel2 = new Label ("zoomLabel",
-                                               "ZoomX"));
+                                               TRANS("ZoomX")));
     zoomLabel2->setFont (Font (15.00f, Font::plain));
     zoomLabel2->setJustificationType (Justification::centredLeft);
     zoomLabel2->setEditable (false, false, false);
