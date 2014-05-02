@@ -29,7 +29,7 @@
 //==============================================================================
 ReferenceContainer::ReferenceContainer ()
 {
-    addAndMakeVisible (audioSelector = new AudioSourceSelector (AudioSourceSelector::Reference));
+    addAndMakeVisible (audioSelector = new AudioSourceSelector (0));
     audioSelector->setName ("audioSelector");
 
 
@@ -140,4 +140,3 @@ END_JUCER_METADATA
 
 //[EndFile] You can add extra defines here...
 //[/EndFile]
-

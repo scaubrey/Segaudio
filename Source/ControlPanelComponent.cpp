@@ -31,6 +31,7 @@
 ControlPanelComponent::ControlPanelComponent ()
 {
     addAndMakeVisible (thresholdSlider = new Slider ("thresholdSlider"));
+    thresholdSlider->setTooltip ("Set the how similar the audio can be.");
     thresholdSlider->setRange (0, 1, 1e-06);
     thresholdSlider->setSliderStyle (Slider::LinearHorizontal);
     thresholdSlider->setTextBoxStyle (Slider::TextBoxLeft, true, 60, 20);
@@ -38,6 +39,7 @@ ControlPanelComponent::ControlPanelComponent ()
 
     addAndMakeVisible (thresholdLabel = new Label ("new label",
                                                    "Threshold"));
+    thresholdLabel->setTooltip ("Set the how similar the audio can be.");
     thresholdLabel->setFont (Font (15.00f, Font::plain));
     thresholdLabel->setJustificationType (Justification::centredLeft);
     thresholdLabel->setEditable (false, false, false);
@@ -46,31 +48,33 @@ ControlPanelComponent::ControlPanelComponent ()
     thresholdLabel->setColour (TextEditor::backgroundColourId, Colour (0x00000000));
 
     addAndMakeVisible (calcSimButton = new TextButton ("calcSimButton"));
+    calcSimButton->setTooltip ("Calculate the similarity of the audio sources.");
     calcSimButton->setButtonText ("Calculate");
     calcSimButton->addListener (this);
     calcSimButton->setColour (TextButton::buttonColourId, Colour (0xff97fc74));
 
     addAndMakeVisible (rmsFeatureToggle = new ToggleButton ("rmsFeatureToggle"));
-    rmsFeatureToggle->setTooltip ("Root Mean Square");
+    rmsFeatureToggle->setTooltip ("Root Mean Square. Good for finding soft or loud audio.");
     rmsFeatureToggle->setButtonText ("RMS");
     rmsFeatureToggle->addListener (this);
     rmsFeatureToggle->setToggleState (true, dontSendNotification);
     rmsFeatureToggle->setColour (ToggleButton::textColourId, Colours::white);
 
     addAndMakeVisible (scFeatureToggle = new ToggleButton ("scFeatureToggle"));
-    scFeatureToggle->setTooltip ("Spectral Centroid");
+    scFeatureToggle->setTooltip ("Spectral Centroid. Good for finding bright or dark sounds.");
     scFeatureToggle->setButtonText ("SC");
     scFeatureToggle->addListener (this);
     scFeatureToggle->setColour (ToggleButton::textColourId, Colours::white);
 
     addAndMakeVisible (mfccFeatureToggle = new ToggleButton ("mfccFeatureToggle"));
-    mfccFeatureToggle->setTooltip ("MFCC");
+    mfccFeatureToggle->setTooltip ("Spectral Summary. Good for lots of different searches where the frequencies in the sounds are distinctive.");
     mfccFeatureToggle->setButtonText ("MFCC");
     mfccFeatureToggle->addListener (this);
     mfccFeatureToggle->setColour (ToggleButton::textColourId, Colours::white);
 
     addAndMakeVisible (stickynessLabel = new Label ("stickynessLabel",
                                                     "Smoothing"));
+    stickynessLabel->setTooltip ("Connects candidate regions that are close together.");
     stickynessLabel->setFont (Font (15.00f, Font::plain));
     stickynessLabel->setJustificationType (Justification::centredLeft);
     stickynessLabel->setEditable (false, false, false);
@@ -83,8 +87,8 @@ ControlPanelComponent::ControlPanelComponent ()
     presetComboBox->setJustificationType (Justification::centredLeft);
     presetComboBox->setTextWhenNothingSelected ("Custom");
     presetComboBox->setTextWhenNoChoicesAvailable (String::empty);
-    presetComboBox->addItem ("Speech", 1);
-    presetComboBox->addItem ("Music", 2);
+    presetComboBox->addItem ("General", 1);
+    presetComboBox->addItem ("Brightness", 2);
     presetComboBox->addItem ("Noise", 3);
     presetComboBox->addItem ("Silence", 4);
     presetComboBox->addListener (this);
@@ -99,6 +103,7 @@ ControlPanelComponent::ControlPanelComponent ()
     presetsLabel->setColour (TextEditor::backgroundColourId, Colour (0x00000000));
 
     addAndMakeVisible (stickynessSlider = new Slider ("stickynessSlider"));
+    stickynessSlider->setTooltip ("Connects candidate regions that are close together.");
     stickynessSlider->setRange (0, 1, 0.01);
     stickynessSlider->setSliderStyle (Slider::LinearHorizontal);
     stickynessSlider->setTextBoxStyle (Slider::TextBoxLeft, true, 40, 20);
@@ -106,6 +111,7 @@ ControlPanelComponent::ControlPanelComponent ()
 
     addAndMakeVisible (widthLabel = new Label ("widthLabel",
                                                "Width Filter"));
+    widthLabel->setTooltip ("Limit the min and max width of candidate regions.");
     widthLabel->setFont (Font (15.00f, Font::plain));
     widthLabel->setJustificationType (Justification::centredLeft);
     widthLabel->setEditable (false, false, false);
@@ -114,6 +120,7 @@ ControlPanelComponent::ControlPanelComponent ()
     widthLabel->setColour (TextEditor::backgroundColourId, Colour (0x00000000));
 
     addAndMakeVisible (widthSlider = new Slider ("widthSlider"));
+    widthSlider->setTooltip ("Limit the min and max width of candidate regions.");
     widthSlider->setRange (0, 1, 0.01);
     widthSlider->setSliderStyle (Slider::TwoValueHorizontal);
     widthSlider->setTextBoxStyle (Slider::NoTextBox, true, 40, 20);
@@ -138,7 +145,7 @@ ControlPanelComponent::ControlPanelComponent ()
     header1->setColour (TextEditor::backgroundColourId, Colour (0x00000000));
 
     addAndMakeVisible (zcrFeatureToggle = new ToggleButton ("zcrFeatureToggle"));
-    zcrFeatureToggle->setTooltip ("Zero Cross Rate");
+    zcrFeatureToggle->setTooltip ("Zero Cross Rate. Good for finding noisy or high pitched sounds.");
     zcrFeatureToggle->setButtonText ("ZCR");
     zcrFeatureToggle->addListener (this);
     zcrFeatureToggle->setColour (ToggleButton::textColourId, Colours::white);
@@ -180,6 +187,7 @@ ControlPanelComponent::ControlPanelComponent ()
 
     addAndMakeVisible (widthMinLabel = new Label ("widthMinLabel",
                                                   "0"));
+    widthMinLabel->setTooltip ("Percent of file length");
     widthMinLabel->setFont (Font (15.00f, Font::plain));
     widthMinLabel->setJustificationType (Justification::centredLeft);
     widthMinLabel->setEditable (false, false, false);
@@ -189,6 +197,7 @@ ControlPanelComponent::ControlPanelComponent ()
 
     addAndMakeVisible (widthMaxLabel = new Label ("widthMinLabel",
                                                   "0"));
+    widthMaxLabel->setTooltip ("Percent of file length");
     widthMaxLabel->setFont (Font (15.00f, Font::plain));
     widthMaxLabel->setJustificationType (Justification::centredLeft);
     widthMaxLabel->setEditable (false, false, false);
@@ -348,34 +357,34 @@ void ControlPanelComponent::paint (Graphics& g)
 
 void ControlPanelComponent::resized()
 {
-    thresholdSlider->setBounds (25, proportionOfHeight (0.3983f), proportionOfWidth (0.8489f), 16);
-    thresholdLabel->setBounds (16, proportionOfHeight (0.3673f), 80, 17);
-    calcSimButton->setBounds (262 - 86, proportionOfHeight (0.2084f), 86, 20);
-    rmsFeatureToggle->setBounds (96, proportionOfHeight (0.1774f), 50, 24);
-    scFeatureToggle->setBounds (24, proportionOfHeight (0.2270f), 50, 24);
-    mfccFeatureToggle->setBounds (24, proportionOfHeight (0.1774f), 50, 24);
-    stickynessLabel->setBounds (16, proportionOfHeight (0.4280f), 72, 18);
-    presetComboBox->setBounds (96, proportionOfHeight (0.1191f), 100, 24);
-    presetsLabel->setBounds (21, proportionOfHeight (0.1166f), 60, 24);
-    stickynessSlider->setBounds (25, proportionOfHeight (0.4578f), proportionOfWidth (0.8489f), 16);
-    widthLabel->setBounds (16, proportionOfHeight (0.5248f), 80, 24);
-    widthSlider->setBounds (25, proportionOfHeight (0.5546f), proportionOfWidth (0.8489f), 16);
-    header2->setBounds (16, proportionOfHeight (0.3176f), 150, 24);
-    header1->setBounds (16, proportionOfHeight (0.0695f), 150, 24);
-    zcrFeatureToggle->setBounds (96, proportionOfHeight (0.2270f), 50, 24);
-    invertRegionsToggle->setBounds (24, proportionOfHeight (0.6253f), 120, 24);
-    exportSeparateButton->setBounds (24, proportionOfHeight (0.9132f), 104, 24);
-    regionDescriptionLabel->setBounds (176, proportionOfHeight (0.6253f), 72, 24);
-    regionCountLabel->setBounds ((176) + 72, proportionOfHeight (0.6253f), 30, 25);
-    saveSingleFileToggleButton->setBounds ((24) + 0, proportionOfHeight (0.9529f), 112, 24);
-    widthMinLabel->setBounds ((25) + 0, (proportionOfHeight (0.5546f)) + 17, 56, 24);
-    widthMaxLabel->setBounds ((25) + roundFloatToInt ((proportionOfWidth (0.8489f)) * 0.9008f), (proportionOfHeight (0.5546f)) + 17, 48, 24);
-    numRegionsComboBox->setBounds ((16) + 8, proportionOfHeight (0.7841f), 120, 24);
-    header3->setBounds (16, proportionOfHeight (0.7246f), 120, 24);
-    searchPercentComboBox->setBounds ((16) + 144, proportionOfHeight (0.7841f), 104, 24);
-    searchButton->setBounds (24, proportionOfHeight (0.8437f), 96, 24);
-    widthFilterSearchToggle->setBounds ((16) + 136, proportionOfHeight (0.7246f), 120, 24);
-    exportTxtButton->setBounds ((24) + 152, proportionOfHeight (0.9132f), 104, 24);
+    thresholdSlider->setBounds (25, proportionOfHeight (0.3975f), proportionOfWidth (0.8483f), 16);
+    thresholdLabel->setBounds (16, proportionOfHeight (0.3675f), 80, 17);
+    calcSimButton->setBounds (262 - 86, proportionOfHeight (0.2075f), 86, 20);
+    rmsFeatureToggle->setBounds (96, proportionOfHeight (0.1775f), 50, 24);
+    scFeatureToggle->setBounds (24, proportionOfHeight (0.2275f), 50, 24);
+    mfccFeatureToggle->setBounds (24, proportionOfHeight (0.1775f), 50, 24);
+    stickynessLabel->setBounds (16, proportionOfHeight (0.4275f), 72, 18);
+    presetComboBox->setBounds (96, proportionOfHeight (0.1200f), 100, 24);
+    presetsLabel->setBounds (21, proportionOfHeight (0.1175f), 60, 24);
+    stickynessSlider->setBounds (25, proportionOfHeight (0.4575f), proportionOfWidth (0.8483f), 16);
+    widthLabel->setBounds (16, proportionOfHeight (0.5250f), 80, 24);
+    widthSlider->setBounds (25, proportionOfHeight (0.5550f), proportionOfWidth (0.8483f), 16);
+    header2->setBounds (16, proportionOfHeight (0.3175f), 150, 24);
+    header1->setBounds (16, proportionOfHeight (0.0700f), 150, 24);
+    zcrFeatureToggle->setBounds (96, proportionOfHeight (0.2275f), 50, 24);
+    invertRegionsToggle->setBounds (24, proportionOfHeight (0.6250f), 120, 24);
+    exportSeparateButton->setBounds (24, proportionOfHeight (0.9125f), 104, 24);
+    regionDescriptionLabel->setBounds (176, proportionOfHeight (0.6250f), 72, 24);
+    regionCountLabel->setBounds ((176) + 72, proportionOfHeight (0.6250f), 30, 25);
+    saveSingleFileToggleButton->setBounds ((24) + 0, proportionOfHeight (0.9525f), 112, 24);
+    widthMinLabel->setBounds ((25) + 0, (proportionOfHeight (0.5550f)) + 17, 56, 24);
+    widthMaxLabel->setBounds ((25) + roundFloatToInt ((proportionOfWidth (0.8483f)) * 0.9018f), (proportionOfHeight (0.5550f)) + 17, 48, 24);
+    numRegionsComboBox->setBounds ((16) + 8, proportionOfHeight (0.7850f), 120, 24);
+    header3->setBounds (16, proportionOfHeight (0.7250f), 120, 24);
+    searchPercentComboBox->setBounds ((16) + 144, proportionOfHeight (0.7850f), 104, 24);
+    searchButton->setBounds (24, proportionOfHeight (0.8425f), 96, 24);
+    widthFilterSearchToggle->setBounds ((16) + 136, proportionOfHeight (0.7250f), 120, 24);
+    exportTxtButton->setBounds ((24) + 152, proportionOfHeight (0.9125f), 104, 24);
     //[UserResized] Add your own custom resize handling here..
     //[/UserResized]
 }
@@ -654,58 +663,66 @@ BEGIN_JUCER_METADATA
     <RECT pos="12 88.834% 788 4" fill="solid: ff2a75a5" hasStroke="0"/>
   </BACKGROUND>
   <SLIDER name="thresholdSlider" id="2ddea841d6d652ab" memberName="thresholdSlider"
-          virtualName="" explicitFocusOrder="0" pos="25 39.826% 84.89% 16"
-          min="0" max="1" int="9.9999999999999995475e-07" style="LinearHorizontal"
-          textBoxPos="TextBoxLeft" textBoxEditable="0" textBoxWidth="60"
-          textBoxHeight="20" skewFactor="1"/>
+          virtualName="" explicitFocusOrder="0" pos="25 39.702% 84.89% 16"
+          tooltip="Set the how similar the audio can be." min="0" max="1"
+          int="9.9999999999999995475e-07" style="LinearHorizontal" textBoxPos="TextBoxLeft"
+          textBoxEditable="0" textBoxWidth="60" textBoxHeight="20" skewFactor="1"/>
   <LABEL name="new label" id="4f564f498f058971" memberName="thresholdLabel"
          virtualName="" explicitFocusOrder="0" pos="16 36.725% 80 17"
-         textCol="ffffffff" edTextCol="ff000000" edBkgCol="0" labelText="Threshold"
-         editableSingleClick="0" editableDoubleClick="0" focusDiscardsChanges="0"
-         fontname="Default font" fontsize="15" bold="0" italic="0" justification="33"/>
+         tooltip="Set the how similar the audio can be." textCol="ffffffff"
+         edTextCol="ff000000" edBkgCol="0" labelText="Threshold" editableSingleClick="0"
+         editableDoubleClick="0" focusDiscardsChanges="0" fontname="Default font"
+         fontsize="15" bold="0" italic="0" justification="33"/>
   <TEXTBUTTON name="calcSimButton" id="9ce3f6b1681a8658" memberName="calcSimButton"
-              virtualName="" explicitFocusOrder="0" pos="262r 20.844% 86 20"
-              bgColOff="ff97fc74" buttonText="Calculate" connectedEdges="0"
-              needsCallback="1" radioGroupId="0"/>
+              virtualName="" explicitFocusOrder="0" pos="262r 20.72% 86 20"
+              tooltip="Calculate the similarity of the audio sources." bgColOff="ff97fc74"
+              buttonText="Calculate" connectedEdges="0" needsCallback="1" radioGroupId="0"/>
   <TOGGLEBUTTON name="rmsFeatureToggle" id="92a1f05376de0623" memberName="rmsFeatureToggle"
                 virtualName="" explicitFocusOrder="0" pos="96 17.742% 50 24"
-                tooltip="Root Mean Square" txtcol="ffffffff" buttonText="RMS"
-                connectedEdges="0" needsCallback="1" radioGroupId="0" state="1"/>
+                tooltip="Root Mean Square. Good for finding soft or loud audio."
+                txtcol="ffffffff" buttonText="RMS" connectedEdges="0" needsCallback="1"
+                radioGroupId="0" state="1"/>
   <TOGGLEBUTTON name="scFeatureToggle" id="9eb603aec59d0a37" memberName="scFeatureToggle"
                 virtualName="" explicitFocusOrder="0" pos="24 22.705% 50 24"
-                tooltip="Spectral Centroid" txtcol="ffffffff" buttonText="SC"
-                connectedEdges="0" needsCallback="1" radioGroupId="0" state="0"/>
+                tooltip="Spectral Centroid. Good for finding bright or dark sounds."
+                txtcol="ffffffff" buttonText="SC" connectedEdges="0" needsCallback="1"
+                radioGroupId="0" state="0"/>
   <TOGGLEBUTTON name="mfccFeatureToggle" id="f946313658ff3956" memberName="mfccFeatureToggle"
                 virtualName="" explicitFocusOrder="0" pos="24 17.742% 50 24"
-                tooltip="MFCC" txtcol="ffffffff" buttonText="MFCC" connectedEdges="0"
-                needsCallback="1" radioGroupId="0" state="0"/>
+                tooltip="Spectral Summary. Good for lots of different searches where the frequencies in the sounds are distinctive."
+                txtcol="ffffffff" buttonText="MFCC" connectedEdges="0" needsCallback="1"
+                radioGroupId="0" state="0"/>
   <LABEL name="stickynessLabel" id="32983a34059e5df1" memberName="stickynessLabel"
          virtualName="" explicitFocusOrder="0" pos="16 42.804% 72 18"
+         tooltip="Connects candidate regions that are close together."
          textCol="ffffffff" edTextCol="ff000000" edBkgCol="0" labelText="Smoothing"
          editableSingleClick="0" editableDoubleClick="0" focusDiscardsChanges="0"
          fontname="Default font" fontsize="15" bold="0" italic="0" justification="33"/>
   <COMBOBOX name="presetComboBox" id="2a56f7bafaec946f" memberName="presetComboBox"
-            virtualName="" explicitFocusOrder="0" pos="96 11.911% 100 24"
-            editable="0" layout="33" items="Speech&#10;Music&#10;Noise&#10;Silence"
+            virtualName="" explicitFocusOrder="0" pos="96 12.035% 100 24"
+            editable="0" layout="33" items="General&#10;Brightness&#10;Noise&#10;Silence"
             textWhenNonSelected="Custom" textWhenNoItems=""/>
   <LABEL name="presetsLabel" id="555dd5c766efb7a1" memberName="presetsLabel"
-         virtualName="" explicitFocusOrder="0" pos="21 11.663% 60 24"
+         virtualName="" explicitFocusOrder="0" pos="21 11.787% 60 24"
          textCol="ffffffff" edTextCol="ff000000" edBkgCol="0" labelText="Presets"
          editableSingleClick="0" editableDoubleClick="0" focusDiscardsChanges="0"
          fontname="Default font" fontsize="15" bold="0" italic="0" justification="33"/>
   <SLIDER name="stickynessSlider" id="64d7b64d40a66223" memberName="stickynessSlider"
           virtualName="" explicitFocusOrder="0" pos="25 45.782% 84.89% 16"
+          tooltip="Connects candidate regions that are close together."
           min="0" max="1" int="0.010000000000000000208" style="LinearHorizontal"
           textBoxPos="TextBoxLeft" textBoxEditable="0" textBoxWidth="40"
           textBoxHeight="20" skewFactor="1"/>
   <LABEL name="widthLabel" id="fb630a6f3e08259a" memberName="widthLabel"
          virtualName="" explicitFocusOrder="0" pos="16 52.481% 80 24"
-         textCol="ffffffff" edTextCol="ff000000" edBkgCol="0" labelText="Width Filter"
-         editableSingleClick="0" editableDoubleClick="0" focusDiscardsChanges="0"
-         fontname="Default font" fontsize="15" bold="0" italic="0" justification="33"/>
+         tooltip="Limit the min and max width of candidate regions." textCol="ffffffff"
+         edTextCol="ff000000" edBkgCol="0" labelText="Width Filter" editableSingleClick="0"
+         editableDoubleClick="0" focusDiscardsChanges="0" fontname="Default font"
+         fontsize="15" bold="0" italic="0" justification="33"/>
   <SLIDER name="widthSlider" id="51e7ac04e76a9203" memberName="widthSlider"
           virtualName="" explicitFocusOrder="0" pos="25 55.459% 84.89% 16"
-          min="0" max="1" int="0.010000000000000000208" style="TwoValueHorizontal"
+          tooltip="Limit the min and max width of candidate regions." min="0"
+          max="1" int="0.010000000000000000208" style="TwoValueHorizontal"
           textBoxPos="NoTextBox" textBoxEditable="0" textBoxWidth="40"
           textBoxHeight="20" skewFactor="1"/>
   <LABEL name="header2" id="4feb41a7e4880c44" memberName="header2" virtualName=""
@@ -720,14 +737,15 @@ BEGIN_JUCER_METADATA
          fontname="Default font" fontsize="18" bold="0" italic="0" justification="33"/>
   <TOGGLEBUTTON name="zcrFeatureToggle" id="e8b2bb7bef7e0e1f" memberName="zcrFeatureToggle"
                 virtualName="" explicitFocusOrder="0" pos="96 22.705% 50 24"
-                tooltip="Zero Cross Rate" txtcol="ffffffff" buttonText="ZCR"
-                connectedEdges="0" needsCallback="1" radioGroupId="0" state="0"/>
+                tooltip="Zero Cross Rate. Good for finding noisy or high pitched sounds."
+                txtcol="ffffffff" buttonText="ZCR" connectedEdges="0" needsCallback="1"
+                radioGroupId="0" state="0"/>
   <TOGGLEBUTTON name="invertRegionsToggle" id="b0589c37aecfe236" memberName="invertRegionsToggle"
                 virtualName="" explicitFocusOrder="0" pos="24 62.531% 120 24"
                 tooltip="Invert Regions" txtcol="ffffffff" buttonText="Invert Regions"
                 connectedEdges="0" needsCallback="1" radioGroupId="0" state="0"/>
   <TEXTBUTTON name="exportSeparateButton" id="a631088d4d356323" memberName="exportSeparateButton"
-              virtualName="" explicitFocusOrder="0" pos="24 91.315% 104 24"
+              virtualName="" explicitFocusOrder="0" pos="24 91.191% 104 24"
               bgColOff="ffff7f50" buttonText="Export Audio" connectedEdges="0"
               needsCallback="1" radioGroupId="0"/>
   <LABEL name="regionDescriptionLabel" id="a04caca43e46440c" memberName="regionDescriptionLabel"
@@ -747,18 +765,19 @@ BEGIN_JUCER_METADATA
                 connectedEdges="0" needsCallback="1" radioGroupId="0" state="1"/>
   <LABEL name="widthMinLabel" id="a0b81fc5519f0525" memberName="widthMinLabel"
          virtualName="" explicitFocusOrder="0" pos="0 17 56 24" posRelativeX="51e7ac04e76a9203"
-         posRelativeY="51e7ac04e76a9203" textCol="ffffffff" edTextCol="ff000000"
-         edBkgCol="0" labelText="0" editableSingleClick="0" editableDoubleClick="0"
-         focusDiscardsChanges="0" fontname="Default font" fontsize="15"
-         bold="0" italic="0" justification="33"/>
-  <LABEL name="widthMinLabel" id="1321e6b8d7b57a1d" memberName="widthMaxLabel"
-         virtualName="" explicitFocusOrder="0" pos="90.082% 17 48 24"
-         posRelativeX="51e7ac04e76a9203" posRelativeY="51e7ac04e76a9203"
+         posRelativeY="51e7ac04e76a9203" tooltip="Percent of file length"
          textCol="ffffffff" edTextCol="ff000000" edBkgCol="0" labelText="0"
          editableSingleClick="0" editableDoubleClick="0" focusDiscardsChanges="0"
          fontname="Default font" fontsize="15" bold="0" italic="0" justification="33"/>
+  <LABEL name="widthMinLabel" id="1321e6b8d7b57a1d" memberName="widthMaxLabel"
+         virtualName="" explicitFocusOrder="0" pos="90.217% 17 48 24"
+         posRelativeX="51e7ac04e76a9203" posRelativeY="51e7ac04e76a9203"
+         tooltip="Percent of file length" textCol="ffffffff" edTextCol="ff000000"
+         edBkgCol="0" labelText="0" editableSingleClick="0" editableDoubleClick="0"
+         focusDiscardsChanges="0" fontname="Default font" fontsize="15"
+         bold="0" italic="0" justification="33"/>
   <COMBOBOX name="numRegionsComboBox" id="47e3c11d037570f1" memberName="numRegionsComboBox"
-            virtualName="" explicitFocusOrder="0" pos="8 78.412% 120 24"
+            virtualName="" explicitFocusOrder="0" pos="8 78.536% 120 24"
             posRelativeX="74213fc8a34693ad" editable="0" layout="33" items="1&#10;2&#10;3&#10;4&#10;5&#10;6&#10;7&#10;8&#10;9"
             textWhenNonSelected="# of Regions" textWhenNoItems="(no choices)"/>
   <LABEL name="header3" id="74213fc8a34693ad" memberName="header3" virtualName=""
@@ -767,11 +786,11 @@ BEGIN_JUCER_METADATA
          editableDoubleClick="0" focusDiscardsChanges="0" fontname="Default font"
          fontsize="18" bold="0" italic="0" justification="33"/>
   <COMBOBOX name="searchPercentComboBox" id="da9bbdad378a720a" memberName="searchPercentComboBox"
-            virtualName="" explicitFocusOrder="0" pos="144 78.412% 104 24"
+            virtualName="" explicitFocusOrder="0" pos="144 78.536% 104 24"
             posRelativeX="74213fc8a34693ad" editable="0" layout="33" items="1&#10;2&#10;3&#10;4&#10;5&#10;6&#10;7&#10;8&#10;9&#10;10&#10;15&#10;20&#10;25&#10;30&#10;35&#10;40&#10;45&#10;50"
             textWhenNonSelected="% of File" textWhenNoItems="(no choices)"/>
   <TEXTBUTTON name="searchButton" id="f6b9cb23f7da3ea9" memberName="searchButton"
-              virtualName="" explicitFocusOrder="0" pos="24 84.367% 96 24"
+              virtualName="" explicitFocusOrder="0" pos="24 84.243% 96 24"
               buttonText="Search" connectedEdges="0" needsCallback="1" radioGroupId="0"/>
   <TOGGLEBUTTON name="widthFilterSearchToggle" id="46345d311cd9365e" memberName="widthFilterSearchToggle"
                 virtualName="" explicitFocusOrder="0" pos="136 72.457% 120 24"
@@ -779,7 +798,7 @@ BEGIN_JUCER_METADATA
                 buttonText="Use Width Filter" connectedEdges="0" needsCallback="1"
                 radioGroupId="0" state="0"/>
   <TEXTBUTTON name="exportTxtButton" id="ca703147fabed5" memberName="exportTxtButton"
-              virtualName="" explicitFocusOrder="0" pos="152 91.315% 104 24"
+              virtualName="" explicitFocusOrder="0" pos="152 91.191% 104 24"
               posRelativeX="a631088d4d356323" bgColOff="ffff7f50" buttonText="Export CSV"
               connectedEdges="0" needsCallback="1" radioGroupId="0"/>
 </JUCER_COMPONENT>

@@ -79,6 +79,7 @@ MainComponent::MainComponent (AudioAnalysisController &analysisController)
 	deviceConfig.outputDeviceName = audioOutputDevices[defaultOutputDeviceId];
     String result = deviceManager.setAudioDeviceSetup (deviceConfig, true);
 
+    TooltipWindow(tooltipWindow);
     //[/Constructor]
 }
 
@@ -112,9 +113,9 @@ void MainComponent::paint (Graphics& g)
 
 void MainComponent::resized()
 {
-    referenceFileComponent->setBounds ((0) + (proportionOfWidth (0.2238f)), 0, proportionOfWidth (0.7808f), proportionOfHeight (0.3673f));
-    targetFileComponent->setBounds ((0) + (proportionOfWidth (0.2238f)), proportionOfHeight (0.3673f), proportionOfWidth (0.7855f), proportionOfHeight (0.6352f));
-    controlPanelComponent->setBounds (0, 0, proportionOfWidth (0.2238f), proportionOfHeight (1.0000f));
+    referenceFileComponent->setBounds ((0) + (300), 0, getWidth() - 300, proportionOfHeight (0.3673f));
+    targetFileComponent->setBounds ((0) + (300), proportionOfHeight (0.3673f), getWidth() - 300, proportionOfHeight (0.6352f));
+    controlPanelComponent->setBounds (0, 0, 300, proportionOfHeight (1.0000f));
     //[UserResized] Add your own custom resize handling here..
     //[/UserResized]
 }
@@ -257,15 +258,15 @@ BEGIN_JUCER_METADATA
                  fixedSize="0" initialWidth="1000" initialHeight="600">
   <BACKGROUND backgroundColour="ff6f6f6f"/>
   <GENERICCOMPONENT name="referenceFileComponent" id="6129c3aa019f4bba" memberName="referenceFileComponent"
-                    virtualName="" explicitFocusOrder="0" pos="0R 0 78.085% 36.725%"
+                    virtualName="" explicitFocusOrder="0" pos="0R 0 300M 36.725%"
                     posRelativeX="a6f0554ce8852899" class="ReferenceFileComponent"
                     params="deviceManager"/>
   <GENERICCOMPONENT name="targetFileComponent" id="7f10809d3b4712d6" memberName="targetFileComponent"
-                    virtualName="" explicitFocusOrder="0" pos="0R 36.725% 78.547% 63.524%"
+                    virtualName="" explicitFocusOrder="0" pos="0R 36.725% 300M 63.524%"
                     posRelativeX="a6f0554ce8852899" class="TargetFileComponent" params="deviceManager"/>
   <GENERICCOMPONENT name="controlPanelComponent" id="a6f0554ce8852899" memberName="controlPanelComponent"
-                    virtualName="" explicitFocusOrder="0" pos="0 0 22.376% 100%"
-                    class="ControlPanelComponent" params=""/>
+                    virtualName="" explicitFocusOrder="0" pos="0 0 300 100%" class="ControlPanelComponent"
+                    params=""/>
 </JUCER_COMPONENT>
 
 END_JUCER_METADATA

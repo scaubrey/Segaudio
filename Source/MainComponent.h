@@ -81,6 +81,8 @@ private:
     bool isTargetFileLoaded;
     bool isRegionSelected;
 
+    TooltipWindow tooltipWindow;
+
     //[/UserVariables]
 
     //==============================================================================

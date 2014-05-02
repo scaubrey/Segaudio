@@ -45,7 +45,7 @@ TargetFileComponent::TargetFileComponent (AudioDeviceManager& deviceManager)
     stopButton->addListener (this);
 
     addAndMakeVisible (loadFileButton = new TextButton ("loadFileButton"));
-    loadFileButton->setButtonText ("Load File");
+    loadFileButton->setButtonText ("Load Target File");
     loadFileButton->addListener (this);
     loadFileButton->setColour (TextButton::buttonColourId, Colour (0xfffbfbfd));
 
@@ -273,7 +273,7 @@ BEGIN_JUCER_METADATA
               connectedEdges="0" needsCallback="1" radioGroupId="0"/>
   <TEXTBUTTON name="loadFileButton" id="3d0772bc202e3d3" memberName="loadFileButton"
               virtualName="" explicitFocusOrder="0" pos="2.537% 16 100 24"
-              bgColOff="fffbfbfd" buttonText="Load File" connectedEdges="0"
+              bgColOff="fffbfbfd" buttonText="Load Target File" connectedEdges="0"
               needsCallback="1" radioGroupId="0"/>
   <LABEL name="zoomLabel" id="292ada877f7dc70f" memberName="zoomLabel"
          virtualName="" explicitFocusOrder="0" pos="251R 16 48 24" edTextCol="ff000000"

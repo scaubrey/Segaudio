@@ -45,7 +45,7 @@ ReferenceFileComponent::ReferenceFileComponent (AudioDeviceManager& deviceManage
     stopButton->addListener (this);
 
     addAndMakeVisible (loadFileButton = new TextButton ("loadFileButton"));
-    loadFileButton->setButtonText ("Load File");
+    loadFileButton->setButtonText ("Load Reference File");
     loadFileButton->addListener (this);
     loadFileButton->setColour (TextButton::buttonColourId, Colour (0xfffbfbfd));
 
@@ -262,7 +262,8 @@ BEGIN_JUCER_METADATA
               connectedEdges="0" needsCallback="1" radioGroupId="0"/>
   <TEXTBUTTON name="loadFileButton" id="3d0772bc202e3d3" memberName="loadFileButton"
               virtualName="" explicitFocusOrder="0" pos="2.537% 8 100 24" bgColOff="fffbfbfd"
-              buttonText="Load File" connectedEdges="0" needsCallback="1" radioGroupId="0"/>
+              buttonText="Load Reference File" connectedEdges="0" needsCallback="1"
+              radioGroupId="0"/>
   <SLIDER name="zoomSlider" id="c9fdacb0eb021f55" memberName="zoomSlider"
           virtualName="" explicitFocusOrder="0" pos="203R 8 160 24" min="1"
           max="5" int="0.10000000000000000555" style="LinearHorizontal"
